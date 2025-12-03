@@ -11,13 +11,15 @@ This file provides comprehensive guidance for implementing the EasyReforge Ubunt
 ## Quick Start for Developers
 
 **New to this project?** Read in this order:
-1. This file (CLAUDE.md) - Project overview and architecture
-2. [docs/01_planning/phase_breakdown.md](../docs/01_planning/phase_breakdown.md) - Complete implementation plan (10-12 weeks estimated)
-3. [docs/02_implementation/common_patterns.md](../docs/02_implementation/common_patterns.md) - Step-by-step instructions with detailed cautions
-4. [docs/03_reference/batch_to_shell_conversion.md](../docs/03_reference/batch_to_shell_conversion.md) - Batch-to-shell conversion cookbook
+1. **[docs/00_phase0_analysis/README.md](../docs/00_phase0_analysis/README.md)** - Phase 0: Understand the original Windows installer flow
+2. This file (CLAUDE.md) - Project overview and architecture
+3. [docs/01_planning/phase_breakdown.md](../docs/01_planning/phase_breakdown.md) - Complete implementation plan (10-12 weeks estimated)
+4. [docs/02_implementation/common_patterns.md](../docs/02_implementation/common_patterns.md) - Step-by-step instructions with detailed cautions
+5. [docs/03_reference/batch_to_shell_conversion.md](../docs/03_reference/batch_to_shell_conversion.md) - Batch-to-shell conversion cookbook
 
 **Ready to code?**
-- Start with [docs/02_implementation/phase_1/overview.md](../docs/02_implementation/phase_1/overview.md)
+- Start with Phase 0 analysis: [docs/00_phase0_analysis/README.md](../docs/00_phase0_analysis/README.md)
+- Then begin Phase 1: [docs/02_implementation/phase_1/overview.md](../docs/02_implementation/phase_1/overview.md)
 - Reference [docs/03_reference/batch_to_shell_conversion.md](../docs/03_reference/batch_to_shell_conversion.md) for specific command conversions
 - Follow the [Implementation Checklist](#implementation-checklist) below
 
@@ -145,20 +147,112 @@ sudo apt-get install -y git curl python3 python3-venv python3-pip \
 
 ---
 
+## Phase 0: Analysis & Design (Completed)
+
+**Status**: ✅ Complete
+**Deliverables**: Comprehensive analysis of EasyReforgeInstaller.bat
+**Location**: [docs/00_phase0_analysis/](../docs/00_phase0_analysis/)
+
+### Purpose
+Phase 0 precedes all implementation. It analyzes how the original Windows `EasyReforgeInstaller.bat` works to design an equivalent Ubuntu `easyreforge_installer.sh` that can be invoked via `curl` directly.
+
+### Key Deliverables
+1. **ANALYSIS_SUMMARY.md** - Executive overview
+   - Original 10-step installation flow
+   - System dependencies and prerequisites
+   - Exit codes and error handling
+
+2. **easyreforge_analysis.md** - Technical deep-dive
+   - Detailed flow for each installation step
+   - All called scripts and their purposes
+   - Complete environment variable mapping
+   - Ubuntu migration considerations
+
+3. **flow_diagram.txt** - Visual flowcharts
+   - ASCII execution timeline
+   - Script call hierarchy
+   - Conditional execution paths
+
+4. **line_by_line_analysis.txt** - Ultra-detailed reference
+   - All 160 lines annotated with explanations
+   - Variable expansions and effects
+   - Edge cases and quirks
+
+### Key Findings
+
+**Original EasyReforgeInstaller.bat - 10 Steps**:
+1. Environment setup (UTF-8, variables)
+2. Validate prerequisites (where.exe, PowerShell, curl)
+3. Validate installation path (no spaces/special chars)
+4. Check for conflicting WebUI installations
+5. Ensure Git availability (portable Git fallback)
+6. Clone/initialize EasyTools repository
+7. Clone/initialize EasyReforge repository
+8. Call Setup.bat → Reforge.bat, ReforgeExtension.bat, etc.
+9. Optional model downloads
+10. Cleanup & self-delete + registry setup
+
+**Ubuntu Equivalent Strategy**:
+- Keep the identical 10-step flow
+- Replace `.bat` calls with `.sh` calls
+- Replace `where.exe` with `command -v`
+- Replace PowerShell regex with bash regex
+- Skip registry operations
+- Support `curl | bash` execution
+
+### Design Principles
+- **Flow Preservation**: Keep original 10-step sequence unchanged
+- **Robustness**: Maintain extensive error checking
+- **User-Friendly**: Preserve bilingual interface
+- **One-Command**: Enable `curl | bash` bootstrap
+- **Reproducibility**: Version pinning and exact commits
+
+### Next Phase
+Phase 1 implementation will create `easyreforge_installer.sh` based on Phase 0 analysis.
+
+**See**: [docs/00_phase0_analysis/README.md](../docs/00_phase0_analysis/README.md) for complete analysis
+
+---
+
 ## Implementation Phases Overview
 
-### Phase 1: Foundation Scripts (Weeks 1-2, 4-6 hours)
-**Goal**: Get core infrastructure working
-- Create 2 helper libraries (GitHub_CloneOrPull, Python_Activate)
-- Convert 3 main scripts (easyreforge_installer, update, setup)
-- All dependencies in place, ready for Phase 2
+### Phase 1: Foundation Scripts & Bootstrap (Weeks 1-2, 4-6 hours)
+**Goal**: Create one-command bootstrap installer based on Phase 0 analysis
+**Based on**: [Phase 0 Analysis](../docs/00_phase0_analysis/README.md) - EasyReforgeInstaller.bat 10-step flow
+
+**Deliverables**:
+- **easyreforge_installer.sh** - Ubuntu bootstrap (implements Phase 0 10-step flow)
+  - Prerequisites validation (git, curl, bash)
+  - Path validation (alphanumeric only, no spaces)
+  - Git repository initialization (EasyTools, EasyReforge)
+  - Orchestrates downstream scripts
+  - Supports `curl | bash` execution
+- **Helper libraries**:
+  - github.sh (git clone/pull logic)
+  - python.sh (venv setup)
+- **setup.sh** - Main orchestrator calling reforge.sh, extensions, linking
+- **update.sh** - Update infrastructure
+
+**Flow** (from Phase 0 analysis):
+1. Environment setup (UTF-8, variables)
+2. Prerequisites validation → `command -v` (not where.exe)
+3. Path validation → bash regex (not PowerShell)
+4. Conflict detection (existing WebUI)
+5. Git availability → system only (not portable fallback)
+6. Clone EasyTools
+7. Clone EasyReforge
+8. Call setup.sh
+9. Optional model downloads
+10. Cleanup & exit
 
 **Success Criteria**:
-- easyreforge_installer.sh runs without errors
+- easyreforge_installer.sh runs via `curl | bash` without errors
+- All Phase 0 10-step flow implemented
 - setup.sh can be called from installer
 - All scripts pass shellcheck validation
+- Cross-platform on Ubuntu 18.04+
 
-**See**: [docs/02_implementation/phase_1/overview.md](../docs/02_implementation/phase_1/overview.md)
+**Reference**: [docs/02_implementation/phase_1/overview.md](../docs/02_implementation/phase_1/overview.md) and [Phase 0 Documents](../docs/00_phase0_analysis/)
 
 ### Phase 2: Core Environment Setup (Weeks 3-4, 30-40 hours)
 **Goal**: Fully functional reForge installation
@@ -512,12 +606,40 @@ Civitai/HuggingFace may rate-limit downloads
 
 ## Implementation Checklist
 
-### Phase 1: Foundation (Weeks 1-2)
-- [ ] GitHub_CloneOrPull.sh created, tested, documented
-- [ ] Python_Activate.sh created, tested, documented
-- [ ] easyreforge_installer.sh converted, passes shellcheck
-- [ ] update.sh converted, passes shellcheck
-- [ ] setup.sh converted, passes shellcheck
+### Phase 0: Analysis & Design (Completed ✅)
+- [x] EasyReforgeInstaller.bat analyzed (160 lines)
+- [x] 10-step flow documented
+- [x] All called scripts identified (20+ downstream)
+- [x] Environment variables catalogued
+- [x] Error handling mapped (20+ exit paths)
+- [x] Ubuntu migration considerations documented
+- [x] ANALYSIS_SUMMARY.md created
+- [x] easyreforge_analysis.md created
+- [x] flow_diagram.txt created
+- [x] line_by_line_analysis.txt created
+- [x] Phase 0 README.md created
+- [x] CLAUDE.md updated with Phase 0 section
+- [x] Phase 0 documents committed to ubuntu-migration
+
+### Phase 1: Foundation Scripts & Bootstrap (Weeks 1-2, 4-6 hours)
+- [ ] Study Phase 0 analysis: [docs/00_phase0_analysis/README.md](../docs/00_phase0_analysis/README.md)
+- [ ] github.sh created (clone/pull logic from Phase 0 analysis)
+- [ ] python.sh created (venv setup)
+- [ ] **easyreforge_installer.sh** created (implements 10-step Phase 0 flow)
+  - [ ] Step 1: Environment setup (UTF-8, variables)
+  - [ ] Step 2: Prerequisites validation (git, curl, bash)
+  - [ ] Step 3: Path validation (alphanumeric, no spaces)
+  - [ ] Step 4: Conflict detection (existing WebUI)
+  - [ ] Step 5: Git availability check
+  - [ ] Step 6: Clone EasyTools repository
+  - [ ] Step 7: Clone EasyReforge repository
+  - [ ] Step 8: Call setup.sh orchestrator
+  - [ ] Step 9: Optional model downloads
+  - [ ] Step 10: Cleanup & exit
+  - [ ] Passes shellcheck validation
+  - [ ] Works via `curl | bash` execution
+- [ ] update.sh created, passes shellcheck
+- [ ] setup.sh created, passes shellcheck
 - [ ] Integration test: easyreforge_installer.sh → setup.sh succeeds
 - [ ] All Phase 1 scripts committed and reviewed
 
@@ -661,13 +783,23 @@ Start here based on your role:
 
 ## Project Status
 
-**Current Phase**: Planning Complete, Ready for Implementation
+**Current Phase**: Phase 0 Complete ✅, Ready for Phase 1 Implementation
 **Total Scripts**: 237 batch files identified and analyzed
+**Phase 0 Status**:
+  - ✅ EasyReforgeInstaller.bat completely analyzed (160 lines, 10-step flow)
+  - ✅ Phase 0 analysis documents created (5 files, 1,300+ lines)
+  - ✅ CLAUDE.md updated with Phase 0 section and Phase 1 alignment
+  - ✅ Phase 0 documents committed to ubuntu-migration branch
 **Helper Scripts Required**: 9 (GitHub, Python, link_helper, 7 download helpers)
 **Estimated Timeline**: 10-12 weeks (full), 4-5 weeks (core infrastructure)
-**Implementation Order**: Sequential with parallel phases possible from Week 9+
+**Implementation Order**:
+  - Phase 0: ✅ Complete (analysis)
+  - Phase 1: → Next (bootstrap installer from Phase 0 analysis)
+  - Phases 2-5: Sequential with parallel phases possible from Week 9+
 
-**Next Step**: Begin Phase 1 with easyreforge_installer.sh (see [docs/02_implementation/phase_1/overview.md](../docs/02_implementation/phase_1/overview.md))
+**Next Step**: Begin Phase 1 with easyreforge_installer.sh based on Phase 0 10-step flow
+- **Reference**: [Phase 0 Analysis Documents](../docs/00_phase0_analysis/README.md)
+- **Implementation Guide**: [Phase 1 Overview](../docs/02_implementation/phase_1/overview.md)
 
 ---
 
@@ -675,6 +807,10 @@ Start here based on your role:
 
 | Date | Author | Change |
 |------|--------|--------|
+| 2025-12-03 | Implementation | Phase 0 Analysis Complete - Added Phase 0 section, updated Quick Start, aligned Phase 1 with Phase 0 findings |
+| 2025-12-03 | Implementation | Created Phase 0 analysis documents (5 files, 1,300+ lines) in docs/00_phase0_analysis/ |
+| 2025-12-03 | Implementation | Updated Implementation Checklist with Phase 0 completion and Phase 1 10-step breakdown |
+| 2025-12-03 | Implementation | Updated Project Status to reflect Phase 0 completion, ready for Phase 1 |
 | 2025-12-03 | Planning Team | Complete rewrite to incorporate TODO.md, IMPLEMENTATION_GUIDE.md, and SCRIPT_CONVERSION_REFERENCE.md |
 | 2025-12-03 | Planning Team | Added 5 implementation phases with detailed checklists |
 | 2025-12-03 | Planning Team | Integrated critical cautions and references to detailed guides |

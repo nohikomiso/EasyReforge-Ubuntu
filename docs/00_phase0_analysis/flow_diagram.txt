@@ -1,0 +1,283 @@
+# EasyReforgeInstaller.bat - Detailed Call Flow Diagram
+
+## Complete Execution Timeline
+
+```
+                    EasyReforgeInstaller.bat
+                            |
+                            v
+            ┌───────────────────────────────────┐
+            | Environment & Variable Setup      |
+            | - UTF-8 code page (chcp 65001)   |
+            | - Define all variables            |
+            └───────────────────────────────────┘
+                            |
+                            v
+            ┌───────────────────────────────────┐
+            | Prerequisite Checks               |
+            | ├─ where.exe exists?             |
+            | ├─ PowerShell exists?            |
+            | ├─ Path has valid chars?         |
+            | └─ curl.exe exists?              |
+            └───────┬───────────────────────────┘
+                    |
+        ┌───────────┴───────────┐
+        |                       |
+      FAIL                     PASS
+        |                       |
+        v                       v
+      EXIT 1          Conflict Detection
+                      (check WebUI dirs)
+                            |
+                    ┌───────┴────────┐
+                    |                |
+                  FOUND            NOT FOUND
+                    |                |
+                    v                v
+                  EXIT 1     User Prompt: Download?
+                                    |
+                         ┌──────────┴──────────┐
+                         |                     |
+                        'y'                   'n'
+                      (default)              Skip
+                         |                     |
+                         v                     |
+            Git Availability Check             |
+            ├─ System git found?               |
+            │                                   |
+            ├─ YES ────┐                       |
+            │          │                       |
+            └─ NO      │                       |
+               │       │                       |
+               v       │                       |
+        Download       │                       |
+        Portable Git   │                       |
+        (2.48.1)       │                       |
+        ├─ Download .7z ├─────────────────────┤
+        ├─ Extract           │                |
+        ├─ Add to PATH      │                |
+        └─ Verify           │                |
+               │             │                |
+        ┌──────┴─────┐       │                |
+        |            |       |                |
+      FAIL         PASS      |                |
+        |            |       |                |
+        v            v       v                |
+      EXIT 1    ┌─────────────────────────┐   |
+               | Initialize Repositories  |   |
+               | ├─ EasyTools repo        |   |
+               | │  - git init            |   |
+               | │  - git remote add      |   |
+               | │  - git fetch           |   |
+               | │  - git switch main     |   |
+               | │                         |   |
+               | └─ EasyReforge repo      |   |
+               |    (same steps)          |   |
+               └──────────┬───────────────┘   |
+                          |                    |
+                  ┌───────┴─────────┐          |
+                  |                 |         |
+                FAIL               PASS      |
+                  |                 |         |
+                  v                 v         |
+                EXIT 1      Call Setup.bat   |
+                            (Main Install)   |
+                                    |        |
+                           ┌────────┴─────┐  |
+                           |              |  |
+                         FAIL            PASS|
+                           |              |  |
+                           v              v  |
+                         EXIT 1      Check Skip Flag
+                                          |
+                                  ┌───────┴────────┐
+                                  |                |
+                                 YES              NO
+                              (skip dl)        (download)
+                                  |                |
+                                  └────┬───────────┘
+                                       |
+                                       v
+                            Call NoobAiEpsilonPred_Minimum.bat
+                            (Error ignored - not checked)
+                                       |
+                                       v
+                            ┌─────────────────────────┐
+                            | Finalization            |
+                            | - Enable long paths     |
+                            | - Self-delete installer |
+                            └─────────────────────────┘
+                                       |
+                                       v
+                                    EXIT 0
+```
+
+## Script Call Hierarchy
+
+```
+EasyReforgeInstaller.bat
+│
+├─ [Git operations via INIT_REPO subroutine]
+│  └─ git init
+│  └─ git remote add
+│  └─ git fetch
+│  └─ git switch/checkout
+│
+├─ Setup.bat
+│  │
+│  ├─ Reforge/Reforge.bat
+│  │  ├─ EasyTools/Python/Python_Activate.bat
+│  │  ├─ pip install (wheels)
+│  │  └─ pip install -r requirements.txt
+│  │
+│  ├─ Reforge/ReforgeExtension.bat
+│  │  ├─ EasyTools/Git/GitHub_CloneOrPull.bat (x13)
+│  │  │  ├─ DominikDoom/a1111-sd-webui-tagcomplete
+│  │  │  ├─ Bing-su/adetailer
+│  │  │  ├─ Panchovix/reForge-Sigmas_merge
+│  │  │  ├─ adieyal/sd-dynamic-prompts
+│  │  │  ├─ Haoming02/sd-forge-couple
+│  │  │  ├─ blue-pen5805/sdweb-easy-generate-forever
+│  │  │  ├─ altoiddealer/--sd-webui-ar-plusplus
+│  │  │  ├─ hako-mikan/sd-webui-cd-tuner
+│  │  │  ├─ hako-mikan/sd-webui-lora-block-weight
+│  │  │  ├─ hako-mikan/sd-webui-negpip
+│  │  │  ├─ bluelovers/sd-webui-pnginfo-beautify
+│  │  │  ├─ nihedon/sd-webui-weight-helper
+│  │  │  ├─ zixaphir/Stable-Diffusion-Webui-Civitai-Helper
+│  │  │  ├─ Bocchi-Chan2023/stable-diffusion-webui-wd14-tagger
+│  │  │  └─ KohakuBlueleaf/z-tipo-extension
+│  │  ├─ :MOVE_TO_BACKUP (for skipped extensions)
+│  │  └─ copy (resource files: resolutions.txt, etc)
+│  │
+│  ├─ Reforge/ReforgeLink.bat
+│  │  ├─ EasyTools/Link/Junction.bat (x7)
+│  │  │  ├─ models/adetailer -> ../Model/adetailer
+│  │  │  ├─ models/ControlNet -> ../Model/ControlNet
+│  │  │  ├─ models/ESRGAN -> ../Model/ESRGAN
+│  │  │  ├─ models/Lora -> ../Model/Lora
+│  │  │  ├─ models/Stable-diffusion -> ../Model/Stable-diffusion
+│  │  │  ├─ models/VAE -> ../Model/VAE
+│  │  │  └─ extensions/.../wildcards -> ../Model/wildcards
+│  │  ├─ mkdir (output directories)
+│  │  └─ Junction (outputs -> ../OutputReforge)
+│  │
+│  ├─ SetupForge.bat (if Forge exists)
+│  │
+│  ├─ NoobAiCommon_Minimum.bat (if NoobE models exist)
+│  │  ├─ adetailer/*.bat (11 scripts)
+│  │  ├─ All/ESRGAN.bat
+│  │  ├─ ControlNet/*.bat (4 scripts)
+│  │  ├─ Lora/*.bat (3 scripts)
+│  │  └─ wildcards/*.bat (4 scripts)
+│  │
+│  └─ Download/vc_redist.x64.exe
+│
+└─ NoobAiEpsilonPred_Minimum.bat (if user chose 'y')
+   ├─ NoobAiCommon_Minimum.bat
+   ├─ Stable-diffusion/NoobE/copycatNoob_v11.bat
+   └─ Stable-diffusion/NoobE/HarmoniqMixSpoE_v11.bat
+```
+
+## Conditional Execution Paths
+
+```
+Entry Point: EasyReforgeInstaller.bat
+
+SCENARIO 1: First-time installation, download models
+├─ All checks pass
+├─ No existing WebUI found
+├─ User answers 'y' to download
+└─ Result: Full installation with minimum models
+
+SCENARIO 2: First-time installation, skip models
+├─ All checks pass
+├─ No existing WebUI found
+├─ User answers 'n' to download
+└─ Result: Full installation, models skipped
+
+SCENARIO 3: Portable Git needed
+├─ System git not found
+├─ Portable Git automatically downloaded & extracted
+├─ Continues normally
+└─ Result: Full installation using portable Git
+
+SCENARIO 4: Failed prerequisite
+├─ where.exe/PowerShell/curl missing or path invalid
+└─ Result: Exit 1 (user must fix system)
+
+SCENARIO 5: Conflicting installation found
+├─ stable-diffusion-webui* directory exists
+└─ Result: Exit 1 (user must clean up)
+
+SCENARIO 6: Repository initialization fails
+├─ git fetch/switch fails for EasyTools or EasyReforge
+└─ Result: Exit 1 (network issue or GitHub down)
+
+SCENARIO 7: Main setup fails
+├─ Setup.bat fails (Reforge/extensions/links)
+└─ Result: Exit 1 (installation incomplete)
+```
+
+## Variable Scope & Lifetime
+
+```
+┌─ Global Variables (exist throughout script)
+│  ├─ PROJECT_NAME
+│  ├─ PROJECT_SETUP_BAT
+│  ├─ PROJECT_MODEL_DOWNLOAD_BAT
+│  ├─ PROJECT_URL, PROJECT_BRANCH, PROJECT_DIR
+│  ├─ EASY_TOOLS_DIR, EASY_GIT_DIR
+│  ├─ EASY_TOOLS_URL, EASY_TOOLS_BRANCH
+│  ├─ PS_EXE, PS_CMD
+│  ├─ CURL_EXE, CURL_CMD
+│  └─ DOWNLOAD_MDOEL_YES_OR_NO (after user input)
+│
+├─ Conditional Variables (exist only if branch taken)
+│  └─ PORTABLE_GIT_BIN, PORTABLE_GIT_VERSION
+│     (only if system git not found)
+│
+└─ Subroutine Scope Variables (:INIT_REPO)
+   ├─ INIT_REPO_DIR
+   ├─ INIT_REPO_URL
+   └─ INIT_REPO_BRANCH
+      (local to each call)
+```
+
+## Error Handling Flow
+
+```
+┌─────────────────────────────────────────────┐
+| Command executes                            |
+└────────┬────────────────────────────────────┘
+         |
+         v
+┌─────────────────────────────────────────────┐
+| Check %ERRORLEVEL%                          |
+└────────┬────────────────────────────────────┘
+         |
+    ┌────┴────┐
+    |         |
+   EQ 0      NEQ 0
+    |         |
+    v         v
+Continue   Pause & Exit
+(next cmd)   (exit 1)
+   |         |
+   |         v
+   |    User sees error
+   |    & pauses to read
+   |    |
+   |    v
+   |   Exit 1
+   |   (parent handles)
+   |
+   v
+(or continue normally)
+
+Exceptions:
+- Line 114: Model download error ignored (no check)
+- Line 154: Registry error ignored (only warning)
+- Line 160: Self-delete error ignored (success = exit 0)
+```
+

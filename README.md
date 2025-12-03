@@ -1,270 +1,421 @@
-# EasyReforge for Ubuntu
+# EasyReforge Ubuntu Migration 🚀
 
-**Stable Diffusion WebUI reForge向けのターンキーインストーラー（Ubuntu専用）**
+**Ubuntu 向け reForge WebUI インストーラー**
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
-[![Ubuntu](https://img.shields.io/badge/ubuntu-20.04%20%7C%2022.04-orange.svg)](https://ubuntu.com/)
-[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org/)
+> ⚠️ **本リポジトリは Ubuntu マイグレーション進行中です**
+>
+> このリポジトリは、Windows 版 EasyReforge から Ubuntu 専用版への移行作業が進行中です。
+> 実装状況については下記の「プロジェクトステータス」セクションを参照してください。
+
+---
+
+## 現在の開発状況
+
+| ステータス | 説明 |
+|-----------|------|
+| **現在のブランチ** | `ubuntu-migration` （デフォルト開発ブランチ） |
+| **メインブランチ** | `main` （リリース版用） |
+| **実装フェーズ** | Phase 0 ✅ 完了 → Phase 1 準備中 |
+| **進捗** | 分析完了、実装開始待機中 |
 
 ---
 
 ## 概要
 
-EasyReforgeは、[reForge WebUI](https://github.com/Panchovix/stable-diffusion-webui-reForge)（Stable Diffusion画像生成）のUbuntu環境向けインストーラーです。
+EasyReforge Ubuntu は、[reForge WebUI](https://github.com/Panchovix/stable-diffusion-webui-reForge)（Stable Diffusion 画像生成）の Ubuntu 環境向けインストーラーです。
 
-> **注意**: これは元の[Windows版EasyReforge](https://github.com/Zuntan03/EasyReforge)をUbuntu専用に移行したバージョンです。
+元の [Windows 版 EasyReforge](https://github.com/Zuntan03/EasyReforge) をフルスクラッチで Ubuntu 専用に移行しています。
 
-### 特徴
+### マイグレーションの特徴
 
-- ✅ **ワンコマンドインストール**: 複雑な環境構築を自動化
-- ✅ **モデル管理**: Civitai/HuggingFaceから自動ダウンロード
-- ✅ **日本語UI対応**: 完全な日本語ローカライゼーション
-- ✅ **拡張機能**: ControlNet、Taggerなど13種類の拡張を自動セットアップ
-- ✅ **CUDA最適化**: NVIDIA GPU対応（RTX 3060以上推奨）
+- 📋 **237個の Windows .bat ファイル** → **Ubuntu .sh スクリプト** への全面移行
+- 🔄 **10-12週間の段階的実装計画** （詳細は下記参照）
+- 📊 **Phase 0 分析完了** - Windows インストーラー完全解析済み
+- 🛠️ **実装ガイド完備** - 段階的な開発手順を文書化
+
+---
+
+## プロジェクト構造
+
+```
+EasyReforge-Ubuntu/
+├── docs/                                    # 📚 ドキュメント
+│   ├── 00_phase0_analysis/                 # Phase 0: Windows インストーラー分析 ✅
+│   │   ├── README.md
+│   │   ├── ANALYSIS_SUMMARY.md
+│   │   ├── easyreforge_analysis.md
+│   │   ├── flow_diagram.txt
+│   │   └── line_by_line_analysis.txt
+│   ├── 01_planning/                        # 計画・設計
+│   │   ├── phase_breakdown.md
+│   │   └── ...
+│   ├── 02_implementation/                  # 実装ガイド
+│   │   ├── common_patterns.md
+│   │   ├── phase_1/
+│   │   └── ...
+│   └── 03_reference/                       # リファレンス
+│       ├── batch_to_shell_conversion.md
+│       └── ...
+│
+├── EasyReforge/                             # メインインストール（23 .bat → .sh）
+│   ├── Reforge/                            # reForge バリアント
+│   │   ├── reforge.sh                      # [PHASE 2 - CRITICAL]
+│   │   ├── reforge_extension.sh
+│   │   ├── reforge_link.sh
+│   │   ├── src/
+│   │   │   ├── requirements.txt            # 198 Python パッケージ
+│   │   │   ├── lib/
+│   │   │   │   ├── github.sh
+│   │   │   │   └── python.sh
+│   │   │   └── stable-diffusion-webui-reForge/  # Git submodule
+│   │   └── Reforge_NoOptions.sh            # [PHASE 2]
+│   ├── A1111/                              # Automatic1111 バリアント
+│   └── Forge/                              # Forge バリアント
+│
+├── Download/                                # モデルダウンロード（176 .bat → .sh）[PHASE 3-4]
+│   ├── lib/                                # ダウンロードヘルパー
+│   │   ├── common.sh
+│   │   ├── civitai_download.sh
+│   │   ├── huggingface_download.sh
+│   │   └── ...（4つ追加）
+│   ├── Stable-diffusion/                   # 48 スクリプト [PHASE 4]
+│   ├── Lora/                               # 36 スクリプト [PHASE 4]
+│   ├── ControlNet/                         # 27 スクリプト [PHASE 4]
+│   └── All/                                # メタスクリプト [PHASE 4]
+│
+├── Model/                                   # シンボリックリンク（14 .bat → .sh）[PHASE 2b]
+│   └── Stable-diffusion/
+│       ├── link_input.sh
+│       └── link_output.sh
+│
+├── Llm/                                     # LLM 推論（8 .bat → .sh）[PHASE 5]
+├── Sample/                                  # デモスクリプト [PHASE 5]
+│
+├── .claude/
+│   └── CLAUDE.md                            # 📖 プロジェクト指針（詳細な実装ガイド）
+├── README.md                                # このファイル
+├── README_original.md                       # 元の日本語 README（バックアップ）
+├── LICENSE.txt
+└── .gitignore
+```
+
+---
+
+## 開発ドキュメント
+
+### 🎯 Phase 0: 分析完了 ✅
+
+**状況**: Windows EasyReforgeInstaller.bat の完全解析終了
+
+詳細は **[docs/00_phase0_analysis/README.md](docs/00_phase0_analysis/README.md)** を参照してください。
+
+#### Phase 0 の主な成果
+- ✅ 160行の Windows インストーラーを 10-step フローに分解
+- ✅ 全20+個の呼び出しスクリプトを特定
+- ✅ 環境変数マッピング完了
+- ✅ Ubuntu 移行ガイド作成済み
+- ✅ 詳細な分析文書 5 ファイル作成
+
+### 📋 実装計画（Phase 1-5）
+
+**Phase 1 から Phase 5 までの詳細な実装計画は以下を参照してください**:
+
+| ドキュメント | 説明 |
+|-----------|------|
+| [docs/01_planning/phase_breakdown.md](docs/01_planning/phase_breakdown.md) | 完全な実装フェーズ分解（週単位のタイムライン） |
+| [docs/02_implementation/common_patterns.md](docs/02_implementation/common_patterns.md) | ステップバイステップの実装ガイド（注意事項付き） |
+| [docs/02_implementation/phase_1/overview.md](docs/02_implementation/phase_1/overview.md) | Phase 1 の詳細実装手引き |
+| [docs/03_reference/batch_to_shell_conversion.md](docs/03_reference/batch_to_shell_conversion.md) | Windows Batch → Ubuntu Shell 変換リファレンス |
+
+---
+
+## 現在のプロジェクトステータス
+
+### 実装フェーズ進捗
+
+```
+Phase 0: Analysis & Design
+[████████████████████████████████████████] ✅ COMPLETE
+  分析文書作成: ✅ 完了
+  設計ドキュメント: ✅ 完了
+
+Phase 1: Foundation Scripts & Bootstrap (予定: 1-2週間)
+[ ] 未開始
+  easyreforge_installer.sh: [ ] 実装待機中
+  github.sh helper: [ ] 実装待機中
+  python.sh helper: [ ] 実装待機中
+
+Phase 2: Core Environment Setup (予定: 3-4週間)
+[ ] 未開始
+  reforge.sh (CRITICAL): [ ] 実装待機中
+  Extensions & Linking: [ ] 実装待機中
+
+Phase 3-5: Download Helpers & Scripts
+[ ] 未開始
+  Download Infrastructure: [ ] 実装待機中
+  Model Script Generation: [ ] 実装待機中
+  Optional Launchers: [ ] 実装待機中
+```
+
+### 次のステップ
+
+1. **Phase 0 分析ドキュメントを確認**
+   → [docs/00_phase0_analysis/README.md](docs/00_phase0_analysis/README.md)
+
+2. **実装計画の詳細を確認**
+   → [docs/01_planning/phase_breakdown.md](docs/01_planning/phase_breakdown.md)
+
+3. **Phase 1 実装を開始**
+   → [docs/02_implementation/phase_1/overview.md](docs/02_implementation/phase_1/overview.md)
+
+---
+
+## 技術スタック
+
+### 主なテクノロジー
+
+- **Python**: 3.10+
+- **PyTorch**: 2.7.1 with CUDA 12.8
+- **reForge WebUI**: Git submodule (Panchovix 版)
+- **ShellScript**: Bash 4.0+
+- **OS**: Ubuntu 18.04+
+
+### 依存パッケージ
+
+- 198 個の Python パッケージ (`requirements.txt` 参照)
+- 13 個の reForge 拡張機能
+- CUDA Toolkit 12.8（GPU 使用の場合）
+
+詳細は [.claude/CLAUDE.md](.claude/CLAUDE.md) の「Core Technologies & Dependencies」セクションを参照してください。
+
+---
+
+## ブランチ構成
+
+```
+main                           ← リリース版（現在は Windows 版）
+  ↓
+ubuntu-migration (現在地)      ← 📍 開発ブランチ（Phase 0完了、Phase 1準備中）
+  ├── feature/phase-1         ← Phase 1 実装用
+  ├── feature/phase-2         ← Phase 2 実装用
+  └── ...
+```
+
+**デフォルトブランチ**: `ubuntu-migration`（開発用）
 
 ---
 
 ## 必要環境
 
-### 必須
+### システム要件
 
-- **OS**: Ubuntu 20.04 LTS / 22.04 LTS（推奨）
-- **Python**: 3.10以上
-- **Git**: 2.25以上
-- **ディスク**: 20GB以上の空き容量
-- **メモリ**: 16GB以上のRAM
+- **OS**: Ubuntu 18.04 LTS 以上（20.04 / 22.04 推奨）
+- **メモリ**: 16GB 以上
+- **ディスク**: 20GB+ の空き容量
+- **GPU**: NVIDIA RTX 3060+ 推奨（CUDA 12.8 対応）
 
-### 推奨
-
-- **GPU**: NVIDIA RTX 3060以上（VRAM 12GB以上）
-- **CUDA**: 12.8以上
-- **ネットワーク**: 高速インターネット接続（初回ダウンロード用）
-
-### 事前準備
+### 必須ツール
 
 ```bash
-# 必要なツールをインストール
+# インストール確認
+git --version           # 2.25+
+bash --version          # 4.0+
+python3 --version       # 3.10+
+nvidia-smi              # NVIDIA GPU（推奨）
+
+# 事前インストール
 sudo apt-get update
 sudo apt-get install -y git curl python3 python3-venv python3-pip \
-    build-essential python3-dev xdg-utils
-
-# NVIDIA GPUドライバー（GPU使用の場合）
-sudo apt-get install -y nvidia-utils
-
-# CUDA Toolkit 12.8（別途インストール必要）
-# https://developer.nvidia.com/cuda-downloads
+    build-essential python3-dev xdg-utils shellcheck
 ```
-
----
-
-## クイックスタート
-
-### 1. リポジトリのクローン
-
-```bash
-git clone https://github.com/Zuntan03/EasyReforge-Ubuntu.git
-cd EasyReforge-Ubuntu
-```
-
-### 2. インストール
-
-```bash
-bash EasyReforge/easyreforge_installer.sh
-```
-
-インストールには20-40分かかります（ネットワーク速度により変動）。
-
-### 3. WebUI起動
-
-```bash
-bash reforge.sh
-```
-
-ブラウザで `http://localhost:7860` にアクセスしてください。
-
----
-
-## ドキュメント
-
-詳細なドキュメントは `docs/` ディレクトリにあります：
-
-### クイックスタート
-- **[docs/00_quickstart/README.md](docs/00_quickstart/README.md)** - プロジェクトガイド
-- **[docs/00_quickstart/architecture.md](docs/00_quickstart/architecture.md)** - システムアーキテクチャ
-
-### 計画・仕様
-- [docs/01_planning/project_overview.md](docs/01_planning/project_overview.md) - プロジェクト概要
-- [docs/01_planning/implementation_plan.md](docs/01_planning/implementation_plan.md) - 実装計画
-- [docs/01_planning/phase_breakdown.md](docs/01_planning/phase_breakdown.md) - フェーズ詳細
-
-### 実装ガイド
-- [docs/02_implementation/phase_1/overview.md](docs/02_implementation/phase_1/overview.md) - Phase 1実装手引き
-- [docs/02_implementation/common_patterns.md](docs/02_implementation/common_patterns.md) - 共通パターン
-
-### リファレンス
-- [docs/03_reference/batch_to_shell_conversion.md](docs/03_reference/batch_to_shell_conversion.md) - 変換テーブル
-- **[docs/03_reference/troubleshooting.md](docs/03_reference/troubleshooting.md)** - トラブルシューティング
-- [docs/03_reference/known_issues.md](docs/03_reference/known_issues.md) - 既知の問題
-- [docs/03_reference/checklist.md](docs/03_reference/checklist.md) - 実装チェックリスト
-
----
-
-## 主な機能
-
-### モデルダウンロード
-
-```bash
-# NoobAI Epsilon v1.1をダウンロード
-bash Download/Stable-diffusion/NoobE/NoobE_v11.sh
-
-# すべてのStable Diffusionモデルをダウンロード
-bash Download/All/AllStable-diffusion.sh
-```
-
-### モデルリンク
-
-外部ディレクトリをWebUIにリンク：
-
-```bash
-# 外部モデルディレクトリをリンク
-bash Model/Stable-diffusion/link_input.sh /path/to/external/models
-
-# 出力先を外部ディレクトリにリンク
-bash Model/Stable-diffusion/link_output.sh /path/to/output
-```
-
-### 拡張機能
-
-自動インストールされる拡張機能（13種類）：
-
-- ControlNet（画像制御）
-- Tagger（タグ自動生成）
-- Dynamic Prompts（プロンプト拡張）
-- その他10種類
-
----
-
-## トラブルシューティング
-
-### よくある問題
-
-#### WebUIが起動しない
-
-```bash
-# 仮想環境を確認
-cd EasyReforge/Reforge
-source venv/bin/activate
-python --version  # Python 3.10以上か確認
-```
-
-#### PyTorchがCUDAを認識しない
-
-```bash
-# NVIDIA GPUを確認
-nvidia-smi
-
-# PyTorchを再インストール
-pip install torch --index-url https://download.pytorch.org/whl/cu128
-```
-
-#### 日本語が文字化けする
-
-```bash
-# UTF-8ロケールを設定
-export LC_ALL=C.UTF-8
-export LANG=C.UTF-8
-echo 'export LC_ALL=C.UTF-8' >> ~/.bashrc
-```
-
-詳細は **[docs/03_reference/troubleshooting.md](docs/03_reference/troubleshooting.md)** を参照してください。
 
 ---
 
 ## 開発者向け情報
 
-### プロジェクト構造
+### プロジェクト指針
 
-```
-EasyReforge-Ubuntu/
-├── docs/                       # ドキュメント
-├── EasyReforge/                # メインインストール
-│   ├── src/lib/               # ヘルパーライブラリ
-│   └── Reforge/               # reForgeバリアント
-├── Download/                   # モデルダウンロードスクリプト
-├── Model/                      # モデルリンキングスクリプト
-└── .claude/                    # プロジェクト指針
-```
+実装に必要な全ての情報は **[.claude/CLAUDE.md](.claude/CLAUDE.md)** にあります：
 
-### 貢献方法
+- 📋 Phase ごとの詳細なチェックリスト
+- ⚠️ 重要な実装の注意事項 7 つ
+- 🔧 スクリプト構造テンプレート
+- 📖 Batch → Shell 変換リファレンス
 
-1. このリポジトリをフォーク
-2. フィーチャーブランチを作成 (`git checkout -b feature/amazing-feature`)
-3. 変更をコミット (`git commit -m 'Add amazing feature'`)
-4. ブランチにプッシュ (`git push origin feature/amazing-feature`)
-5. プルリクエストを作成
+### 実装ガイド
+
+1. **新規開発者はここから始める**:
+   - [docs/00_phase0_analysis/README.md](docs/00_phase0_analysis/README.md) - Phase 0 分析の理解
+   - [.claude/CLAUDE.md](.claude/CLAUDE.md) - クイックスタート
+
+2. **実装時のリファレンス**:
+   - [docs/02_implementation/common_patterns.md](docs/02_implementation/common_patterns.md) - ステップバイステップ
+   - [docs/03_reference/batch_to_shell_conversion.md](docs/03_reference/batch_to_shell_conversion.md) - 個別変換
+
+3. **問題が発生した場合**:
+   - [docs/03_reference/troubleshooting.md](docs/03_reference/troubleshooting.md)
+   - [docs/03_reference/known_issues.md](docs/03_reference/known_issues.md)
 
 ### コーディング規約
 
-- シェルスクリプト: `shellcheck` で検証
-- 命名規則: `lowercase_with_underscores`
-- エラーハンドリング: `set -euo pipefail`
-- ドキュメント: 変更時は必ずドキュメント更新
+```bash
+# すべての shell スクリプトで必須
+#!/bin/bash
+set -euo pipefail
+trap 'echo "Error on line $LINENO"; exit 1' ERR
 
-詳細は [.claude/CLAUDE.md](.claude/CLAUDE.md) を参照してください。
+# 命名規則
+lowercase_with_underscores.sh    # ✅ 正しい
+CamelCase.sh                     # ❌ 避ける
+kebab-case.sh                    # ❌ 避ける
+
+# 検証
+shellcheck script.sh             # 構文チェック
+bash script.sh                   # 実行テスト
+```
+
+詳細は [.claude/CLAUDE.md](.claude/CLAUDE.md) を参照。
 
 ---
 
-## プロジェクトステータス
+## よくある質問
 
-**現在のステータス**: 📋 計画完了・実装準備中
+### Q: Windows 版との互換性は？
 
-### 実装フェーズ
+**A**: このリポジトリは Ubuntu 専用です。Windows 版は別リポジトリ（[Zuntan03/EasyReforge](https://github.com/Zuntan03/EasyReforge)）で管理されています。
 
-- [ ] Phase 1: 基盤スクリプト（1-2週間）
-- [ ] Phase 2: コア環境セットアップ（3-4週間）
-- [ ] Phase 3: ダウンロードヘルパー（5-6週間）
-- [ ] Phase 4: モデルスクリプト生成（7-8週間）
-- [ ] Phase 2b: モデルリンキング（並行実施）
-- [ ] Phase 5: オプション機能・QA（11-12週間）
+### Q: 実装はいつ完了する？
 
-詳細は [docs/01_planning/phase_breakdown.md](docs/01_planning/phase_breakdown.md) を参照してください。
+**A**: Phase 0（分析）は完了しました。Phase 1 から Phase 5 まで合計 10-12 週間の予定です。詳細は [docs/01_planning/phase_breakdown.md](docs/01_planning/phase_breakdown.md) を参照してください。
+
+### Q: 現在のコードは使える？
+
+**A**: Phase 0 の分析文書は完成していますが、実装はまだ進行中です。完成したスクリプトは `docs/` フォルダに説明文書があります。
+
+### Q: どうやって貢献できる？
+
+**A**:
+1. [.claude/CLAUDE.md](.claude/CLAUDE.md) でプロジェクト指針を確認
+2. [docs/01_planning/phase_breakdown.md](docs/01_planning/phase_breakdown.md) で次のフェーズを確認
+3. `ubuntu-migration` ブランチでフィーチャーブランチを作成
+4. 実装→テスト→PR の流れで貢献
+
+詳細は下記の「貢献方法」セクションを参照。
+
+---
+
+## 貢献方法
+
+このプロジェクトへの貢献を歓迎します！
+
+### 貢献の手順
+
+1. **リポジトリをフォーク**
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/EasyReforge-Ubuntu.git
+   cd EasyReforge-Ubuntu
+   ```
+
+2. **`ubuntu-migration` ブランチで開発**
+   ```bash
+   git checkout ubuntu-migration
+   git checkout -b feature/your-feature-name
+   ```
+
+3. **実装 → テスト → コミット**
+   ```bash
+   bash docs/02_implementation/phase_1/overview.md  # 実装ガイド参照
+   shellcheck your_script.sh                        # 検証
+   git add .
+   git commit -m "Add feature: description"
+   ```
+
+4. **プルリクエストを作成**
+   - `ubuntu-migration` ブランチを対象に PR を作成
+   - 実装内容とテスト結果を記載
+
+### 実装の優先順位
+
+1. **Phase 1** - 基盤スクリプト（現在フォーカス）
+2. **Phase 2** - コア環境セットアップ（最優先）
+3. **Phase 3-5** - 追加機能
+
+詳細は [docs/01_planning/phase_breakdown.md](docs/01_planning/phase_breakdown.md) を参照。
 
 ---
 
 ## ライセンス
 
-このプロジェクトはMITライセンスの下で公開されています。詳細は [LICENSE.txt](LICENSE.txt) ファイルを参照してください。
+このプロジェクトは MIT ライセンスの下で公開されています。詳細は [LICENSE.txt](LICENSE.txt) を参照してください。
 
 ---
 
 ## 関連リンク
 
 ### 公式プロジェクト
-- **元のWindows版**: https://github.com/Zuntan03/EasyReforge
+
+- **元の Windows 版**: https://github.com/Zuntan03/EasyReforge
 - **reForge WebUI**: https://github.com/Panchovix/stable-diffusion-webui-reForge
 - **NoobAI Models**: https://civitai.com/models/833294
+- **Stable Diffusion**: https://stability.ai/
 
 ### リソース
-- **Civitai**: https://civitai.com/
-- **HuggingFace**: https://huggingface.co/
-- **Troubleshooting Wiki**: https://github.com/Zuntan03/EasyReforge/wiki
+
+- **Civitai** (モデルダウンロード): https://civitai.com/
+- **HuggingFace** (モデル・ライブラリ): https://huggingface.co/
+- **CUDA Toolkit**: https://developer.nvidia.com/cuda-downloads
+- **PyTorch**: https://pytorch.org/
+
+### サポート
+
+- **Issues**: https://github.com/Zuntan03/EasyReforge-Ubuntu/issues
+- **Wiki**: https://github.com/Zuntan03/EasyReforge/wiki
+- **元の Contact**: [@Zuntan03](https://x.com/Zuntan03)
 
 ---
 
 ## 謝辞
 
-- [Panchovix/stable-diffusion-webui-reForge](https://github.com/Panchovix/stable-diffusion-webui-reForge) - reForge WebUI
-- [Zuntan03/EasyReforge](https://github.com/Zuntan03/EasyReforge) - オリジナルWindows版
-- Stable Diffusionコミュニティの皆様
+- [Panchovix](https://github.com/Panchovix) - reForge WebUI の開発・保守
+- [Zuntan03](https://github.com/Zuntan03) - 元の Windows 版 EasyReforge
+- Stable Diffusion コミュニティ全体
 
 ---
 
-## サポート
+## プロジェクトメタデータ
 
-- **Issues**: https://github.com/Zuntan03/EasyReforge/issues
-- **Wiki**: https://github.com/Zuntan03/EasyReforge/wiki
-- **Contact**: [@Zuntan03](https://x.com/Zuntan03)
+| 項目 | 値 |
+|------|-----|
+| **プロジェクト名** | EasyReforge Ubuntu Migration |
+| **バージョン** | 0.1.0 (Alpha - 開発中) |
+| **ステータス** | 🚀 Phase 0 完了 → Phase 1 準備中 |
+| **ブランチ** | `ubuntu-migration` (デフォルト) |
+| **最終更新** | 2025-12-03 |
+| **リポジトリサイズ** | 63MB |
+| **スクリプト総数** | 237 個（.bat → .sh 変換対象） |
+| **予想実装期間** | 10-12 週間（フル）、4-5 週間（コアのみ） |
 
 ---
 
-**最終更新**: 2025-12-03 | **バージョン**: 1.0 (Ubuntu) | **ステータス**: 開発中
+## 変更ログ
+
+### 2025-12-03
+- **Phase 0 完了**: Windows インストーラー完全分析
+- **ドキュメント作成**: 5 個の詳細分析文書
+- **README 更新**: Ubuntu マイグレーション専用版に変更
+
+詳細な変更履歴は `.claude/CLAUDE.md` の「File Modification Log」セクションを参照。
+
+---
+
+**ℹ️ 最初にこのリポジトリを見る方へ**
+
+1. **このファイル** (README.md) を読む ← 今ここ
+2. [docs/00_phase0_analysis/README.md](docs/00_phase0_analysis/README.md) - Phase 0 分析の理解
+3. [.claude/CLAUDE.md](.claude/CLAUDE.md) - 詳細な実装指針と完全なチェックリスト
+4. [docs/01_planning/phase_breakdown.md](docs/01_planning/phase_breakdown.md) - 実装計画の詳細
+
+---
+
+**🚀 開発開始準備中...**
+Phase 1 実装は [.claude/CLAUDE.md](.claude/CLAUDE.md) の実装チェックリストを参照してください。
