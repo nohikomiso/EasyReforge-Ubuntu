@@ -1,221 +1,221 @@
-# Phase 0: EasyReforgeInstaller Analysis & Design
+# Phase 0: EasyReforgeInstaller 分析と設計
 
-**Status**: Analysis Complete
-**Created**: 2025-12-03
-**Purpose**: Understand the original Windows installer flow to design the Ubuntu equivalent
+**ステータス**: 分析完了
+**作成日**: 2025-12-03
+**目的**: 元のWindowsインストーラーのフローを理解し、Ubuntu版の設計を行う
 
 ---
 
-## Overview
+## 概要
 
-Phase 0 is the **critical preparatory phase** that precedes all implementation. Its purpose is to thoroughly understand how `EasyReforgeInstaller.bat` works so we can create an equivalent `EasyReforgeInstaller.sh` that can be invoked via `curl` and run as a single-command bootstrap.
+Phase 0は、すべての実装に先立つ**重要な準備フェーズ**です。その目的は、`EasyReforgeInstaller.bat`がどのように動作するかを徹底的に理解し、`curl`経由で呼び出し可能で、単一コマンドのブートストラップとして実行できる同等の`EasyReforgeInstaller.sh`を作成することです。
 
-### Target User Experience (Ubuntu)
+### 目標とするユーザー体験（Ubuntu）
 
 ```bash
-# User downloads and executes (one-liner):
+# ユーザーがダウンロードして実行（ワンライナー）:
 curl -fsSL https://raw.githubusercontent.com/nohikomiso/EasyReforge-Ubuntu/ubuntu-migration/EasyReforge/easyreforge_installer.sh | bash
 
-# OR manually downloaded:
+# または手動でダウンロード:
 mkdir EasyReforge && cd EasyReforge
 curl -o easyreforge_installer.sh https://raw.githubusercontent.com/...
 bash easyreforge_installer.sh
 ```
 
-**Result**: Full, working EasyReforge installation without further user intervention.
+**結果**: ユーザーの追加操作なしに、完全に動作するEasyReforgeのインストールが完了します。
 
 ---
 
-## Phase 0 Deliverables
+## Phase 0 成果物
 
-### Analysis Documents (in this directory)
+### 分析ドキュメント（このディレクトリ内）
 
-1. **ANALYSIS_SUMMARY.md** - Executive overview of the original installer
-   - 10-step main flow
-   - Key statistics and critical features
-   - System dependencies
-   - Exit codes and error handling
+1. **ANALYSIS_SUMMARY.md** - 元のインストーラーの概要
+   - 10ステップのメインフロー
+   - 主要な統計情報と重要な機能
+   - システム依存関係
+   - 終了コードとエラーハンドリング
 
-2. **easyreforge_analysis.md** - Comprehensive technical reference
-   - Detailed flow for each of 10 steps
-   - All called scripts and their purposes
-   - Environment variables and their roles
-   - Configuration files created/modified
-   - Ubuntu migration considerations
+2. **easyreforge_analysis.md** - 包括的な技術リファレンス
+   - 10ステップそれぞれの詳細なフロー
+   - 呼び出されるすべてのスクリプトとその目的
+   - 環境変数とその役割
+   - 作成/変更される設定ファイル
+   - Ubuntu移行に関する考慮事項
 
-3. **flow_diagram.txt** - Visual flow diagrams
-   - ASCII flowchart of execution sequence
-   - Script call hierarchy
-   - Conditional execution paths
-   - Error handling flows
+3. **flow_diagram.txt** - ビジュアルフロー図
+   - 実行シーケンスのASCIIフローチャート
+   - スクリプト呼び出し階層
+   - 条件付き実行パス
+   - エラーハンドリングフロー
 
-4. **line_by_line_analysis.txt** - Ultra-detailed reference
-   - All 160 lines annotated with explanations
-   - Variable expansions shown
-   - Edge cases documented
-   - Subroutine behavior
+4. **line_by_line_analysis.txt** - 超詳細リファレンス
+   - 全160行に注釈付き説明
+   - 変数展開の表示
+   - エッジケースの文書化
+   - サブルーチンの動作
 
-5. **INDEX.md** - Navigation guide
-   - Quick access by topic
-   - Cross-references between documents
-   - Recommended reading order
+5. **INDEX.md** - ナビゲーションガイド
+   - トピック別クイックアクセス
+   - ドキュメント間の相互参照
+   - 推奨される読む順序
 
 ---
 
-## Key Findings Summary
+## 主要な発見の要約
 
-### Original Installer (EasyReforgeInstaller.bat) - 10 Steps
+### 元のインストーラー（EasyReforgeInstaller.bat）- 10ステップ
 
-| Step | Operation | Windows Specific? | Ubuntu Equivalent |
+| ステップ | 操作 | Windows固有？ | Ubuntu相当 |
 |------|-----------|-------------------|------------------|
-| 1 | Environment setup (UTF-8, vars) | Partial (chcp) | Set LC_ALL=C.UTF-8 |
-| 2 | Validate prerequisites (where, PS, curl) | Yes (where.exe) | Use `command -v` |
-| 3 | Validate path (no spaces/special chars) | Yes (PowerShell regex) | Bash regex |
-| 4 | Check for conflicting WebUI | Partial | Same logic |
-| 5 | Ensure Git availability | Partial (portable Git fallback) | System git only |
-| 6 | Clone/initialize EasyTools repo | No | Identical |
-| 7 | Clone/initialize EasyReforge repo | No | Identical |
-| 8 | Call Setup.bat → Reforge.bat, etc. | No (calls .bat files) | Call .sh files |
-| 9 | Optional model download | Partial (platform-specific models) | Same logic |
-| 10 | Cleanup & self-delete | Partial (registry setup) | Skip registry |
+| 1 | 環境セットアップ（UTF-8、変数） | 部分的（chcp） | LC_ALL=C.UTF-8を設定 |
+| 2 | 前提条件の検証（where、PS、curl） | はい（where.exe） | `command -v`を使用 |
+| 3 | パスの検証（スペース/特殊文字なし） | はい（PowerShell regex） | Bash regex |
+| 4 | 競合するWebUIのチェック | 部分的 | 同じロジック |
+| 5 | Gitの可用性確保 | 部分的（ポータブルGitフォールバック） | システムgitのみ |
+| 6 | EasyToolsリポジトリのクローン/初期化 | いいえ | 同一 |
+| 7 | EasyReforgeリポジトリのクローン/初期化 | いいえ | 同一 |
+| 8 | Setup.bat → Reforge.batなどの呼び出し | いいえ（.batファイル呼び出し） | .shファイル呼び出し |
+| 9 | オプションのモデルダウンロード | 部分的（プラットフォーム固有モデル） | 同じロジック |
+| 10 | クリーンアップと自己削除 | 部分的（レジストリ設定） | レジストリをスキップ |
 
-### Critical Design Decisions
+### 重要な設計決定
 
-1. **Single-Entry Activation**
-   - Windows: Execute .bat file from Explorer
-   - Ubuntu: Run via `curl | bash` or direct bash
+1. **単一エントリーポイントの起動**
+   - Windows: エクスプローラーから.batファイルを実行
+   - Ubuntu: `curl | bash`または直接bashで実行
 
-2. **Git Repository Initialization**
-   - Both platforms: Clone EasyTools + EasyReforge
-   - Both: Ensure proper working directory structure
+2. **Gitリポジトリの初期化**
+   - 両プラットフォーム: EasyTools + EasyReforgeをクローン
+   - 両方: 適切な作業ディレクトリ構造を確保
 
-3. **Downstream Script Calls**
+3. **下流スクリプトの呼び出し**
    - Windows: `call setup.bat`
    - Ubuntu: `bash setup.sh`
-   - Flow and orchestration identical
+   - フローとオーケストレーションは同一
 
-4. **Error Handling Strategy**
-   - Windows: Extensive `if errorlevel` checks
-   - Ubuntu: `set -euo pipefail` + trap handlers
+4. **エラーハンドリング戦略**
+   - Windows: 広範な`if errorlevel`チェック
+   - Ubuntu: `set -euo pipefail` + trapハンドラー
 
-5. **User Interaction Model**
-   - Windows: `pause` for manual confirmation
-   - Ubuntu: TTY detection + defaults for non-interactive
+5. **ユーザーインタラクションモデル**
+   - Windows: 手動確認のための`pause`
+   - Ubuntu: TTY検出 + 非対話型のデフォルト
 
-### Ubuntu-Specific Challenges
+### Ubuntu固有の課題
 
-1. **Path Handling**: Windows backslashes → forward slashes
-2. **Virtual Environment**: venv activation differs
-3. **Package Management**: apt vs. chocolatey vs. no installer
-4. **GPU Detection**: nvidia-smi availability varies
-5. **Symlinks**: Linux native (ln -s) vs. Windows junctions
-
----
-
-## How to Use Phase 0 Documents
-
-### For Understanding the Current Implementation
-→ Start with **ANALYSIS_SUMMARY.md**, then **easyreforge_analysis.md**
-
-### For Creating ubuntu Shell Equivalent
-→ Use **flow_diagram.txt** as reference, check **line_by_line_analysis.txt** for specific logic
-
-### For Quick Lookup of Specific Features
-→ Use **INDEX.md** to navigate to relevant sections
-
-### For Implementation Decisions
-→ Reference "Ubuntu Migration" sections in **easyreforge_analysis.md**
+1. **パス処理**: Windowsのバックスラッシュ → スラッシュ
+2. **仮想環境**: venv有効化の違い
+3. **パッケージ管理**: apt vs. chocolatey vs. インストーラーなし
+4. **GPU検出**: nvidia-smiの可用性が異なる
+5. **シンボリックリンク**: Linuxネイティブ（ln -s） vs. Windowsジャンクション
 
 ---
 
-## Next Phase (Phase 1)
+## Phase 0ドキュメントの使用方法
 
-Once Phase 0 analysis is complete, Phase 1 implementation will create:
+### 現在の実装を理解するには
+→ **ANALYSIS_SUMMARY.md**から始め、次に**easyreforge_analysis.md**を読む
 
-1. **easyreforge_installer.sh** (Ubuntu bootstrap)
-   - Based on EasyReforgeInstaller.bat flow
-   - Can be invoked via curl directly
-   - Contains all prerequisite checks
-   - Orchestrates downstream scripts
+### Ubuntuシェル相当を作成するには
+→ **flow_diagram.txt**を参照し、特定のロジックは**line_by_line_analysis.txt**を確認
 
-2. **Helper libraries** (prerequisite for Phase 1)
-   - github.sh (git clone/pull logic)
-   - python.sh (venv setup)
+### 特定機能のクイックルックアップには
+→ **INDEX.md**を使用して関連セクションに移動
 
-3. **Setup orchestrator** (setup.sh equivalent)
-   - Calls reforge.sh, extensions, linking
+### 実装の決定には
+→ **easyreforge_analysis.md**の「Ubuntu Migration」セクションを参照
 
 ---
 
-## Implementation Principles
+## 次のフェーズ（Phase 1）
 
-Based on Phase 0 analysis:
+Phase 0の分析が完了すると、Phase 1の実装で以下を作成します:
 
-1. **Flow Preservation**: Keep the original 10-step flow identical
-2. **Robustness**: Maintain extensive error checking and validation
-3. **User-Friendly**: Preserve bilingual interface and clear error messages
-4. **One-Command Installation**: Enable `curl | bash` execution
-5. **Reproducibility**: Exact version pinning and commit hashes
+1. **easyreforge_installer.sh**（Ubuntuブートストラップ）
+   - EasyReforgeInstaller.batのフローに基づく
+   - curlから直接呼び出し可能
+   - すべての前提条件チェックを含む
+   - 下流スクリプトをオーケストレート
 
----
+2. **ヘルパーライブラリ**（Phase 1の前提条件）
+   - github.sh（git clone/pullロジック）
+   - python.sh（venvセットアップ）
 
-## Files Referenced
-
-**Original Installer** (analyzed):
-- `EasyReforge/EasyReforgeInstaller.bat` - 160 lines
-
-**Downstream Scripts** (identified):
-- Setup.bat → Reforge.bat, ReforgeExtension.bat, ReforgeLink.bat (+ others)
-- Various model download scripts
-
-**Analysis Output**: This directory (00_phase0_analysis/)
+3. **セットアップオーケストレーター**（setup.sh相当）
+   - reforge.sh、拡張機能、リンキングを呼び出し
 
 ---
 
-## Document Map
+## 実装原則
+
+Phase 0の分析に基づく:
+
+1. **フローの保持**: 元の10ステップフローを同一に保つ
+2. **堅牢性**: 広範なエラーチェックと検証を維持
+3. **ユーザーフレンドリー**: バイリンガルインターフェースと明確なエラーメッセージを保持
+4. **ワンコマンドインストール**: `curl | bash`実行を可能にする
+5. **再現性**: 正確なバージョン固定とコミットハッシュ
+
+---
+
+## 参照ファイル
+
+**元のインストーラー**（分析済み）:
+- `EasyReforge/EasyReforgeInstaller.bat` - 160行
+
+**下流スクリプト**（特定済み）:
+- Setup.bat → Reforge.bat、ReforgeExtension.bat、ReforgeLink.bat（その他）
+- 各種モデルダウンロードスクリプト
+
+**分析出力**: このディレクトリ（00_phase0_analysis/）
+
+---
+
+## ドキュメントマップ
 
 ```
 docs/00_phase0_analysis/
-├── README.md (this file)                    # Overview and navigation
-├── ANALYSIS_SUMMARY.md                      # Executive summary
-├── easyreforge_analysis.md                  # Technical deep-dive
-├── flow_diagram.txt                         # Visual flowcharts
-├── line_by_line_analysis.txt                # Detailed annotations
-└── INDEX.md                                 # Search and navigation
+├── README.md（このファイル）                # 概要とナビゲーション
+├── ANALYSIS_SUMMARY.md                      # 要約
+├── easyreforge_analysis.md                  # 技術的詳細
+├── flow_diagram.txt                         # ビジュアルフローチャート
+├── line_by_line_analysis.txt                # 詳細な注釈
+└── INDEX.md                                 # 検索とナビゲーション
 ```
 
 ---
 
-## Key Metrics from Analysis
+## 分析からの主要メトリクス
 
-| Metric | Value |
+| メトリクス | 値 |
 |--------|-------|
-| Total lines analyzed | 160 |
-| Subroutines identified | 1 (:INIT_REPO) |
-| Error checks found | 20+ |
-| Exit paths | 10+ |
-| Downstream .bat files | 20+ |
-| Extensions cloned (downstream) | 13 |
-| Models available for download | 100+ |
-| Estimated runtime | 30-60 min |
+| 分析した総行数 | 160 |
+| 特定されたサブルーチン | 1（:INIT_REPO） |
+| 発見されたエラーチェック | 20以上 |
+| 終了パス | 10以上 |
+| 下流の.batファイル | 20以上 |
+| クローンされた拡張機能（下流） | 13 |
+| ダウンロード可能なモデル | 100以上 |
+| 推定実行時間 | 30-60分 |
 
 ---
 
-## Status Check
+## ステータスチェック
 
-- [x] EasyReforgeInstaller.bat analyzed
-- [x] Flow documented (10 steps)
-- [x] All called scripts identified
-- [x] Error handling mapped
-- [x] Environment variables catalogued
-- [x] Ubuntu migration considerations documented
-- [x] Visual flowcharts created
-- [x] Analysis documents generated
+- [x] EasyReforgeInstaller.batを分析
+- [x] フローを文書化（10ステップ）
+- [x] 呼び出されるすべてのスクリプトを特定
+- [x] エラーハンドリングをマッピング
+- [x] 環境変数をカタログ化
+- [x] Ubuntu移行の考慮事項を文書化
+- [x] ビジュアルフローチャートを作成
+- [x] 分析ドキュメントを生成
 
-**Ready for**: Phase 1 Implementation (easyreforge_installer.sh creation)
+**準備完了**: Phase 1実装（easyreforge_installer.shの作成）
 
 ---
 
-**Last Updated**: 2025-12-03
-**Analysis Source**: `/home/ytsubame/src/EasyReforge-Ubuntu/EasyReforge/EasyReforgeInstaller.bat`
-**For Questions**: See INDEX.md for document navigation guide
+**最終更新**: 2025-12-03
+**分析ソース**: `/home/ytsubame/src/EasyReforge-Ubuntu/EasyReforge/EasyReforgeInstaller.bat`
+**質問がある場合**: ドキュメントナビゲーションガイドについてはINDEX.mdを参照

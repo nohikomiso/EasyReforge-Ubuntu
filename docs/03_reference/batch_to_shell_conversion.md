@@ -1,210 +1,210 @@
-# Script Conversion Reference - Windows Batch to Ubuntu Shell
+# スクリプト変換リファレンス - Windows Batch から Ubuntu Shell へ
 
-**Quick lookup table for converting Windows batch commands to Ubuntu shell equivalents**
-
----
-
-## Variable Handling
-
-| Windows Batch | Ubuntu Shell | Notes |
-|--------------|-------------|-------|
-| `set VAR=value` | `VAR=value` | Local to script |
-| `set VAR=value&& echo %VAR%` | `VAR=value; echo "$VAR"` | Use semicolon for sequential |
-| `set /p VAR=prompt:` | `read -p "prompt: " VAR` | Interactive input |
-| `echo %VAR%` | `echo "$VAR"` | Use quotes to prevent word splitting |
-| `echo !VAR!` (delayed expansion) | `echo "${VAR}"` (in same context) | Delayed expansion not needed in bash |
-| `%~dp0` | `"$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"` | Script directory |
-| `%~nx1` | `"${1##*/}"` | Basename of parameter |
-| `%ERRORLEVEL%` | `$?` | Exit code of last command |
-| `%USERNAME%` | `$USER` or `$(whoami)` | Current user |
-| `%USERPROFILE%` | `$HOME` | User home directory |
-| `%TEMP%` | `$TMPDIR` or `$HOME/.cache` | Temporary directory |
+**Windowsバッチコマンドを同等のUbuntuシェルコマンドに変換するためのクイックルックアップテーブル**
 
 ---
 
-## Path and File Operations
+## 変数の扱い
 
-| Windows Batch | Ubuntu Shell | Notes |
-|--------------|-------------|-------|
-| `cd /d C:\path` | `cd /path` | Use forward slashes |
-| `pushd dir & popd` | `(cd dir; ...)` | Subshell for isolated directory |
-| `if exist path\` | `if [ -d "path/" ]` | Directory exists |
-| `if exist file.txt` | `if [ -f "file.txt" ]` | File exists |
-| `mkdir dir` | `mkdir -p dir` | Create with parents |
-| `del /f file.txt` | `rm -f file.txt` | Force delete |
-| `rmdir /s /q dir` | `rm -rf dir` | Recursive delete (CAREFUL!) |
-| `copy /y src dst` | `cp src dst` | Copy file |
-| `xcopy /sqy src\ dst\` | `cp -r src/* dst/` or `rsync -av src/ dst/` | Copy directory |
-| `ren oldname newname` | `mv oldname newname` | Rename/move |
-| `move /y src dst` | `mv src dst` | Move file/dir |
-| `findstr "pattern" file` | `grep "pattern" file` | Find text in file |
-| `findstr /r "regex" file` | `grep -E "regex" file` | Regex search |
-| `for /d %%d in (dir\*)` | `for dir in dir/*/; do ... done` | Loop over directories |
-| `for /r %%f in (*.ext)` | `find . -name "*.ext" -type f` | Recursive find files |
-| `dir /s` | `ls -R` or `find .` | List recursively |
-| `cd /d %~dp0` | `cd "$(dirname "${BASH_SOURCE[0]}")"` | Change to script dir |
-
----
-
-## String Operations
-
-| Windows Batch | Ubuntu Bash | Notes |
-|--------------|-------------|-------|
-| `%VAR:old=new%` | `${VAR//old/new}` | Replace all occurrences |
-| `%VAR:~0,5%` | `${VAR:0:5}` | Substring (first 5 chars) |
-| `%VAR:~-3%` | `${VAR: -3}` | Last 3 characters |
-| `call :label` | `function_name` | Function call |
-| `setlocal enabledelayedexpansion` | Not needed in bash | Delayed expansion handled automatically |
-| `%random%` | `$RANDOM` | Random number 0-32767 |
-| `if "%VAR%"=="" ` | `if [ -z "$VAR" ]` | Empty string check |
-| `if not "%VAR%"=="" ` | `if [ -n "$VAR" ]` | Non-empty check |
-| `if /i "%VAR%"=="value"` | `if [ "${VAR,,}" = "value" ]` | Case-insensitive (bash 4+) |
-
----
-
-## Conditional Logic
-
-| Windows Batch | Ubuntu Shell | Notes |
-|--------------|-------------|-------|
-| `if condition (...)` | `if condition; then ... fi` | Basic if-then |
-| `if not condition (...)` | `if ! condition; then ... fi` | Negation with ! |
-| `if condition (...) else (...)` | `if condition; then ... else ... fi` | If-else |
-| `if %ERRORLEVEL% neq 0` | `if [ $? -ne 0 ]` | Check exit code |
-| `if exist path (...)` | `if [ -d "path" ]; then ... fi` | Path exists |
-| `if /i %VAR%==value` | `if [ "$VAR" = "value" ]` | String equality |
-| `if "%VAR%"=="" (...)` | `if [ -z "$VAR" ]; then ... fi` | Empty string |
-| `if defined VAR` | `if [ -n "${VAR:-}" ]` | Variable defined |
-| `if %VAR% geq 5` | `if [ "$VAR" -ge 5 ]` | Numeric comparison |
-| `goto label` | `function_name` or `return` | Jump to label |
-
----
-
-## Numeric Operations
-
-| Windows Batch | Ubuntu Shell | Notes |
-|--------------|-------------|-------|
-| `set /a num=5+3` | `num=$((5+3))` | Arithmetic expansion |
-| `if %num% gtr 10` | `if [ "$num" -gt 10 ]` | Greater than |
-| `if %num% lss 10` | `if [ "$num" -lt 10 ]` | Less than |
-| `if %num% equ 10` | `if [ "$num" -eq 10 ]` | Equal |
-
----
-
-## Loops
-
-| Windows Batch | Ubuntu Shell | Notes |
-|--------------|-------------|-------|
-| `for %%i in (1 2 3)` | `for i in 1 2 3; do ... done` | Loop over list |
-| `for /l %%i in (1,1,5)` | `for i in {1..5}; do ... done` | Numeric range |
-| `for /d %%d in (*)` | `for dir in */; do ... done` | Loop directories |
-| `for /r %%f in (*.txt)` | `while IFS= read -r f; do ... done < <(find . -name "*.txt")` | Recursive file loop |
-| `for /f "tokens=1" %%a in (file)` | `while IFS= read -r a rest; do ... done < file` | Line parsing |
-
----
-
-## Functions & Subroutines
-
-| Windows Batch | Ubuntu Shell | Notes |
-|--------------|-------------|-------|
-| `:label` ... `call :label` | `function_name() { ... } function_name` | Function definition |
-| `exit /b 0` | `return 0` | Return from function |
-| `exit /b 1` | `return 1` | Return with error |
-| `setlocal` | `local var=value` in function | Local scope |
-| `%~1` | `"$1"` | First argument |
-| `%~dp0` | `"$(dirname "${BASH_SOURCE[0]}")"` | Script directory |
-| `%*` | `"$@"` | All arguments (quoted) |
-| `%#` | `$#` | Argument count |
-
----
-
-## Output & Logging
-
-| Windows Batch | Ubuntu Shell | Notes |
-|--------------|-------------|-------|
-| `echo message` | `echo "message"` | Print line |
-| `echo. ` | `echo ""` | Blank line |
-| `echo off` | (no equivalent) | Bash runs quietly by default |
-| `cls` | `clear` | Clear screen |
-| `echo message > file` | `echo "message" > file` | Redirect to file (overwrites) |
-| `echo message >> file` | `echo "message" >> file` | Append to file |
-| `echo %VAR% 2>&1 | tee log.txt` | `echo "$VAR" \| tee log.txt` | Output and log |
-| `color 0a` | (no equivalent) | No color in shell scripts |
-| `@echo off` | (no equivalent) | Use "set +x" if debugging |
-
----
-
-## Git Operations
-
-| Windows Batch | Ubuntu Shell | Notes |
-|--------------|-------------|-------|
-| `git clone URL` | `git clone URL` | Clone repo |
-| `git fetch origin` | `git fetch origin` | Fetch updates |
-| `git reset --hard` | `git reset --hard` | Reset to HEAD |
-| `git reset --hard COMMIT` | `git reset --hard COMMIT` | Reset to specific commit |
-| `git checkout branch` | `git checkout branch` | Switch branch |
-| `git config user.name` | `git config user.name` | Same on all platforms |
-
----
-
-## Network Operations
-
-| Windows Batch | Ubuntu Shell | Notes |
-|--------------|-------------|-------|
-| `C:\Windows\System32\curl.exe` | `curl` | Use system curl |
-| `curl -L URL` | `curl -L URL` | Follow redirects |
-| `curl -o output URL` | `curl -o output URL` | Save to file |
-| `curl -fL URL` | `curl -fL URL` | Fail on HTTP error |
-| `powershell -Command "(New-Object Net.WebClient).DownloadFile('URL','file')"` | `curl -L -o file URL` | Download file |
-
----
-
-## Environment Variables
-
-| Windows | Ubuntu | Purpose |
-|---------|--------|---------|
-| `%APPDATA%\.triton\cache` | `$HOME/.triton/cache` | Triton compilation cache |
-| `%TEMP%\torchinductor_%USERNAME%` | `$HOME/.cache/torch/inductor_$(whoami)` | PyTorch cache |
-| `chcp 65001` | `export LC_ALL=C.UTF-8` | UTF-8 encoding |
-| `%CUDA_PATH%` | `$CUDA_HOME` or auto-detect | CUDA toolkit location |
-| `%PYTHONPATH%` | `export PYTHONPATH=...` | Python module path |
-
----
-
-## Error Handling Patterns
-
-| Windows Batch | Ubuntu Shell | Use Case |
+| Windows Batch | Ubuntu Shell | 備考 |
 |--------------|-------------|----------|
-| `if %ERRORLEVEL% neq 0 (...)` | `if [ $? -ne 0 ]; then ... fi` | Check last command |
-| `command || exit /b 1` | `command \|\| exit 1` | Exit on error |
-| `setlocal enabledelayedexpansion` | `set -euo pipefail` | Strict mode |
-| `call :error_label` | Structured with trap | Error handling |
-| N/A | `trap 'cleanup' EXIT` | Cleanup on exit |
-| N/A | `set -e` | Exit on first error |
+| `set VAR=value` | `VAR=value` | スクリプトローカル |
+| `set VAR=value&& echo %VAR%` | `VAR=value; echo "$VAR"` | セミコロンで順次実行 |
+| `set /p VAR=prompt:` | `read -p "prompt: " VAR` | 対話的入力 |
+| `echo %VAR%` | `echo "$VAR"` | 単語分割を防ぐためクォートを使用 |
+| `echo !VAR!` (遅延展開) | `echo "${VAR}"` (同じコンテキスト) | bashでは遅延展開不要 |
+| `%~dp0` | `"$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"` | スクリプトディレクトリ |
+| `%~nx1` | `"${1##*/}"` | パラメータのベース名 |
+| `%ERRORLEVEL%` | `$?` | 最後のコマンドの終了コード |
+| `%USERNAME%` | `$USER` または `$(whoami)` | 現在のユーザー |
+| `%USERPROFILE%` | `$HOME` | ユーザーホームディレクトリ |
+| `%TEMP%` | `$TMPDIR` または `$HOME/.cache` | 一時ディレクトリ |
 
 ---
 
-## Common Batch Patterns → Shell Equivalents
+## パスとファイル操作
 
-### Pattern 1: Safe Directory Navigation
+| Windows Batch | Ubuntu Shell | 備考 |
+|--------------|-------------|----------|
+| `cd /d C:\path` | `cd /path` | スラッシュを使用 |
+| `pushd dir & popd` | `(cd dir; ...)` | 分離ディレクトリ用のサブシェル |
+| `if exist path\` | `if [ -d "path/" ]` | ディレクトリが存在 |
+| `if exist file.txt` | `if [ -f "file.txt" ]` | ファイルが存在 |
+| `mkdir dir` | `mkdir -p dir` | 親ディレクトリも作成 |
+| `del /f file.txt` | `rm -f file.txt` | 強制削除 |
+| `rmdir /s /q dir` | `rm -rf dir` | 再帰的削除（注意！） |
+| `copy /y src dst` | `cp src dst` | ファイルコピー |
+| `xcopy /sqy src\ dst\` | `cp -r src/* dst/` または `rsync -av src/ dst/` | ディレクトリコピー |
+| `ren oldname newname` | `mv oldname newname` | 名前変更/移動 |
+| `move /y src dst` | `mv src dst` | ファイル/ディレクトリ移動 |
+| `findstr "pattern" file` | `grep "pattern" file` | ファイル内のテキスト検索 |
+| `findstr /r "regex" file` | `grep -E "regex" file` | 正規表現検索 |
+| `for /d %%d in (dir\*)` | `for dir in dir/*/; do ... done` | ディレクトリをループ |
+| `for /r %%f in (*.ext)` | `find . -name "*.ext" -type f` | ファイルを再帰的に検索 |
+| `dir /s` | `ls -R` または `find .` | 再帰的にリスト |
+| `cd /d %~dp0` | `cd "$(dirname "${BASH_SOURCE[0]}")"` | スクリプトディレクトリに移動 |
+
+---
+
+## 文字列操作
+
+| Windows Batch | Ubuntu Bash | 備考 |
+|--------------|-------------|----------|
+| `%VAR:old=new%` | `${VAR//old/new}` | すべての出現を置換 |
+| `%VAR:~0,5%` | `${VAR:0:5}` | 部分文字列（最初の5文字） |
+| `%VAR:~-3%` | `${VAR: -3}` | 最後の3文字 |
+| `call :label` | `function_name` | 関数呼び出し |
+| `setlocal enabledelayedexpansion` | bashでは不要 | 遅延展開は自動処理 |
+| `%random%` | `$RANDOM` | 0-32767のランダム数 |
+| `if "%VAR%"=="" ` | `if [ -z "$VAR" ]` | 空文字列チェック |
+| `if not "%VAR%"=="" ` | `if [ -n "$VAR" ]` | 非空チェック |
+| `if /i "%VAR%"=="value"` | `if [ "${VAR,,}" = "value" ]` | 大文字小文字を区別しない（bash 4+） |
+
+---
+
+## 条件ロジック
+
+| Windows Batch | Ubuntu Shell | 備考 |
+|--------------|-------------|----------|
+| `if condition (...)` | `if condition; then ... fi` | 基本的なif-then |
+| `if not condition (...)` | `if ! condition; then ... fi` | !で否定 |
+| `if condition (...) else (...)` | `if condition; then ... else ... fi` | If-else |
+| `if %ERRORLEVEL% neq 0` | `if [ $? -ne 0 ]` | 終了コードチェック |
+| `if exist path (...)` | `if [ -d "path" ]; then ... fi` | パスが存在 |
+| `if /i %VAR%==value` | `if [ "$VAR" = "value" ]` | 文字列の等価性 |
+| `if "%VAR%"=="" (...)` | `if [ -z "$VAR" ]; then ... fi` | 空文字列 |
+| `if defined VAR` | `if [ -n "${VAR:-}" ]` | 変数が定義されている |
+| `if %VAR% geq 5` | `if [ "$VAR" -ge 5 ]` | 数値比較 |
+| `goto label` | `function_name` または `return` | ラベルにジャンプ |
+
+---
+
+## 数値演算
+
+| Windows Batch | Ubuntu Shell | 備考 |
+|--------------|-------------|----------|
+| `set /a num=5+3` | `num=$((5+3))` | 算術展開 |
+| `if %num% gtr 10` | `if [ "$num" -gt 10 ]` | より大きい |
+| `if %num% lss 10` | `if [ "$num" -lt 10 ]` | より小さい |
+| `if %num% equ 10` | `if [ "$num" -eq 10 ]` | 等しい |
+
+---
+
+## ループ
+
+| Windows Batch | Ubuntu Shell | 備考 |
+|--------------|-------------|----------|
+| `for %%i in (1 2 3)` | `for i in 1 2 3; do ... done` | リストをループ |
+| `for /l %%i in (1,1,5)` | `for i in {1..5}; do ... done` | 数値範囲 |
+| `for /d %%d in (*)` | `for dir in */; do ... done` | ディレクトリをループ |
+| `for /r %%f in (*.txt)` | `while IFS= read -r f; do ... done < <(find . -name "*.txt")` | 再帰的ファイルループ |
+| `for /f "tokens=1" %%a in (file)` | `while IFS= read -r a rest; do ... done < file` | 行のパース |
+
+---
+
+## 関数とサブルーチン
+
+| Windows Batch | Ubuntu Shell | 備考 |
+|--------------|-------------|----------|
+| `:label` ... `call :label` | `function_name() { ... } function_name` | 関数定義 |
+| `exit /b 0` | `return 0` | 関数から戻る |
+| `exit /b 1` | `return 1` | エラーで戻る |
+| `setlocal` | 関数内で `local var=value` | ローカルスコープ |
+| `%~1` | `"$1"` | 最初の引数 |
+| `%~dp0` | `"$(dirname "${BASH_SOURCE[0]}")"` | スクリプトディレクトリ |
+| `%*` | `"$@"` | すべての引数（クォート付き） |
+| `%#` | `$#` | 引数の数 |
+
+---
+
+## 出力とログ
+
+| Windows Batch | Ubuntu Shell | 備考 |
+|--------------|-------------|----------|
+| `echo message` | `echo "message"` | 行を出力 |
+| `echo. ` | `echo ""` | 空行 |
+| `echo off` | (同等なし) | Bashはデフォルトで静か |
+| `cls` | `clear` | 画面クリア |
+| `echo message > file` | `echo "message" > file` | ファイルにリダイレクト（上書き） |
+| `echo message >> file` | `echo "message" >> file` | ファイルに追記 |
+| `echo %VAR% 2>&1 \| tee log.txt` | `echo "$VAR" \| tee log.txt` | 出力とログ |
+| `color 0a` | (同等なし) | シェルスクリプトに色なし |
+| `@echo off` | (同等なし) | デバッグ時は"set +x"を使用 |
+
+---
+
+## Git操作
+
+| Windows Batch | Ubuntu Shell | 備考 |
+|--------------|-------------|----------|
+| `git clone URL` | `git clone URL` | リポジトリをクローン |
+| `git fetch origin` | `git fetch origin` | 更新を取得 |
+| `git reset --hard` | `git reset --hard` | HEADにリセット |
+| `git reset --hard COMMIT` | `git reset --hard COMMIT` | 特定のコミットにリセット |
+| `git checkout branch` | `git checkout branch` | ブランチを切り替え |
+| `git config user.name` | `git config user.name` | すべてのプラットフォームで同じ |
+
+---
+
+## ネットワーク操作
+
+| Windows Batch | Ubuntu Shell | 備考 |
+|--------------|-------------|----------|
+| `C:\Windows\System32\curl.exe` | `curl` | システムcurlを使用 |
+| `curl -L URL` | `curl -L URL` | リダイレクトに従う |
+| `curl -o output URL` | `curl -o output URL` | ファイルに保存 |
+| `curl -fL URL` | `curl -fL URL` | HTTPエラーで失敗 |
+| `powershell -Command "(New-Object Net.WebClient).DownloadFile('URL','file')"` | `curl -L -o file URL` | ファイルをダウンロード |
+
+---
+
+## 環境変数
+
+| Windows | Ubuntu | 目的 |
+|---------|--------|---------|
+| `%APPDATA%\.triton\cache` | `$HOME/.triton/cache` | Tritonコンパイルキャッシュ |
+| `%TEMP%\torchinductor_%USERNAME%` | `$HOME/.cache/torch/inductor_$(whoami)` | PyTorchキャッシュ |
+| `chcp 65001` | `export LC_ALL=C.UTF-8` | UTF-8エンコーディング |
+| `%CUDA_PATH%` | `$CUDA_HOME` または自動検出 | CUDAツールキットの場所 |
+| `%PYTHONPATH%` | `export PYTHONPATH=...` | Pythonモジュールパス |
+
+---
+
+## エラーハンドリングパターン
+
+| Windows Batch | Ubuntu Shell | 使用例 |
+|--------------|-------------|----------|
+| `if %ERRORLEVEL% neq 0 (...)` | `if [ $? -ne 0 ]; then ... fi` | 最後のコマンドをチェック |
+| `command \|\| exit /b 1` | `command \|\| exit 1` | エラーで終了 |
+| `setlocal enabledelayedexpansion` | `set -euo pipefail` | 厳格モード |
+| `call :error_label` | trapで構造化 | エラーハンドリング |
+| N/A | `trap 'cleanup' EXIT` | 終了時のクリーンアップ |
+| N/A | `set -e` | 最初のエラーで終了 |
+
+---
+
+## 一般的なBatchパターン → Shell相当
+
+### パターン1: 安全なディレクトリナビゲーション
 
 **Batch**:
 ```batch
-pushd %~dp0..\..\Model
-REM ... operations ...
+pushd %~dp0..\..Model
+REM ... 操作 ...
 popd
 ```
 
-**Shell** (equivalent):
+**Shell**（同等）:
 ```bash
 (
     cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/Model"
-    # ... operations ...
+    # ... 操作 ...
 )
 ```
 
 ---
 
-### Pattern 2: Conditional Script Execution
+### パターン2: 条件付きスクリプト実行
 
 **Batch**:
 ```batch
@@ -228,7 +228,7 @@ fi
 
 ---
 
-### Pattern 3: Safe Variable Expansion
+### パターン3: 安全な変数展開
 
 **Batch**:
 ```batch
@@ -247,7 +247,7 @@ done
 
 ---
 
-### Pattern 4: Error Propagation
+### パターン4: エラー伝播
 
 **Batch**:
 ```batch
@@ -258,7 +258,7 @@ if %ERRORLEVEL% neq 0 (
 )
 ```
 
-**Shell** (use `set -e`):
+**Shell**（`set -e`を使用）:
 ```bash
 #!/bin/bash
 set -e
@@ -266,12 +266,12 @@ trap 'echo "Error in some_script"; exit 1' ERR
 
 some_script.sh
 
-# Rest of script only runs if some_script succeeds
+# some_scriptが成功した場合のみ残りのスクリプトが実行される
 ```
 
 ---
 
-### Pattern 5: Interactive Input
+### パターン5: 対話的入力
 
 **Batch**:
 ```batch
@@ -297,7 +297,7 @@ esac
 
 ---
 
-### Pattern 6: File Existence Check & Creation
+### パターン6: ファイル存在チェックと作成
 
 **Batch**:
 ```batch
@@ -315,7 +315,7 @@ cd dir
 
 ---
 
-### Pattern 7: Recursive Directory Operations
+### パターン7: 再帰的ディレクトリ操作
 
 **Batch**:
 ```batch
@@ -335,7 +335,7 @@ done
 
 ---
 
-### Pattern 8: Configuration File Updates
+### パターン8: 設定ファイルの更新
 
 **Batch**:
 ```batch
@@ -349,128 +349,128 @@ for /f "tokens=1,* delims==" %%a in (config.txt) do (
 )
 ```
 
-**Shell** (with sed):
+**Shell**（sedを使用）:
 ```bash
 sed 's/^KEY=.*/KEY=newvalue/' config.txt > output.txt
 ```
 
 ---
 
-## Common Gotchas & How to Avoid Them
+## よくある落とし穴と回避方法
 
-### Gotcha 1: Unquoted Variables
+### 落とし穴1: クォートされていない変数
 
-**Wrong**:
+**間違い**:
 ```bash
-echo $VAR          # Breaks if VAR contains spaces
-cd $SCRIPT_DIR     # Fails if path has spaces
+echo $VAR          # VARにスペースが含まれていると壊れる
+cd $SCRIPT_DIR     # パスにスペースがあると失敗
 ```
 
-**Right**:
+**正しい**:
 ```bash
-echo "$VAR"        # Safe
-cd "$SCRIPT_DIR"   # Always quoted
-```
-
----
-
-### Gotcha 2: Exit Code Lost in Pipeline
-
-**Wrong**:
-```bash
-set -e
-some_command | grep pattern  # If grep finds nothing, script stops!
-```
-
-**Right**:
-```bash
-set -e
-some_command | grep pattern || true  # Or handle appropriately
+echo "$VAR"        # 安全
+cd "$SCRIPT_DIR"   # 常にクォート
 ```
 
 ---
 
-### Gotcha 3: Wrong Subshell Usage
+### 落とし穴2: パイプラインで終了コードが失われる
 
-**Wrong**:
+**間違い**:
+```bash
+set -e
+some_command | grep pattern  # grepが何も見つけないとスクリプトが停止！
+```
+
+**正しい**:
+```bash
+set -e
+some_command | grep pattern || true  # または適切に処理
+```
+
+---
+
+### 落とし穴3: サブシェルの誤用
+
+**間違い**:
 ```bash
 (cd some_dir; VAR=value)
-echo $VAR  # VAR is empty (subshell scope)
+echo $VAR  # VARは空（サブシェルスコープ）
 ```
 
-**Right**:
+**正しい**:
 ```bash
 cd some_dir
 VAR=value
 cd -
-echo $VAR  # VAR has value
+echo $VAR  # VARに値がある
 ```
 
 ---
 
-### Gotcha 4: Relative Paths in Functions
+### 落とし穴4: 関数内の相対パス
 
-**Wrong**:
+**間違い**:
 ```bash
 my_function() {
-    cd relative/path  # Fails if called from different directory
+    cd relative/path  # 異なるディレクトリから呼び出されると失敗
 }
 ```
 
-**Right**:
+**正しい**:
 ```bash
 my_function() {
     local original_dir="$(pwd)"
     cd "$(dirname "${BASH_SOURCE[0]}")/relative/path"
-    # ... do work ...
+    # ... 作業 ...
     cd "$original_dir"
 }
 ```
 
 ---
 
-### Gotcha 5: Script Directory with Symlinks
+### 落とし穴5: シンボリックリンクを含むスクリプトディレクトリ
 
-**Wrong**:
+**間違い**:
 ```bash
-SCRIPT_DIR="$(dirname "$0")"  # May point to symlink location
+SCRIPT_DIR="$(dirname "$0")"  # シンボリックリンクの場所を指す可能性
 ```
 
-**Right**:
+**正しい**:
 ```bash
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"  # Resolves symlinks
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"  # シンボリックリンクを解決
 ```
 
 ---
 
-### Gotcha 6: Locale Issues
+### 落とし穴6: ロケールの問題
 
-**Wrong**:
+**間違い**:
 ```bash
-# No locale setup
-# Japanese characters in prompts may not display correctly
+# ロケール設定なし
+# プロンプト内の日本語文字が正しく表示されない可能性
 ```
 
-**Right**:
+**正しい**:
 ```bash
 #!/bin/bash
 export LC_ALL=C.UTF-8
 
-# Now Japanese characters work
+# これで日本語文字が機能する
 echo "モデルをダウンロードしています..."
 ```
 
 ---
 
-### Gotcha 7: Missing Error Handling
+### 落とし穴7: エラーハンドリングの欠如
 
-**Wrong**:
+**間違い**:
 ```bash
 curl URL -o file
-unzip file  # May fail if curl failed
+unzip file  # curlが失敗した場合に失敗する可能性
 ```
 
-**Right**:
+**正しい**:
 ```bash
 #!/bin/bash
 set -euo pipefail
@@ -481,30 +481,30 @@ unzip file || { echo "Unzip failed"; exit 1; }
 
 ---
 
-## Quick Checklist for Batch Conversion
+## Batch変換のクイックチェックリスト
 
-Before converting each script, ask:
+各スクリプトを変換する前に確認:
 
-- [ ] Does it set variables? Replace `set` with `VAR=`
-- [ ] Does it use `%ERRORLEVEL%`? Replace with `$?` or `set -e`
-- [ ] Does it use `pushd/popd`? Replace with subshell `(cd ...)`
-- [ ] Does it use `chcp`? Replace with `export LC_ALL=C.UTF-8`
-- [ ] Does it use VC Runtime? Remove entirely
-- [ ] Does it modify registry? Remove entirely
-- [ ] Does it use `%~dp0`? Replace with script dir expansion
-- [ ] Does it use `\` paths? Replace with `/`
-- [ ] Does it use `call script.bat`? Replace with `bash script.sh`
-- [ ] Does it expect interactive input? Use `read -p` instead of `set /p`
-
----
-
-## References
-
-- **Bash Manual**: https://www.gnu.org/software/bash/manual/
-- **ShellCheck**: https://www.shellcheck.net/ (syntax validator)
-- **POSIX Shell**: https://pubs.opengroup.org/onlinepubs/9699919799/utilities/sh.html
+- [ ] 変数を設定しているか？ `set`を`VAR=`に置き換え
+- [ ] `%ERRORLEVEL%`を使用しているか？ `$?`または`set -e`に置き換え
+- [ ] `pushd/popd`を使用しているか？ サブシェル`(cd ...)`に置き換え
+- [ ] `chcp`を使用しているか？ `export LC_ALL=C.UTF-8`に置き換え
+- [ ] VC Runtimeを使用しているか？ 完全に削除
+- [ ] レジストリを変更しているか？ 完全に削除
+- [ ] `%~dp0`を使用しているか？ スクリプトディレクトリ展開に置き換え
+- [ ] `\`パスを使用しているか？ `/`に置き換え
+- [ ] `call script.bat`を使用しているか？ `bash script.sh`に置き換え
+- [ ] 対話的入力を期待しているか？ `set /p`の代わりに`read -p`を使用
 
 ---
 
-This reference should cover 95% of batch-to-shell conversions needed for EasyReforge.
-For complex cases, refer to the IMPLEMENTATION_GUIDE.md for more detailed patterns.
+## 参考資料
+
+- **Bashマニュアル**: https://www.gnu.org/software/bash/manual/
+- **ShellCheck**: https://www.shellcheck.net/ （構文検証ツール）
+- **POSIXシェル**: https://pubs.opengroup.org/onlinepubs/9699919799/utilities/sh.html
+
+---
+
+このリファレンスは、EasyReforgeに必要なbatch-to-shell変換の95%をカバーしているはずです。
+複雑なケースについては、より詳細なパターンについてIMPLEMENTATION_GUIDE.mdを参照してください。
