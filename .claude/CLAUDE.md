@@ -12,13 +12,13 @@ This file provides comprehensive guidance for implementing the EasyReforge Ubunt
 
 **New to this project?** Read in this order:
 1. This file (CLAUDE.md) - Project overview and architecture
-2. [TODO.md](../TODO.md) - Complete implementation plan (10-12 weeks estimated)
-3. [IMPLEMENTATION_GUIDE.md](../IMPLEMENTATION_GUIDE.md) - Step-by-step instructions with detailed cautions
-4. [SCRIPT_CONVERSION_REFERENCE.md](../SCRIPT_CONVERSION_REFERENCE.md) - Batch-to-shell conversion cookbook
+2. [docs/01_planning/phase_breakdown.md](../docs/01_planning/phase_breakdown.md) - Complete implementation plan (10-12 weeks estimated)
+3. [docs/02_implementation/common_patterns.md](../docs/02_implementation/common_patterns.md) - Step-by-step instructions with detailed cautions
+4. [docs/03_reference/batch_to_shell_conversion.md](../docs/03_reference/batch_to_shell_conversion.md) - Batch-to-shell conversion cookbook
 
 **Ready to code?**
-- Start with [IMPLEMENTATION_GUIDE.md Phase 1](../IMPLEMENTATION_GUIDE.md#phase-1-foundation-scripts-weeks-1-2)
-- Reference [SCRIPT_CONVERSION_REFERENCE.md](../SCRIPT_CONVERSION_REFERENCE.md) for specific command conversions
+- Start with [docs/02_implementation/phase_1/overview.md](../docs/02_implementation/phase_1/overview.md)
+- Reference [docs/03_reference/batch_to_shell_conversion.md](../docs/03_reference/batch_to_shell_conversion.md) for specific command conversions
 - Follow the [Implementation Checklist](#implementation-checklist) below
 
 ---
@@ -158,7 +158,7 @@ sudo apt-get install -y git curl python3 python3-venv python3-pip \
 - setup.sh can be called from installer
 - All scripts pass shellcheck validation
 
-**See**: [IMPLEMENTATION_GUIDE.md Phase 1](../IMPLEMENTATION_GUIDE.md#phase-1-foundation-scripts-weeks-1-2)
+**See**: [docs/02_implementation/phase_1/overview.md](../docs/02_implementation/phase_1/overview.md)
 
 ### Phase 2: Core Environment Setup (Weeks 3-4, 30-40 hours)
 **Goal**: Fully functional reForge installation
@@ -175,7 +175,7 @@ sudo apt-get install -y git curl python3 python3-venv python3-pip \
 - Symlinks created and functional
 - WebUI launches: `bash reforge.sh`
 
-**See**: [IMPLEMENTATION_GUIDE.md Phase 2](../IMPLEMENTATION_GUIDE.md#phase-2-core-environment-weeks-3-4)
+**See**: [docs/02_implementation/common_patterns.md](../docs/02_implementation/common_patterns.md)
 
 ### Phase 3: Download Helpers (Weeks 5-6, 25-35 hours)
 **Goal**: Foundation for model download automation
@@ -188,7 +188,7 @@ sudo apt-get install -y git curl python3 python3-venv python3-pip \
 - Metadata CSV complete and validated
 - Download helpers work with test data
 
-**See**: [IMPLEMENTATION_GUIDE.md Phase 3](../IMPLEMENTATION_GUIDE.md#phase-3-download-helpers-weeks-5-6)
+**See**: [docs/02_implementation/common_patterns.md](../docs/02_implementation/common_patterns.md)
 
 ### Phase 4: Model Script Generation (Weeks 7-8, 30-40 hours)
 **Goal**: Automated download scripts for 165+ models
@@ -202,7 +202,7 @@ sudo apt-get install -y git curl python3 python3-venv python3-pip \
 - All scripts pass shellcheck
 - Meta-scripts call children correctly
 
-**See**: [IMPLEMENTATION_GUIDE.md Phase 4](../IMPLEMENTATION_GUIDE.md#phase-4-model-scripts-weeks-7-8)
+**See**: [docs/02_implementation/common_patterns.md](../docs/02_implementation/common_patterns.md)
 
 ### Phase 2b: Model Linking (Weeks 9-10, 15-20 hours, Parallel)
 **Goal**: Symlink templates for user model directories
@@ -215,7 +215,7 @@ sudo apt-get install -y git curl python3 python3-venv python3-pip \
 - WebUI can read models through symlinks
 - Relative paths work from any CWD
 
-**See**: [TODO.md Part 3](../TODO.md#part-3-model-linking-scripts-conversion-14-files)
+**See**: [docs/01_planning/phase_breakdown.md](../docs/01_planning/phase_breakdown.md)
 
 ### Phase 5: Optional Launchers & QA (Weeks 11-12, 15-25 hours)
 **Goal**: Feature parity with Windows version
@@ -230,7 +230,7 @@ sudo apt-get install -y git curl python3 python3-venv python3-pip \
 - Documentation complete
 - Ready for public release
 
-**See**: [TODO.md Part 4](../TODO.md#part-4-optional-launchers--utilities-24-files)
+**See**: [docs/01_planning/phase_breakdown.md](../docs/01_planning/phase_breakdown.md)
 
 ---
 
@@ -270,7 +270,7 @@ Pattern: Modular scripts where each performs one concern (clone repo, install de
 - Fallback to CPU-only if GPU not detected
 - Handle wheel download failures with source build fallback
 
-**Reference**: [IMPLEMENTATION_GUIDE.md Caution 1](../IMPLEMENTATION_GUIDE.md#caution-1-pytorch-installation-for-linux)
+**Reference**: [docs/02_implementation/common_patterns.md](../docs/02_implementation/common_patterns.md)
 
 ### Caution 2: SageAttention Wheel Availability
 **Issue**: Windows wheel (win_amd64) not available on Linux
@@ -289,7 +289,7 @@ Pattern: Modular scripts where each performs one concern (clone repo, install de
 - Always use full paths: `source "${VENV_PATH}/bin/activate"`
 - Test activation verification: `python3 -c "import sys; sys.exit(0 if 'venv' in sys.prefix else 1)"`
 
-**Reference**: [SCRIPT_CONVERSION_REFERENCE.md Virtual Environments](#environment-variables)
+**Reference**: [docs/03_reference/batch_to_shell_conversion.md](../docs/03_reference/batch_to_shell_conversion.md)
 
 ### Caution 4: Symlink Semantics
 **Issue**: Windows junctions (MKLINK /J) vs Linux symlinks (ln -s)
@@ -301,7 +301,7 @@ Pattern: Modular scripts where each performs one concern (clone repo, install de
 - Test with `test -L` to verify symlink creation
 - Verify WebUI can traverse symlinks (may need Python traversal fixes)
 
-**Reference**: [IMPLEMENTATION_GUIDE.md link_helper.sh](../IMPLEMENTATION_GUIDE.md#task-3-link_helpersh)
+**Reference**: [docs/02_implementation/phase_1/overview.md](../docs/02_implementation/phase_1/overview.md)
 
 ### Caution 5: Path Handling
 **Issue**: Windows backslashes (`\`) vs Linux forward slashes (`/`)
@@ -313,7 +313,7 @@ Pattern: Modular scripts where each performs one concern (clone repo, install de
 
 **Pattern**: `SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"`
 
-**Reference**: [SCRIPT_CONVERSION_REFERENCE.md Path Operations](../SCRIPT_CONVERSION_REFERENCE.md#path-and-file-operations)
+**Reference**: [docs/03_reference/batch_to_shell_conversion.md](../docs/03_reference/batch_to_shell_conversion.md)
 
 ### Caution 6: UTF-8 Encoding
 **Issue**: Windows uses `chcp 65001` for UTF-8; required for Japanese UI
@@ -323,7 +323,7 @@ Pattern: Modular scripts where each performs one concern (clone repo, install de
 - Test with Japanese text in prompts
 - Verify output displays correctly
 
-**Pattern**: See [SCRIPT_CONVERSION_REFERENCE.md Environment Variables](../SCRIPT_CONVERSION_REFERENCE.md#environment-variables)
+**Pattern**: See [docs/03_reference/batch_to_shell_conversion.md](../docs/03_reference/batch_to_shell_conversion.md)
 
 ### Caution 7: Interactive Input Non-TTY Issues
 **Issue**: `read -p` fails in non-interactive shells (pipes, cron, systemd)
@@ -333,7 +333,7 @@ Pattern: Modular scripts where each performs one concern (clone repo, install de
 - Provide sensible defaults when non-interactive
 - Support piped input: `echo "path" | link_input.sh`
 
-**Reference**: [TODO.md Known Issues - Issue 3](../TODO.md#issue-3-interactive-input-in-non-tty)
+**Reference**: [docs/03_reference/known_issues.md](../docs/03_reference/known_issues.md)
 
 ---
 
@@ -372,7 +372,7 @@ Use this table for 90% of conversions. See [SCRIPT_CONVERSION_REFERENCE.md](../S
 | `if exist path` | `if [ -d "path" ]` | `if [ -d "models" ]; then...` |
 | `@echo off` | (no equivalent) | Bash runs quietly by default |
 
-**Complete Reference**: See [SCRIPT_CONVERSION_REFERENCE.md](../SCRIPT_CONVERSION_REFERENCE.md) for all conversions including loops, functions, git operations, error handling patterns, and gotchas.
+**Complete Reference**: See [docs/03_reference/batch_to_shell_conversion.md](../docs/03_reference/batch_to_shell_conversion.md) for all conversions including loops, functions, git operations, error handling patterns, and gotchas.
 
 ### Script Structure Template
 
@@ -411,7 +411,7 @@ main "$@"
 - **Comments**: Only for non-obvious logic
 - **Helper sourcing**: Include with full path: `source "${SCRIPT_DIR}/../lib/common.sh"`
 
-**Reference**: [IMPLEMENTATION_GUIDE.md Code Style](../IMPLEMENTATION_GUIDE.md#code-style--conventions)
+**Reference**: [docs/02_implementation/common_patterns.md](../docs/02_implementation/common_patterns.md)
 
 ---
 
@@ -445,7 +445,7 @@ bash script.sh 2>&1 | grep -i error
 **Phase 2b**: Verify symlinks created and traversable by Python
 **Phase 5**: End-to-end test on fresh Ubuntu VM
 
-**Full Testing Checklist**: [IMPLEMENTATION_GUIDE.md Testing Checklist](../IMPLEMENTATION_GUIDE.md#testing-checklist)
+**Full Testing Checklist**: [docs/03_reference/checklist.md](../docs/03_reference/checklist.md)
 
 ---
 
@@ -635,9 +635,9 @@ Model/Stable-diffusion/link_input.sh          (was LinkInput.bat)
 - **POSIX Shell**: https://pubs.opengroup.org/onlinepubs/9699919799/utilities/sh.html
 
 ### Documentation
-- **TODO.md**: Complete implementation plan with timeline
-- **IMPLEMENTATION_GUIDE.md**: Step-by-step with detailed cautions
-- **SCRIPT_CONVERSION_REFERENCE.md**: Batch-to-shell conversion cookbook
+- **docs/01_planning/**: Complete implementation plan with timeline
+- **docs/02_implementation/**: Step-by-step with detailed cautions
+- **docs/03_reference/**: Batch-to-shell conversion cookbook and troubleshooting
 
 ---
 
@@ -646,16 +646,16 @@ Model/Stable-diffusion/link_input.sh          (was LinkInput.bat)
 Start here based on your role:
 
 **I want to understand the full scope**
-→ [TODO.md](../TODO.md) - 689 lines, comprehensive plan with timeline
+→ [docs/01_planning/phase_breakdown.md](../docs/01_planning/phase_breakdown.md) - Comprehensive plan with timeline
 
 **I'm ready to start coding**
-→ [IMPLEMENTATION_GUIDE.md](../IMPLEMENTATION_GUIDE.md) - 1470 lines, step-by-step with cautions
+→ [docs/02_implementation/common_patterns.md](../docs/02_implementation/common_patterns.md) - Step-by-step with cautions
 
 **I need to convert a specific script**
-→ [SCRIPT_CONVERSION_REFERENCE.md](../SCRIPT_CONVERSION_REFERENCE.md) - 510 lines, command-by-command reference
+→ [docs/03_reference/batch_to_shell_conversion.md](../docs/03_reference/batch_to_shell_conversion.md) - Command-by-command reference
 
 **I want to understand the architecture**
-→ This file (CLAUDE.md) - Project guidelines and conventions
+→ This file (CLAUDE.md) + [docs/00_quickstart/architecture.md](../docs/00_quickstart/architecture.md)
 
 ---
 
@@ -667,7 +667,7 @@ Start here based on your role:
 **Estimated Timeline**: 10-12 weeks (full), 4-5 weeks (core infrastructure)
 **Implementation Order**: Sequential with parallel phases possible from Week 9+
 
-**Next Step**: Begin Phase 1 with easyreforge_installer.sh (see [IMPLEMENTATION_GUIDE.md Phase 1](../IMPLEMENTATION_GUIDE.md#phase-1-foundation-scripts-weeks-1-2))
+**Next Step**: Begin Phase 1 with easyreforge_installer.sh (see [docs/02_implementation/phase_1/overview.md](../docs/02_implementation/phase_1/overview.md))
 
 ---
 
@@ -684,9 +684,9 @@ Start here based on your role:
 ## Contact & Questions
 
 For implementation questions:
-1. Check [IMPLEMENTATION_GUIDE.md](../IMPLEMENTATION_GUIDE.md) first (detailed step-by-step)
-2. Reference [SCRIPT_CONVERSION_REFERENCE.md](../SCRIPT_CONVERSION_REFERENCE.md) for specific conversions
-3. Review [TODO.md](../TODO.md) for timeline and dependencies
+1. Check [docs/02_implementation/common_patterns.md](../docs/02_implementation/common_patterns.md) first (detailed step-by-step)
+2. Reference [docs/03_reference/batch_to_shell_conversion.md](../docs/03_reference/batch_to_shell_conversion.md) for specific conversions
+3. Review [docs/01_planning/phase_breakdown.md](../docs/01_planning/phase_breakdown.md) for timeline and dependencies
 4. Check original batch files for exact behavior to replicate
 
 This CLAUDE.md serves as the control center. Always refer to the more detailed guides for specifics.

@@ -1,201 +1,270 @@
-﻿# EasyReforge
+# EasyReforge for Ubuntu
 
-[reForge](https://github.com/Panchovix/stable-diffusion-webui-reForge) でお手軽に高速画像生成する EasyReforge です。  
-[NoobAi](https://civitai.com/models/833294) の Epsilon-Prediction 版 ( **NoobE** ) と V-Prediction 版 ( **NoobV** ) を主に扱います。
+**Stable Diffusion WebUI reForge向けのターンキーインストーラー（Ubuntu専用）**
 
-- ワンクリックインストール
-- Geforce RTX 3060 VRAM 12GB で FullHD を 10秒で生成するプリセット
-- 便利な拡張機能一式を組み込み
-- Civitai キー設定でモデル・LoRA・Wildcard・ADetailer モデルなどリソース一式をダウンロード
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
+[![Ubuntu](https://img.shields.io/badge/ubuntu-20.04%20%7C%2022.04-orange.svg)](https://ubuntu.com/)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org/)
 
-わからないことや不具合や要望がありましたら、 [@Zuntan03](https://x.com/Zuntan03) や [Issues](https://github.com/Zuntan03/EasyReforge/issues) にお知らせください。
+---
 
-## インストール方法
+## 概要
 
-1.  [EasyReforgeInstaller.bat](https://github.com/Zuntan03/EasyReforge/raw/main/EasyReforge/EasyReforgeInstaller.bat?ver=1) を右クリックから保存します。
-	- NVIDIA GPU の Windows PC、20GB 以上の空きストレージ、PC の管理者権限、アバストなどの Windows Diffender でないウィルスチェック無効化、VPN の無効化が必要です。
-2. `C:/EasyReforge/` などの浅いパスのインストール先の **空フォルダ** で、`EasyReforgeInstaller.bat` をダブルクリックして実行します。
-	- **`WindowsによってPCが保護されました` と表示されたら、`詳細表示` から `実行` します。**
-3. `動作に必要なモデルなどをダウンロードします。よろしいですか？ [y/n]（空欄なら y）` で `Enter` します。
-4. インストール先の `EasyReforge/vc_redist.x64.exe` で、`Microsoft Visual C++ Redistributable` をインストールします。
-5. インストールが問題なく終了したら [使い方](https://github.com/Zuntan03/EasyReforge/#使い方) へ。
+EasyReforgeは、[reForge WebUI](https://github.com/Panchovix/stable-diffusion-webui-reForge)（Stable Diffusion画像生成）のUbuntu環境向けインストーラーです。
 
-**インストールで問題が発生したら『[インストールのトラブルシューティング](https://github.com/Zuntan03/EasyReforge/wiki/%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%81%AE%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0)』へ。**
+> **注意**: これは元の[Windows版EasyReforge](https://github.com/Zuntan03/EasyReforge)をUbuntu専用に移行したバージョンです。
 
-## 使い方
+### 特徴
 
-解説いただいた記事
+- ✅ **ワンコマンドインストール**: 複雑な環境構築を自動化
+- ✅ **モデル管理**: Civitai/HuggingFaceから自動ダウンロード
+- ✅ **日本語UI対応**: 完全な日本語ローカライゼーション
+- ✅ **拡張機能**: ControlNet、Taggerなど13種類の拡張を自動セットアップ
+- ✅ **CUDA最適化**: NVIDIA GPU対応（RTX 3060以上推奨）
 
-- [新環境構築にEasyReforge 使ったから自動的に入るやつ全部解説する](https://note.com/kagami_kami/n/n79f46bc6147b)
+---
 
-|![](https://raw.githubusercontent.com/wiki/Zuntan03/EasyReforge/Sample/CheatSheet/Reforge_00_Basic.webp)|![](https://raw.githubusercontent.com/wiki/Zuntan03/EasyReforge/Sample/CheatSheet/Reforge_02_VPred.webp)|
-|:-:|:-:|
-|![](https://raw.githubusercontent.com/wiki/Zuntan03/EasyReforge/Sample/CheatSheet/Txt2ImgInpaint.webp)|![](https://raw.githubusercontent.com/wiki/Zuntan03/EasyReforge/Sample/CheatSheet/Reforge_01_Tipo.webp)|
-|![](https://raw.githubusercontent.com/wiki/Zuntan03/EasyReforge/Sample/CheatSheet/TipoWildcard.webp)|![](https://raw.githubusercontent.com/wiki/Zuntan03/EasyReforge/Sample/CheatSheet/TipoWildcardMulti.webp)|
-|![](https://raw.githubusercontent.com/wiki/Zuntan03/EasyReforge/Sample/CheatSheet/FramePlanner.webp)|![](https://raw.githubusercontent.com/wiki/Zuntan03/EasyReforge/Sample/CheatSheet/NoobInpaint.webp)|
-|![](https://raw.githubusercontent.com/wiki/Zuntan03/EasyReforge/log/2507/anytest.webp)||
+## 必要環境
 
-### 基本操作
+### 必須
 
-- EasyReforge インストール先にある `Reforge.bat` で起動します。
-	- 右側の `Generate` ボタンで画像を生成します。
-		- 画像は `OutputReforge\txt2img-images` に保存されます。
-			- `InfiniteImageBrowsing.bat` で生成した画像を確認できます。
-	- プロンプト欄に入力するタグは [Danbooru](https://danbooru.donmai.us/) の左上にある `Search` 欄で、**日本語で検索して調べます** 。
-	- `Generate` ボタン下のスタイル設定欄で `DMD2[4]: LCM, SGM Uniform 📋↙` を選択して `📋` と `↙` で基本的な設定を適用できます。
-		- **Latent 系 Hires. fix x1.5 の利用が前提のプリセットです。**
-		- プロンプト末尾の safe は TIPO 用のレーティング指定です。  
-		TIPO を利用しない場合は削除してください（金庫が生成される場合があります）。
-		- 高速化 LoRA なしの通常の設定を利用したい場合は `Normal[28+]: Euler a, Normal 📋↙️` を適用します。
-	- プロンプト入力欄下の `TIPO` を開いて `Enabled` を有効にすると、入力済みのプロンプトから関連するプロンプトを追加して生成します（NSFW で特に強力です）。
-		- 評価の高い NSFW を試すには `safe` を `explicit` に書き換えます。
-	- 画像生成で問題が発生したら『[画像生成のトラブルシューティング](https://github.com/Zuntan03/EasyReforge/wiki/%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0#%E7%94%BB%E5%83%8F%E7%94%9F%E6%88%90%E3%81%AE%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0)』へ。
-- **起動時の設定状態は `Settings` の左下にある `Other` - `Defaults` で変更できます。**
-	- `View changes` で変更内容を確認して、`Apply` で保存します。
-	- 設定がよくわからなくなったら `stable-diffusion-webui-reForge/` にある `config.json`, `ui-config.json`, `styles.csv` を退避してから `EasyReforge.bat` を実行すると、初期状態にリセットします。
-- VRAM の少ない GPU では画面左下の `Never OOM Integrated` を有効にして、`Low VRAM` などを指定すると動作が快適になる可能性があります。
-- UI の日本語併記を止めるには `Settings` にある `Bilingual Localization` の `Localization file` を `None` にして、`Apply settings` と `Reload UI` をしてください。
-- 起動時にコマンドラインオプションを指定したい場合は `Reforge_ArgSample_DarkTheme.bat` をコピーして、ファイル内の `--theme dark` を書き換えます。
-- **`Update.bat` で EasyReforge を更新します。**
-	- 更新で問題が発生したら『[更新のトラブルシューティング](https://github.com/Zuntan03/EasyReforge/wiki/%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0#%E6%9B%B4%E6%96%B0%E3%81%AE%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0)』へ。
+- **OS**: Ubuntu 20.04 LTS / 22.04 LTS（推奨）
+- **Python**: 3.10以上
+- **Git**: 2.25以上
+- **ディスク**: 20GB以上の空き容量
+- **メモリ**: 16GB以上のRAM
 
-### 追加データのダウンロード
+### 推奨
 
-- `Settings` の左上 `Search...` 欄に `api` と入力すると `[Wiki] API key for authenticating with Civitai.` の設定が表示されます。  
-	- [Wiki](https://github.com/zixaphir/Stable-Diffusion-Webui-Civitai-Helper/wiki/Civitai-API-Key) のリンク先をブラウザで翻訳して、内容にそって API Key を取得して、この設定欄にコピペしてから上の `Apply settings` で保存します。
-- Civitai キーを設定したら `NoobAiEpsilonPred_StandardModels.bat` でモデルなどを一式ダウンロードします。
-	- モデルのダウンロードが不要な場合は `NoobAiEpsilonPred_Standard.bat` を実行します。
-- 追加データをダウンロードするとキャラやスタイルのワイルドカードが使えます。
-	- `__NsfwPony/char__`: キャラワイルドカード
-	- `__Booru1girl__`: 女性のみキャラワイルドカード
-	- `__MixedStyle__`: 混合スタイルワイルドカード
-	- `<lora:NoobEStylesDump:1> __NoobEStylesDump__`: スタイル LoRA とトリガーワイルドカード。V-Pred なら NoobE を NoobV にします。
-	- `<lora:NoobEStylesCollection:1> __NoobStylesCollection__`: スタイル LoRA とトリガーワイルドカード。V-Pred なら NoobE を NoobV にします。
-- `Download/` 直下の `bat` では追加データを一式ダウンロードできます。
-	- `NoobAiEpsilonPred`, `NoobAiVPred`: [NoobAi](https://civitai.com/models/833294) の Epsilon-Prediction 版、V-Prediction 版の関連ファイルをダウンロードします。最初は扱いが簡単な `NoobAiEpsilonPred` がオススメです。
-	- `Minimum`: 画像生成ができる最低限の関連ファイルをダウンロードします。`Minimum` のみ、下記の Civitai キー設定をしなくてもダウンロードできます。
-	- `Standard`: `Minimum` に加えて、モデル以外の標準的な関連ファイルをダウンロードします。LoRA や ADetailer 検出モデルや Wildcard など、容量に対して効果が大きいモノが多いため、Civitai キーを登録してのダウンロードを推奨します。
-	- `StandardModels`: `Standard` に加えて、合計 100GB 以下の定番オススメモデルをダウンロードします。
-	- `All`: すべての関連ファイルをダウンロードします。
-	- サブフォルダの `bat` で個別のダウンロードもできます。
-	- モデルや LoRA は日々新しいモノが公開されますので、[Civitai](https://civitai.com/) で気になったモノを `Civitai Helper` でダウンロードしたり、`Civitai Helper Browser` で直接ダウンロードしてください（Civitai キー設定が必要）。
+- **GPU**: NVIDIA RTX 3060以上（VRAM 12GB以上）
+- **CUDA**: 12.8以上
+- **ネットワーク**: 高速インターネット接続（初回ダウンロード用）
 
-### 他の環境とのリソース共有
+### 事前準備
 
-- モデルや LoRA は `Model/` 以下に保存します。
-- 各サブフォルダの `LinkInput.bat` と `LinkOutput.bat` でモデルや LoRA を共有できます。
-	- EasyReforge から他の環境のモデルや LoRA を参照したい場合は、`LinkInput.bat` を実行してください。
-	- EasyReforge のモデルや LoRA を他の環境から参照したい場合は、`LinkOutput.bat` を実行してください。
+```bash
+# 必要なツールをインストール
+sudo apt-get update
+sudo apt-get install -y git curl python3 python3-venv python3-pip \
+    build-essential python3-dev xdg-utils
 
-### V-Prediction を試す
+# NVIDIA GPUドライバー（GPU使用の場合）
+sudo apt-get install -y nvidia-utils
 
-**NoobAI の V-Prediction 版は開発中です。**  
-**現時点では V-Prediction & ZTSNR に対応した高速化 LoRA も存在しないため、強引な対応により品質が落ちています（が、その代わりに 3060 で FullHD を 10秒で生成できます）。**
+# CUDA Toolkit 12.8（別途インストール必要）
+# https://developer.nvidia.com/cuda-downloads
+```
 
-[追加データのダウンロード](https://github.com/Zuntan03/EasyReforge/#追加データのダウンロード) で Civitai キーを設定してから、`Download/` にある `NoobAiVPred_StandardModels.bat` で V-Pred のモデルや LoRA をダウンロードします。
+---
 
-1. 左下にある `Advanced Model Sampling for reForge` を開いて `Enable Advanced Model Sampling` を有効にします。
-	- V-Pred や ZTSNR 自動判定機能は派生モデルで正常に動作しない場合があるようですのでご注意ください。
-1. `DMD2[4+]: Euler a CFG++, Beta 📋↙` を選択して、`📋` と `↙` で適用します。
-	- モデルによっては `DMD2[4]: LCM, SGM Uniform 📋↙` の設定のままでも生成できます。
-2. `__Booru1girl__ official logo, upper body` や `__NsfwPony/char__ official logo, upper body` で生成すると、ロゴなどで学習精度の高さを確認できます。
+## クイックスタート
 
-E-Pred に戻すときも同様です。
+### 1. リポジトリのクローン
 
-1. `DMD2[4]: LCM, SGM Uniform 📋↙` を選択して、`📋` と `↙` で適用します。
-1. 左下にある `Advanced Model Sampling for reForge` を開いて `Enable Advanced Model Sampling` を無効にします。
+```bash
+git clone https://github.com/Zuntan03/EasyReforge-Ubuntu.git
+cd EasyReforge-Ubuntu
+```
 
-## 最近の更新内容
+### 2. インストール
 
-- **更新で編集したスタイルが巻き戻った場合は、`stable-diffusion-webui-reForge\sytles.csv` の横にある日付付きバックアップファイルからコピペして復元してください。**
+```bash
+bash EasyReforge/easyreforge_installer.sh
+```
 
-### 2025/09/21
+インストールには20-40分かかります（ネットワーク速度により変動）。
 
-- `Download\Stable-diffusion\NoobV\ObsessionV_v20.bat` のバージョンを更新しました。
+### 3. WebUI起動
 
-### 2025/09/16
+```bash
+bash reforge.sh
+```
 
-- `Download\Stable-diffusion\Illu\WaiNsfw_v15.bat` のバージョンを更新しました。
+ブラウザで `http://localhost:7860` にアクセスしてください。
 
-### 2025/07/12
-
-- `Download\Lora\Illu_Char\Takopī_no_Genzai.bat` を追加しました。
-
-### 2025/07/06
-
-- ControlNet の AnyTest プリセットで `Sdxl/AnyTest_Dim64_v10` を使用するように変更しました。
-	- EasyReforge の高速生成環境では LLLite ControlNet の AnyTest と相性が良いようで、Animagine や Pony に依存していない旧バージョンで打率が高く見えています。
-		- [`anytest?_illustrious2`](https://huggingface.co/2vXpSwA7/iroiro-lora/commit/bb4a39142275ac975ae4e6a64d1df218f672e0f0) の LLLite 版がリリースされれば、そちらのほうが打率が高くなる可能性があります。
-- スタイルのプリセットに `Illu HyDmd[4]: LCM, Beta` を追加しました。
-	- **編集したスタイルが Update.bat で巻き戻ります。**  
-	**スタイルを編集していた場合は `stable-diffusion-webui-reForge\sytles.csv` の横にある日付付きバックアップファイルからコピペして復元してください。**
-- 以下のモデルを追加しました。
-	- `Download\ControlNet\Sdxl\AnyTest_Dim64_v10.bat`
-	- `Download\Stable-diffusion\NoobE\SmoothMixNoob_v30.bat`
-	- `Download\Stable-diffusion\Illu\SmoothMixIlluNoob_v30.bat`
-
-![](https://raw.githubusercontent.com/wiki/Zuntan03/EasyReforge/log/2507/anytest.webp)
-
-### 2025/06/15
-
-- モデルや LoRA のダウンロード bat の追加や更新をしました。
-	- `Download\Stable-diffusion\Illu\botan_v30.bat`
-	- `Download\Stable-diffusion\Illu\copycatIllu_v70.bat`
-	- `Download\Stable-diffusion\Illu\OneObsession_v14.bat`
-	- `Download\Stable-diffusion\NoobE\LuminarQMixE_v71.bat`
-	- `Download\Stable-diffusion\NoobV\LuminarQMixV_v71.bat`
-	- `Download\Stable-diffusion\RowWeiV\RouWeiV_v08.bat`
-	- `Download\Lora\Illu_Nsfw\OneFingerSelfieChallenge_Illu.bat`
-- アップスケーラのモデルを 4種追加しました。  
-`Download\All\ESRGAN.bat` ですべてダウンロードできます。
-	- `Download\ESRGAN\2x-AnimeSharpV4_RCAN.bat`
-	- `Download\ESRGAN\2x-AnimeSharpV4_Fast_RCAN_PU.bat`
-	- `Download\ESRGAN\4x-UltraSharpV2.bat`
-	- `Download\ESRGAN\4x-UltraSharpV2_Lite.bat`
-
-### 2025/06/09
-
-- ADetailer 用モデルの `Download\adetailer\segm\99coins_anime_girl_face_m_seg.bat` を追加しました。
-- `sageattention` のために `torch` のバージョンを `2.7.0` から `2.7.1` に上げました。
-
-### 2025/06/08
-
-- 以下の Illustrious 系モデルのダウンロードに対応しました。  
-`Download/Stable-diffusion/Illu/*.bat` でダウンロードできます。  
-`Download/All/Stable-diffusion_Illu.bat` でまとめてダウンロードできます。
-	- [`botan_v20.bat`](https://huggingface.co/KKTT8823/botan_illustrious)
-	- [`copycatIllu_v60.bat`](https://huggingface.co/calculater/copycat-illustrious)
-	- [`dupliCatFlat_v10.bat`](https://huggingface.co/calculater/dupli-cat_flat)
-	- [`illustrious_v20.bat`](https://huggingface.co/OnomaAIResearch/Illustrious-XL-v2.0)
-	- [`Quillworks_v15.bat`](https://huggingface.co/Shakker-Labs/Illustrious-Quillworks-V15)
-	- [`songMix_v34.bat`](https://huggingface.co/yyy1026/songMix)
-	- [`TanemoMix_v40.bat`](https://civitai.com/models/1297977?modelVersionId=1754256)
-	- [`WaiNsfw_v14.bat`](https://civitai.com/models/827184?modelVersionId=1761560)
-	- [`OneObsession_v13.bat`](https://civitai.com/models/1318945?modelVersionId=1840942)
-- 以下の NoobE 系モデルのダウンロードに対応しました。  
-	- [`Download\Stable-diffusion\NoobE\LuminarQMixE_v70.bat`](https://civitai.com/models/1616309?modelVersionId=1829221)
-	- [`Download\Stable-diffusion\NoobE_Real\Featureless25DMix_v20.bat`](https://civitai.com/models/1133674?modelVersionId=1795934)
-- 以下の NoobV 系モデルのダウンロードに対応しました。  
-`Download/Stable-diffusion/NoobV/*.bat` でダウンロードできます。
-	- [`CottonNoob_v40.bat`](https://civitai.com/models/1259226?modelVersionId=1830361)
-	- [`LuminarQMixV_v70.bat`](https://civitai.com/models/1616309?modelVersionId=1829237)
-- 以下の RouWeiE 系モデルのダウンロードに対応しました。  
-`Download/Stable-diffusion/RowWeiE/*.bat` でダウンロードできます。
-	- [`CalicoCatTower_v20.bat`](https://civitai.com/models/1294336?modelVersionId=1860525)
-	- [`RouWeiE_v08.bat`](https://civitai.com/models/950531?modelVersionId=1832460)
-- ADetailer モデルの [Anime NSFW Detection](https://civitai.com/models/1313556?modelVersionId=1863248) のダウンロードに対応しました。
-	- `Download\adetailer\segm\AnimeNsfw_v40.bat`
-- [`ReshapeBodyLeco`](https://huggingface.co/yyy1026/songMix/blob/main/ReshapedBody_LECO/ReadMe.txt) と [`AntiNoiseLeco`](https://huggingface.co/yyy1026/songMix/blob/main/AntiNoise_LECO/ReadMe.txt) のダウンロードに対応しました。
-	- `Download\Lora\Noob_Bundle\songMixLeco.bat`
-- 生成画像の最大サイズを `2048px` から `4096px` に増やしました。
-
-#### [過去の更新内容](https://github.com/Zuntan03/EasyReforge/wiki/%E9%81%8E%E5%8E%BB%E3%81%AE%E6%9B%B4%E6%96%B0%E5%86%85%E5%AE%B9)（参考画像もこちらにあります。）
+---
 
 ## ドキュメント
 
-- [トラブルシューティング](https://github.com/Zuntan03/EasyReforge/wiki/%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0)
-- [過去の更新内容](https://github.com/Zuntan03/EasyReforge/wiki/%E9%81%8E%E5%8E%BB%E3%81%AE%E6%9B%B4%E6%96%B0%E5%86%85%E5%AE%B9)
+詳細なドキュメントは `docs/` ディレクトリにあります：
+
+### クイックスタート
+- **[docs/00_quickstart/README.md](docs/00_quickstart/README.md)** - プロジェクトガイド
+- **[docs/00_quickstart/architecture.md](docs/00_quickstart/architecture.md)** - システムアーキテクチャ
+
+### 計画・仕様
+- [docs/01_planning/project_overview.md](docs/01_planning/project_overview.md) - プロジェクト概要
+- [docs/01_planning/implementation_plan.md](docs/01_planning/implementation_plan.md) - 実装計画
+- [docs/01_planning/phase_breakdown.md](docs/01_planning/phase_breakdown.md) - フェーズ詳細
+
+### 実装ガイド
+- [docs/02_implementation/phase_1/overview.md](docs/02_implementation/phase_1/overview.md) - Phase 1実装手引き
+- [docs/02_implementation/common_patterns.md](docs/02_implementation/common_patterns.md) - 共通パターン
+
+### リファレンス
+- [docs/03_reference/batch_to_shell_conversion.md](docs/03_reference/batch_to_shell_conversion.md) - 変換テーブル
+- **[docs/03_reference/troubleshooting.md](docs/03_reference/troubleshooting.md)** - トラブルシューティング
+- [docs/03_reference/known_issues.md](docs/03_reference/known_issues.md) - 既知の問題
+- [docs/03_reference/checklist.md](docs/03_reference/checklist.md) - 実装チェックリスト
+
+---
+
+## 主な機能
+
+### モデルダウンロード
+
+```bash
+# NoobAI Epsilon v1.1をダウンロード
+bash Download/Stable-diffusion/NoobE/NoobE_v11.sh
+
+# すべてのStable Diffusionモデルをダウンロード
+bash Download/All/AllStable-diffusion.sh
+```
+
+### モデルリンク
+
+外部ディレクトリをWebUIにリンク：
+
+```bash
+# 外部モデルディレクトリをリンク
+bash Model/Stable-diffusion/link_input.sh /path/to/external/models
+
+# 出力先を外部ディレクトリにリンク
+bash Model/Stable-diffusion/link_output.sh /path/to/output
+```
+
+### 拡張機能
+
+自動インストールされる拡張機能（13種類）：
+
+- ControlNet（画像制御）
+- Tagger（タグ自動生成）
+- Dynamic Prompts（プロンプト拡張）
+- その他10種類
+
+---
+
+## トラブルシューティング
+
+### よくある問題
+
+#### WebUIが起動しない
+
+```bash
+# 仮想環境を確認
+cd EasyReforge/Reforge
+source venv/bin/activate
+python --version  # Python 3.10以上か確認
+```
+
+#### PyTorchがCUDAを認識しない
+
+```bash
+# NVIDIA GPUを確認
+nvidia-smi
+
+# PyTorchを再インストール
+pip install torch --index-url https://download.pytorch.org/whl/cu128
+```
+
+#### 日本語が文字化けする
+
+```bash
+# UTF-8ロケールを設定
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
+echo 'export LC_ALL=C.UTF-8' >> ~/.bashrc
+```
+
+詳細は **[docs/03_reference/troubleshooting.md](docs/03_reference/troubleshooting.md)** を参照してください。
+
+---
+
+## 開発者向け情報
+
+### プロジェクト構造
+
+```
+EasyReforge-Ubuntu/
+├── docs/                       # ドキュメント
+├── EasyReforge/                # メインインストール
+│   ├── src/lib/               # ヘルパーライブラリ
+│   └── Reforge/               # reForgeバリアント
+├── Download/                   # モデルダウンロードスクリプト
+├── Model/                      # モデルリンキングスクリプト
+└── .claude/                    # プロジェクト指針
+```
+
+### 貢献方法
+
+1. このリポジトリをフォーク
+2. フィーチャーブランチを作成 (`git checkout -b feature/amazing-feature`)
+3. 変更をコミット (`git commit -m 'Add amazing feature'`)
+4. ブランチにプッシュ (`git push origin feature/amazing-feature`)
+5. プルリクエストを作成
+
+### コーディング規約
+
+- シェルスクリプト: `shellcheck` で検証
+- 命名規則: `lowercase_with_underscores`
+- エラーハンドリング: `set -euo pipefail`
+- ドキュメント: 変更時は必ずドキュメント更新
+
+詳細は [.claude/CLAUDE.md](.claude/CLAUDE.md) を参照してください。
+
+---
+
+## プロジェクトステータス
+
+**現在のステータス**: 📋 計画完了・実装準備中
+
+### 実装フェーズ
+
+- [ ] Phase 1: 基盤スクリプト（1-2週間）
+- [ ] Phase 2: コア環境セットアップ（3-4週間）
+- [ ] Phase 3: ダウンロードヘルパー（5-6週間）
+- [ ] Phase 4: モデルスクリプト生成（7-8週間）
+- [ ] Phase 2b: モデルリンキング（並行実施）
+- [ ] Phase 5: オプション機能・QA（11-12週間）
+
+詳細は [docs/01_planning/phase_breakdown.md](docs/01_planning/phase_breakdown.md) を参照してください。
+
+---
 
 ## ライセンス
 
-このリポジトリの内容は [MIT License](./LICENSE.txt) です。
+このプロジェクトはMITライセンスの下で公開されています。詳細は [LICENSE.txt](LICENSE.txt) ファイルを参照してください。
+
+---
+
+## 関連リンク
+
+### 公式プロジェクト
+- **元のWindows版**: https://github.com/Zuntan03/EasyReforge
+- **reForge WebUI**: https://github.com/Panchovix/stable-diffusion-webui-reForge
+- **NoobAI Models**: https://civitai.com/models/833294
+
+### リソース
+- **Civitai**: https://civitai.com/
+- **HuggingFace**: https://huggingface.co/
+- **Troubleshooting Wiki**: https://github.com/Zuntan03/EasyReforge/wiki
+
+---
+
+## 謝辞
+
+- [Panchovix/stable-diffusion-webui-reForge](https://github.com/Panchovix/stable-diffusion-webui-reForge) - reForge WebUI
+- [Zuntan03/EasyReforge](https://github.com/Zuntan03/EasyReforge) - オリジナルWindows版
+- Stable Diffusionコミュニティの皆様
+
+---
+
+## サポート
+
+- **Issues**: https://github.com/Zuntan03/EasyReforge/issues
+- **Wiki**: https://github.com/Zuntan03/EasyReforge/wiki
+- **Contact**: [@Zuntan03](https://x.com/Zuntan03)
+
+---
+
+**最終更新**: 2025-12-03 | **バージョン**: 1.0 (Ubuntu) | **ステータス**: 開発中
