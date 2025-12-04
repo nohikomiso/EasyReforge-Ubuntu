@@ -40,22 +40,29 @@ EasyReforge Ubuntu は、[reForge WebUI](https://github.com/Panchovix/stable-dif
 ```
 EasyReforge-Ubuntu/
 ├── docs/                                    # 📚 ドキュメント
-│   ├── 00_phase0_analysis/                 # Phase 0: Windows インストーラー分析 ✅
-│   │   ├── README.md
-│   │   ├── ANALYSIS_SUMMARY.md
-│   │   ├── easyreforge_analysis.md
-│   │   ├── flow_diagram.txt
-│   │   └── line_by_line_analysis.txt
-│   ├── 01_planning/                        # 計画・設計
-│   │   ├── phase_breakdown.md
-│   │   └── ...
-│   ├── 02_implementation/                  # 実装ガイド
-│   │   ├── common_patterns.md
-│   │   ├── phase_1/
-│   │   └── ...
-│   └── 03_reference/                       # リファレンス
-│       ├── batch_to_shell_conversion.md
-│       └── ...
+│   ├── 00_index_master.md                  # マスターナビゲーション ⭐
+│   ├── 00_index_quickstart.md              # クイックスタート
+│   ├── 00_index_architecture.md            # アーキテクチャ概要
+│   │
+│   ├── 01_analysis_overview.md             # Phase 0: 分析概要 ✅
+│   ├── 01_analysis_summary.md              # Phase 0: 要約
+│   ├── 01_analysis_technical.md            # Phase 0: 技術リファレンス
+│   ├── 01_analysis_detailed.md             # Phase 0: フロー図と詳細分析
+│   │
+│   ├── 02_planning_overview.md             # 計画・概要（日本語）
+│   ├── 02_planning_phases.md               # フェーズ1-5と全スクリプトインベントリ
+│   │
+│   ├── 03_implementation_common_patterns.md # 実装ガイド（メイン） ⭐
+│   ├── 03_implementation_phase1.md         # Phase 1 詳細
+│   ├── 03_implementation_phase2.md         # Phase 2 詳細（CRITICAL）
+│   ├── 03_implementation_phase3.md         # Phase 3 詳細
+│   ├── 03_implementation_phase4.md         # Phase 4 詳細
+│   ├── 03_implementation_phase5.md         # Phase 5 詳細
+│   │
+│   ├── 04_reference_conversion_table.md    # コマンド変換テーブル
+│   ├── 04_reference_checklist.md           # テスト・検証チェックリスト
+│   ├── 04_reference_known_issues.md        # 既知の問題と対策
+│   └── 04_reference_troubleshooting.md     # トラブルシューティング
 │
 ├── EasyReforge/                             # メインインストール（23 .bat → .sh）
 │   ├── Reforge/                            # reForge バリアント
@@ -107,7 +114,7 @@ EasyReforge-Ubuntu/
 
 **状況**: Windows EasyReforgeInstaller.bat の完全解析終了
 
-詳細は **[docs/00_phase0_analysis/README.md](docs/00_phase0_analysis/README.md)** を参照してください。
+詳細は **[docs/01_analysis_overview.md](docs/01_analysis_overview.md)** を参照してください。
 
 #### Phase 0 の主な成果
 - ✅ 160行の Windows インストーラーを 10-step フローに分解
@@ -122,10 +129,10 @@ EasyReforge-Ubuntu/
 
 | ドキュメント | 説明 |
 |-----------|------|
-| [docs/01_planning/phase_breakdown.md](docs/01_planning/phase_breakdown.md) | 完全な実装フェーズ分解（週単位のタイムライン） |
-| [docs/02_implementation/common_patterns.md](docs/02_implementation/common_patterns.md) | ステップバイステップの実装ガイド（注意事項付き） |
-| [docs/02_implementation/phase_1/overview.md](docs/02_implementation/phase_1/overview.md) | Phase 1 の詳細実装手引き |
-| [docs/03_reference/batch_to_shell_conversion.md](docs/03_reference/batch_to_shell_conversion.md) | Windows Batch → Ubuntu Shell 変換リファレンス |
+| [docs/02_planning_phases.md](docs/02_planning_phases.md) | 完全な実装フェーズ分解（週単位のタイムライン） |
+| [docs/03_implementation_common_patterns.md](docs/03_implementation_common_patterns.md) | ステップバイステップの実装ガイド（注意事項付き） |
+| [docs/03_implementation_phase1.md](docs/03_implementation_phase1.md) | Phase 1 の詳細実装手引き |
+| [docs/04_reference_conversion_table.md](docs/04_reference_conversion_table.md) | Windows Batch → Ubuntu Shell 変換リファレンス |
 
 ---
 
@@ -160,13 +167,13 @@ Phase 3-5: Download Helpers & Scripts
 ### 次のステップ
 
 1. **Phase 0 分析ドキュメントを確認**
-   → [docs/00_phase0_analysis/README.md](docs/00_phase0_analysis/README.md)
+   → [docs/01_analysis_overview.md](docs/01_analysis_overview.md)
 
 2. **実装計画の詳細を確認**
-   → [docs/01_planning/phase_breakdown.md](docs/01_planning/phase_breakdown.md)
+   → [docs/02_planning_phases.md](docs/02_planning_phases.md)
 
 3. **Phase 1 実装を開始**
-   → [docs/02_implementation/phase_1/overview.md](docs/02_implementation/phase_1/overview.md)
+   → [docs/03_implementation_phase1.md](docs/03_implementation_phase1.md)
 
 ---
 
@@ -245,16 +252,16 @@ sudo apt-get install -y git curl python3 python3-venv python3-pip \
 ### 実装ガイド
 
 1. **新規開発者はここから始める**:
-   - [docs/00_phase0_analysis/README.md](docs/00_phase0_analysis/README.md) - Phase 0 分析の理解
+   - [docs/01_analysis_overview.md](docs/01_analysis_overview.md) - Phase 0 分析の理解
    - [.claude/CLAUDE.md](.claude/CLAUDE.md) - クイックスタート
 
 2. **実装時のリファレンス**:
-   - [docs/02_implementation/common_patterns.md](docs/02_implementation/common_patterns.md) - ステップバイステップ
-   - [docs/03_reference/batch_to_shell_conversion.md](docs/03_reference/batch_to_shell_conversion.md) - 個別変換
+   - [docs/03_implementation_common_patterns.md](docs/03_implementation_common_patterns.md) - ステップバイステップ
+   - [docs/04_reference_conversion_table.md](docs/04_reference_conversion_table.md) - 個別変換
 
 3. **問題が発生した場合**:
-   - [docs/03_reference/troubleshooting.md](docs/03_reference/troubleshooting.md)
-   - [docs/03_reference/known_issues.md](docs/03_reference/known_issues.md)
+   - [docs/04_reference_troubleshooting.md](docs/04_reference_troubleshooting.md)
+   - [docs/04_reference_known_issues.md](docs/04_reference_known_issues.md)
 
 ### コーディング規約
 
@@ -286,7 +293,7 @@ bash script.sh                   # 実行テスト
 
 ### Q: 実装はいつ完了する？
 
-**A**: Phase 0（分析）は完了しました。Phase 1 から Phase 5 まで合計 10-12 週間の予定です。詳細は [docs/01_planning/phase_breakdown.md](docs/01_planning/phase_breakdown.md) を参照してください。
+**A**: Phase 0（分析）は完了しました。Phase 1 から Phase 5 まで合計 10-12 週間の予定です。詳細は [docs/02_planning_phases.md](docs/02_planning_phases.md) を参照してください。
 
 ### Q: 現在のコードは使える？
 
@@ -296,7 +303,7 @@ bash script.sh                   # 実行テスト
 
 **A**:
 1. [.claude/CLAUDE.md](.claude/CLAUDE.md) でプロジェクト指針を確認
-2. [docs/01_planning/phase_breakdown.md](docs/01_planning/phase_breakdown.md) で次のフェーズを確認
+2. [docs/02_planning_phases.md](docs/02_planning_phases.md) で次のフェーズを確認
 3. `ubuntu-migration` ブランチでフィーチャーブランチを作成
 4. 実装→テスト→PR の流れで貢献
 
@@ -324,7 +331,7 @@ bash script.sh                   # 実行テスト
 
 3. **実装 → テスト → コミット**
    ```bash
-   bash docs/02_implementation/phase_1/overview.md  # 実装ガイド参照
+   bash docs/03_implementation_phase1.md  # 実装ガイド参照
    shellcheck your_script.sh                        # 検証
    git add .
    git commit -m "Add feature: description"
@@ -340,7 +347,7 @@ bash script.sh                   # 実行テスト
 2. **Phase 2** - コア環境セットアップ（最優先）
 3. **Phase 3-5** - 追加機能
 
-詳細は [docs/01_planning/phase_breakdown.md](docs/01_planning/phase_breakdown.md) を参照。
+詳細は [docs/02_planning_phases.md](docs/02_planning_phases.md) を参照。
 
 ---
 
@@ -411,9 +418,9 @@ bash script.sh                   # 実行テスト
 **ℹ️ 最初にこのリポジトリを見る方へ**
 
 1. **このファイル** (README.md) を読む ← 今ここ
-2. [docs/00_phase0_analysis/README.md](docs/00_phase0_analysis/README.md) - Phase 0 分析の理解
+2. [docs/01_analysis_overview.md](docs/01_analysis_overview.md) - Phase 0 分析の理解
 3. [.claude/CLAUDE.md](.claude/CLAUDE.md) - 詳細な実装指針と完全なチェックリスト
-4. [docs/01_planning/phase_breakdown.md](docs/01_planning/phase_breakdown.md) - 実装計画の詳細
+4. [docs/02_planning_phases.md](docs/02_planning_phases.md) - 実装計画の詳細
 
 ---
 

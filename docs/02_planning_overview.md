@@ -190,29 +190,34 @@ EasyReforge（Stable Diffusion WebUI reForge向けのターンキーインスト
 
 ```
 docs/
-├── 00_quickstart/          # クイックスタートガイド
-│   ├── README.md           # プロジェクトエントリーポイント
-│   └── architecture.md     # アーキテクチャ概要
+├── 00_index_*.md              # ナビゲーションファイル（マスター、クイックスタート、アーキテクチャ）
 │
-├── 01_planning/            # 計画・仕様書
-│   ├── project_overview.md # このファイル
-│   ├── implementation_plan.md  # 実装計画（詳細）
-│   └── phase_breakdown.md  # フェーズ詳細
+├── 01_analysis_*.md           # フェーズ0：Windows インストーラー分析（4ファイル）
+│   ├── overview.md            # 概要
+│   ├── summary.md             # 要約
+│   ├── technical.md           # 技術リファレンス
+│   └── detailed.md            # フロー図と詳細分析
 │
-├── 02_implementation/      # 実装ガイド
-│   ├── phase_1/
-│   ├── phase_2/
-│   ├── ...
-│   └── common_patterns.md  # 共通パターン
+├── 02_planning_*.md           # 計画・設計（2ファイル）
+│   ├── overview.md            # このファイル（日本語概要）
+│   └── phases.md              # フェーズ1-5と全スクリプトインベントリ
 │
-├── 03_reference/           # リファレンス
-│   ├── batch_to_shell_conversion.md  # 変換テーブル
-│   ├── checklist.md        # 実装チェックリスト
-│   ├── troubleshooting.md  # トラブルシューティング
-│   └── known_issues.md     # 既知の問題
+├── 03_implementation_*.md      # 実装ガイド（6ファイル）
+│   ├── common_patterns.md      # 共通パターンと注意事項（メイン）
+│   ├── phase1.md              # フェーズ1 詳細
+│   ├── phase2.md              # フェーズ2 詳細（CRITICAL）
+│   ├── phase3.md              # フェーズ3 詳細
+│   ├── phase4.md              # フェーズ4 詳細
+│   └── phase5.md              # フェーズ5 詳細
 │
-└── 04_misc/                # その他
-    └── glossary.md         # 用語集
+├── 04_reference_*.md          # リファレンス（4ファイル）
+│   ├── conversion_table.md     # コマンド変換テーブル
+│   ├── checklist.md            # 実装チェックリスト
+│   ├── known_issues.md         # 既知の問題と対策
+│   └── troubleshooting.md      # トラブルシューティング
+│
+└── .claude/
+    └── CLAUDE.md              # プロジェクト制御センター
 ```
 
 ---

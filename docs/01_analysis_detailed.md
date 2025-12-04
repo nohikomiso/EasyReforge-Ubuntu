@@ -1,0 +1,968 @@
+# Phase 0 Detailed Analysis - EasyReforgeInstaller.bat
+
+**Status**: Complete detailed analysis
+**Source**: EasyReforgeInstaller.bat (160 lines)
+**Merged Files**: flow_diagram.txt + line_by_line_analysis.txt
+**Purpose**: Visual flows and line-by-line annotations for implementation reference
+
+---
+
+## Part 1: Execution Flow Diagrams
+
+### Complete Execution Timeline
+
+```
+                    EasyReforgeInstaller.bat
+                            |
+                            v
+            ┌───────────────────────────────────┐
+            | Environment & Variable Setup      |
+            | - UTF-8 code page (chcp 65001)   |
+            | - Define all variables            |
+            └───────────────────────────────────┘
+                            |
+                            v
+            ┌───────────────────────────────────┐
+            | Prerequisite Checks               |
+            | ├─ where.exe exists?             |
+            | ├─ PowerShell exists?            |
+            | ├─ Path has valid chars?         |
+            | └─ curl.exe exists?              |
+            └───────┬───────────────────────────┘
+                    |
+        ┌───────────┴───────────┐
+        |                       |
+      FAIL                     PASS
+        |                       |
+        v                       v
+      EXIT 1          Conflict Detection
+                      (check WebUI dirs)
+                            |
+                    ┌───────┴────────┐
+                    |                |
+                  FOUND            NOT FOUND
+                    |                |
+                    v                v
+                  EXIT 1     User Prompt: Download?
+                                    |
+                         ┌──────────┴──────────┐
+                         |                     |
+                        'y'                   'n'
+                      (default)              Skip
+                         |                     |
+                         v                     |
+            Git Availability Check             |
+            ├─ System git found?               |
+            │                                   |
+            ├─ YES ────┐                       |
+            │          │                       |
+            └─ NO      │                       |
+               │       │                       |
+               v       │                       |
+        Download       │                       |
+        Portable Git   │                       |
+        (2.48.1)       │                       |
+        ├─ Download .7z ├─────────────────────┤
+        ├─ Extract           │                |
+        ├─ Add to PATH      │                |
+        └─ Verify           │                |
+               │             │                |
+        ┌──────┴─────┐       │                |
+        |            |       |                |
+      FAIL         PASS      |                |
+        |            |       |                |
+        v            v       v                |
+      EXIT 1    ┌─────────────────────────┐   |
+               | Initialize Repositories  |   |
+               | ├─ EasyTools repo        |   |
+               | │  - git init            |   |
+               | │  - git remote add      |   |
+               | │  - git fetch           |   |
+               | │  - git switch main     |   |
+               | │                         |   |
+               | └─ EasyReforge repo      |   |
+               |    (same steps)          |   |
+               └──────────┬───────────────┘   |
+                          |                    |
+                  ┌───────┴─────────┐          |
+                  |                 |         |
+                FAIL               PASS      |
+                  |                 |         |
+                  v                 v         |
+                EXIT 1      Call Setup.bat   |
+                            (Main Install)   |
+                                    |        |
+                           ┌────────┴─────┐  |
+                           |              |  |
+                         FAIL            PASS|
+                           |              |  |
+                           v              v  |
+                         EXIT 1      Check Skip Flag
+                                          |
+                                  ┌───────┴────────┐
+                                  |                |
+                                 YES              NO
+                              (skip dl)        (download)
+                                  |                |
+                                  └────┬───────────┘
+                                       |
+                                       v
+                            Call NoobAiEpsilonPred_Minimum.bat
+                            (Error ignored - not checked)
+                                       |
+                                       v
+                            ┌─────────────────────────┐
+                            | Finalization            |
+                            | - Enable long paths     |
+                            | - Self-delete installer |
+                            └─────────────────────────┘
+                                       |
+                                       v
+                                    EXIT 0
+```
+
+### Script Call Hierarchy
+
+```
+EasyReforgeInstaller.bat
+│
+├─ [Git operations via INIT_REPO subroutine]
+│  └─ git init
+│  └─ git remote add
+│  └─ git fetch
+│  └─ git switch/checkout
+│
+├─ Setup.bat
+│  │
+│  ├─ Reforge/Reforge.bat
+│  │  ├─ EasyTools/Python/Python_Activate.bat
+│  │  ├─ pip install (wheels)
+│  │  └─ pip install -r requirements.txt
+│  │
+│  ├─ Reforge/ReforgeExtension.bat
+│  │  ├─ EasyTools/Git/GitHub_CloneOrPull.bat (x13)
+│  │  │  ├─ DominikDoom/a1111-sd-webui-tagcomplete
+│  │  │  ├─ Bing-su/adetailer
+│  │  │  ├─ Panchovix/reForge-Sigmas_merge
+│  │  │  ├─ adieyal/sd-dynamic-prompts
+│  │  │  ├─ Haoming02/sd-forge-couple
+│  │  │  ├─ blue-pen5805/sdweb-easy-generate-forever
+│  │  │  ├─ altoiddealer/--sd-webui-ar-plusplus
+│  │  │  ├─ hako-mikan/sd-webui-cd-tuner
+│  │  │  ├─ hako-mikan/sd-webui-lora-block-weight
+│  │  │  ├─ hako-mikan/sd-webui-negpip
+│  │  │  ├─ bluelovers/sd-webui-pnginfo-beautify
+│  │  │  ├─ nihedon/sd-webui-weight-helper
+│  │  │  ├─ zixaphir/Stable-Diffusion-Webui-Civitai-Helper
+│  │  │  ├─ Bocchi-Chan2023/stable-diffusion-webui-wd14-tagger
+│  │  │  └─ KohakuBlueleaf/z-tipo-extension
+│  │  ├─ :MOVE_TO_BACKUP (for skipped extensions)
+│  │  └─ copy (resource files: resolutions.txt, etc)
+│  │
+│  ├─ Reforge/ReforgeLink.bat
+│  │  ├─ EasyTools/Link/Junction.bat (x7)
+│  │  │  ├─ models/adetailer -> ../Model/adetailer
+│  │  │  ├─ models/ControlNet -> ../Model/ControlNet
+│  │  │  ├─ models/ESRGAN -> ../Model/ESRGAN
+│  │  │  ├─ models/Lora -> ../Model/Lora
+│  │  │  ├─ models/Stable-diffusion -> ../Model/Stable-diffusion
+│  │  │  ├─ models/VAE -> ../Model/VAE
+│  │  │  └─ extensions/.../wildcards -> ../Model/wildcards
+│  │  ├─ mkdir (output directories)
+│  │  └─ Junction (outputs -> ../OutputReforge)
+│  │
+│  ├─ SetupForge.bat (if Forge exists)
+│  │
+│  ├─ NoobAiCommon_Minimum.bat (if NoobE models exist)
+│  │  ├─ adetailer/*.bat (11 scripts)
+│  │  ├─ All/ESRGAN.bat
+│  │  ├─ ControlNet/*.bat (4 scripts)
+│  │  ├─ Lora/*.bat (3 scripts)
+│  │  └─ wildcards/*.bat (4 scripts)
+│  │
+│  └─ Download/vc_redist.x64.exe
+│
+└─ NoobAiEpsilonPred_Minimum.bat (if user chose 'y')
+   ├─ NoobAiCommon_Minimum.bat
+   ├─ Stable-diffusion/NoobE/copycatNoob_v11.bat
+   └─ Stable-diffusion/NoobE/HarmoniqMixSpoE_v11.bat
+```
+
+### Conditional Execution Paths
+
+```
+Entry Point: EasyReforgeInstaller.bat
+
+SCENARIO 1: First-time installation, download models
+├─ All checks pass
+├─ No existing WebUI found
+├─ User answers 'y' to download
+└─ Result: Full installation with minimum models
+
+SCENARIO 2: First-time installation, skip models
+├─ All checks pass
+├─ No existing WebUI found
+├─ User answers 'n' to download
+└─ Result: Full installation, models skipped
+
+SCENARIO 3: Portable Git needed
+├─ System git not found
+├─ Portable Git automatically downloaded & extracted
+├─ Continues normally
+└─ Result: Full installation using portable Git
+
+SCENARIO 4: Failed prerequisite
+├─ where.exe/PowerShell/curl missing or path invalid
+└─ Result: Exit 1 (user must fix system)
+
+SCENARIO 5: Conflicting installation found
+├─ stable-diffusion-webui* directory exists
+└─ Result: Exit 1 (user must clean up)
+
+SCENARIO 6: Repository initialization fails
+├─ git fetch/switch fails for EasyTools or EasyReforge
+└─ Result: Exit 1 (network issue or GitHub down)
+
+SCENARIO 7: Main setup fails
+├─ Setup.bat fails (Reforge/extensions/links)
+└─ Result: Exit 1 (installation incomplete)
+```
+
+### Variable Scope & Lifetime
+
+```
+┌─ Global Variables (exist throughout script)
+│  ├─ PROJECT_NAME
+│  ├─ PROJECT_SETUP_BAT
+│  ├─ PROJECT_MODEL_DOWNLOAD_BAT
+│  ├─ PROJECT_URL, PROJECT_BRANCH, PROJECT_DIR
+│  ├─ EASY_TOOLS_DIR, EASY_GIT_DIR
+│  ├─ EASY_TOOLS_URL, EASY_TOOLS_BRANCH
+│  ├─ PS_EXE, PS_CMD
+│  ├─ CURL_EXE, CURL_CMD
+│  └─ DOWNLOAD_MDOEL_YES_OR_NO (after user input)
+│
+├─ Conditional Variables (exist only if branch taken)
+│  └─ PORTABLE_GIT_BIN, PORTABLE_GIT_VERSION
+│     (only if system git not found)
+│
+└─ Subroutine Scope Variables (:INIT_REPO)
+   ├─ INIT_REPO_DIR
+   ├─ INIT_REPO_URL
+   └─ INIT_REPO_BRANCH
+      (local to each call)
+```
+
+### Error Handling Flow
+
+```
+┌─────────────────────────────────────────────┐
+| Command executes                            |
+└────────┬────────────────────────────────────┘
+         |
+         v
+┌─────────────────────────────────────────────┐
+| Check %ERRORLEVEL%                          |
+└────────┬────────────────────────────────────┘
+         |
+    ┌────┴────┐
+    |         |
+   EQ 0      NEQ 0
+    |         |
+    v         v
+Continue   Pause & Exit
+(next cmd)   (exit 1)
+   |         |
+   |         v
+   |    User sees error
+   |    & pauses to read
+   |    |
+   |    v
+   |   Exit 1
+   |   (parent handles)
+   |
+   v
+(or continue normally)
+
+Exceptions:
+- Line 114: Model download error ignored (no check)
+- Line 154: Registry error ignored (only warning)
+- Line 160: Self-delete error ignored (success = exit 0)
+```
+
+---
+
+## Part 2: Line-by-Line Analysis (160 Lines)
+
+### Complete Annotated Source Code
+
+```batch
+     1  @echo off
+            ANNOTATION: Suppress command echoing. User will not see each
+            command executed. Keeps output clean and focused on messages.
+
+     2  chcp 65001 > NUL
+            ANNOTATION: Set code page to UTF-8 (65001). Critical for displaying
+            Japanese characters in console. Output redirected to NUL to suppress
+            "Active code page: 65001" message.
+            IMPACT: Without this, Japanese characters in prompts/messages corrupt.
+
+     3  (blank line)
+
+     4  set "PROJECT_NAME=EasyReforge"
+            ANNOTATION: Store main project name. Used to construct paths.
+            VALUE: EasyReforge
+            SCOPE: Global, exists throughout script
+
+     5  set "PROJECT_SETUP_BAT=%~dp0%PROJECT_NAME%\Setup.bat"
+            ANNOTATION: Path to main setup orchestrator script.
+            EXPANSION: %~dp0 = Script directory with trailing \
+                       %PROJECT_NAME% = EasyReforge
+            RESULT: C:\path\to\EasyReforge\Setup.bat (example)
+            PURPOSE: Main script to call after git repos initialized
+            SCOPE: Global
+
+     6  set "PROJECT_MODEL_DOWNLOAD_BAT=%~dp0Download\NoobAiEpsilonPred_Minimum.bat"
+            ANNOTATION: Path to model download script for minimum models.
+            EXPANSION: %~dp0 = Script directory
+            RESULT: C:\path\to\Download\NoobAiEpsilonPred_Minimum.bat
+            PURPOSE: Downloads Epsilon-prediction models (no Civitai login required)
+            SCOPE: Global
+            NOTE: Only called if user answered 'y' to download prompt
+
+     7  (blank line)
+
+     8  set PROJECT_URL=https://github.com/Zuntan03/%PROJECT_NAME%
+            ANNOTATION: Git repository URL for main project.
+            EXPANSION: Resolves to https://github.com/Zuntan03/EasyReforge
+            PURPOSE: Used in git init/fetch/switch
+            SCOPE: Global
+
+     9  set PROJECT_BRANCH=main
+            ANNOTATION: Git branch to use for EasyReforge repo.
+            VALUE: main (not master or develop)
+            PURPOSE: Checked out after git fetch
+            SCOPE: Global
+
+    10  set "PROJECT_DIR=%~dp0."
+            ANNOTATION: Installation directory (current directory of script).
+            EXPANSION: %~dp0 = Script directory with trailing \
+            RESULT: C:\path\to\EasyReforge\ (e.g., C:\Users\user\EasyReforge\)
+            PURPOSE: Root for installing EasyReforge (becomes git repository)
+            SCOPE: Global
+
+    11  set "EASY_TOOLS_DIR=%~dp0EasyTools"
+            ANNOTATION: Directory for helper scripts (Git, Python, Link helpers).
+            EXPANSION: %~dp0 = Script directory
+            RESULT: C:\path\to\EasyReforge\EasyTools
+            PURPOSE: Source of GitHub_CloneOrPull.bat, Python_Activate.bat, etc.
+            SCOPE: Global
+            NOTE: Does not exist initially; created by git during INIT_REPO
+
+    12  (blank line)
+
+    13  set EASY_TOOLS_URL=https://github.com/Zuntan03/EasyTools
+            ANNOTATION: External repository with utility scripts.
+            PURPOSE: Downloaded and cached in EASY_TOOLS_DIR
+            CONTAINS: Git helpers, Python helpers, Link/Junction helpers
+            SCOPE: Global
+
+    14  set EASY_TOOLS_BRANCH=main
+            ANNOTATION: Branch for EasyTools repository.
+            VALUE: main
+            SCOPE: Global
+
+    15  set "EASY_GIT_DIR=%EASY_TOOLS_DIR%\Git"
+            ANNOTATION: Subdirectory for Git-related utilities.
+            EXPANSION: %EASY_TOOLS_DIR% = EasyTools
+            RESULT: C:\path\to\EasyTools\Git
+            PURPOSE: Location of GitHub_CloneOrPull.bat and portable git
+            SCOPE: Global
+
+    16  (blank line)
+
+    17  if not exist "C:\Windows\System32\where.exe" (
+    18      echo "[ERROR] C:\Windows\System32\where.exe が見つかりません。"
+    19      pause & exit /b 1
+    20  )
+            ANNOTATION: Check if where.exe exists (required system tool).
+            WHAT WHERE.EXE DOES: Finds executables in PATH (like Unix 'which')
+            WHY NEEDED: Used to check if PowerShell and git are available
+            ERROR: Displays Japanese error message + pauses + exits
+            EXIT CODE: 1 (failure)
+            FALLBACK: None - installation cannot proceed without where.exe
+            NOTE: where.exe built-in since Windows 7
+
+    21  (blank line)
+
+    22  set PS_EXE=PowerShell
+            ANNOTATION: Executable name for PowerShell.
+            VALUE: PowerShell (will be found in PATH)
+            PURPOSE: Stored so can be verified later
+            SCOPE: Global
+
+    23  where /Q %PS_EXE%
+    24  if %ERRORLEVEL% neq 0 (
+    25      echo "[ERROR] %PS_EXE% が見つかりません。"
+    26      pause & exit /b 1
+    27  )
+            ANNOTATION: Check if PowerShell is available.
+            WHERE /Q: Query where without output (/Q = quiet)
+            ERRORLEVEL: 0 = found, non-zero = not found
+            WHY NEEDED: PowerShell used for:
+               1. Path validation regex (line 32)
+               2. GUI automation for Portable Git (line 81)
+            ERROR: Japanese message + pause + exit
+            EXIT CODE: 1
+            FALLBACK: None - installation requires PowerShell
+            NOTE: All Windows 10+ have PowerShell
+
+    28  (blank line)
+
+    29  @REM Windows 10 でプリインストールされているバージョンが 5.1
+    30  set PS_CMD=PowerShell -Version 5.1 -NoProfile -ExecutionPolicy Bypass
+            ANNOTATION: Construct PowerShell command with strict options.
+            COMPONENTS:
+               -Version 5.1: Explicit version (Windows 10 minimum)
+               -NoProfile: Skip user profile scripts
+               -ExecutionPolicy Bypass: Allow scripts to run (needed for GUI automation)
+            PURPOSE: Used later for path validation (line 32)
+            SCOPE: Global
+            NOTE: Does not execute; just constructs the command string
+
+    31  (blank line)
+
+    32  %PS_CMD% -c "if ('%~dp0' -match '^[a-zA-Z0-9:_\\/-]+$') {exit 0}; exit 1"
+    33  if %ERRORLEVEL% neq 0 (
+    34      echo "[ERROR] 現在のフォルダパス %~dp0 に英数字・ハイフン・アンダーバー以外が含まれています。"
+    35      echo "英数字・ハイフン・アンダーバーのフォルダパスに bat ファイルを移動して、再実行してください。"
+    36      pause & exit /b 1
+    37  )
+            ANNOTATION: Validate installation path contains only safe characters.
+            REGEX: ^[a-zA-Z0-9:_\\/-]+$
+               ALLOWS: A-Z, a-z, 0-9, :, _, \, /, -
+               REJECTS: Spaces, Japanese, special chars, etc.
+            WHY NEEDED: Batch scripts have issues with:
+               - Spaces in paths (quoting becomes complex)
+               - Japanese characters (encoding issues even with UTF-8)
+               - Special characters (!, %, &, etc. have special meaning)
+            EXECUTION: PowerShell regex match returns exit 0 if valid
+            ERROR: Bilingual message (Japanese) explaining valid characters
+            IMPACT: This is a HARD REQUIREMENT. Cannot install in:
+               - C:\Program Files\ (has space)
+               - C:\Users\Bob\My Documents\ (has spaces)
+               - D:\models_v2.0\ (valid - only underscore and digit)
+            EXIT CODE: 1
+
+    38  (blank line)
+
+    39  set CURL_EXE=C:\Windows\System32\curl.exe
+            ANNOTATION: Full path to curl executable (Windows built-in).
+            VALUE: C:\Windows\System32\curl.exe
+            PURPOSE: Used to download Portable Git if needed
+            SCOPE: Global
+            NOTE: Available since Windows 10 1803; can be overridden
+
+    40  if not exist %CURL_EXE% (
+    41      echo "[ERROR] %CURL_EXE% が見つかりません。"
+    42      pause & exit /b 1
+    43  )
+            ANNOTATION: Check if curl.exe exists.
+            WHY NEEDED: Used to download Portable Git 2.48.1 from GitHub
+            ERROR: Japanese error message + pause + exit
+            EXIT CODE: 1
+            FALLBACK: None - installation cannot proceed
+            NOTE: Rare to fail on Windows 10+, but possible if curl removed
+
+    44  set CURL_CMD=C:\Windows\System32\curl.exe -kL
+            ANNOTATION: Construct curl command with default flags.
+            FLAGS:
+               -k: SSL verification disabled (insecure but needed for some environments)
+               -L: Follow redirects (important for GitHub release downloads)
+            PURPOSE: Reused multiple times (line 78, 94, etc.)
+            SCOPE: Global
+
+    45  (blank line)
+
+    46  if exist %~dp0stable-diffusion-webui\ (
+    47      echo "%~dp0stable-diffusion-webui がすでに存在します。別のフォルダにインストールしてください。"
+    48      pause & exit /b 1
+    49  )
+            ANNOTATION: Conflict check #1: Automatic1111 WebUI already exists.
+            PATH: C:\...\EasyReforge\stable-diffusion-webui\
+            WHY CHECK: Installing reForge alongside A1111 in same directory causes conflicts
+            ERROR: Japanese message asking user to install in different folder
+            EXIT CODE: 1
+
+    50  if exist %~dp0stable-diffusion-webui-forge\ (
+    51      echo "%~dp0stable-diffusion-webui-forge がすでに存在します。別のフォルダにインストールしてください。"
+    52      pause & exit /b 1
+    53  )
+            ANNOTATION: Conflict check #2: Forge WebUI already exists.
+            PATH: C:\...\EasyReforge\stable-diffusion-webui-forge\
+            WHY CHECK: Multiple WebUI forks in same directory conflict
+            ERROR: Japanese error message
+            EXIT CODE: 1
+
+    54  if exist %~dp0stable-diffusion-webui-reForge\ (
+    55      echo "%~dp0stable-diffusion-webui-reForge がすでに存在します。別のフォルダにインストールしてください。"
+    56      pause & exit /b 1
+    57  )
+            ANNOTATION: Conflict check #3: reForge WebUI already exists.
+            PATH: C:\...\EasyReforge\stable-diffusion-webui-reForge\
+            WHY CHECK: Prevents double installation, data corruption
+            ERROR: Japanese error message
+            EXIT CODE: 1
+            NOTE: This is the primary fork, so most important to check
+
+    58  (blank line)
+
+    59  echo "未成年の方は利用できません。"
+    60  echo "動作に必要なモデルなどをダウンロードします。よろしいですか？ [y/n]（空欄なら y）"
+    61  echo "Download Model etc. Are you sure? [y/n] (default: y)"
+    62  set /p DOWNLOAD_MDOEL_YES_OR_NO=
+            ANNOTATION: User prompt for model download (bilingual: Japanese + English).
+            MESSAGE:
+               JP: "Minors cannot use this. Download models etc. OK? [y/n] (default: y)"
+               EN: "Download Model etc. Are you sure? [y/n] (default: y)"
+            INPUT METHOD: set /p reads from stdin (user types)
+            DEFAULT: Empty input treated as 'y' (line 112 checks "== n")
+            VARIABLE: DOWNLOAD_MDOEL_YES_OR_NO
+            SCOPE: Global
+            NOTE: Typo in variable name "MDOEL" instead of "MODEL" (kept as-is)
+            VALUES: 'y', 'n', empty string, anything else
+            USAGE: Checked at line 112 (case-insensitive)
+
+    63  (blank line)
+
+    64  @REM ---- ここから Git/Git_SetPath.bat と同期 ----
+            ANNOTATION: Comment: This section is synchronized with Git/Git_SetPath.bat
+            NOTE: This is inline Git setup logic, not a separate script call
+
+    65  where /Q git
+    66  if %ERRORLEVEL% equ 0 ( goto :EASY_GIT_FOUND )
+    67  cd > NUL
+            ANNOTATION: Check for system Git availability.
+            WHERE /Q GIT: Silent check if git.exe exists in PATH
+            ERRORLEVEL 0: Git found - jump to :EASY_GIT_FOUND
+            CD > NUL: Set current directory (seemingly pointless, but in original)
+            NOTE: If git found, skip all portable git download logic
+
+    68  (blank line)
+
+    69  set PORTABLE_GIT_BIN=%EASY_GIT_DIR%\env\PortableGit\bin
+    70  set PORTABLE_GIT_VERSION=2.48.1
+            ANNOTATION: Define portable Git location and version.
+            PORTABLE_GIT_BIN: Where git.exe will be after extraction
+               Expands to: C:\...\EasyTools\Git\env\PortableGit\bin
+            PORTABLE_GIT_VERSION: Specific version to download
+               Version: 2.48.1 (released late 2024)
+            SCOPE: Local (only if system git not found)
+
+    71  (blank line)
+
+    72  if not exist %PORTABLE_GIT_BIN%\ (
+            ANNOTATION: Check if portable Git already extracted.
+            PATH: C:\...\EasyTools\Git\env\PortableGit\bin\
+            IF NOT EXIST: Download and extract required
+            IF EXIST: Skip download, use existing
+
+    73      setlocal enabledelayedexpansion
+            ANNOTATION: Enable delayed expansion for variables in loops.
+            WHY: Allows !VARIABLE! syntax for runtime variable evaluation
+            SCOPE: Local to this code block (ends at 91 with endlocal)
+
+    74      if not exist "%EASY_GIT_DIR%\env\" ( mkdir "%EASY_GIT_DIR%\env" )
+            ANNOTATION: Create staging directory for portable Git download.
+            PATH: C:\...\EasyTools\Git\env\
+            PURPOSE: Temporary directory to hold PortableGit.7z.exe
+
+    75      echo https://github.com/git-for-windows/git/
+            ANNOTATION: Echo GitHub URL (informational, not executed)
+            PURPOSE: User sees where the download comes from
+
+    76  (blank line)
+
+    77      echo %CURL_CMD% -o %EASY_GIT_DIR%\env\PortableGit.7z.exe https://github.com/git-for-windows/git/releases/download/v%PORTABLE_GIT_VERSION%.windows.1/PortableGit-%PORTABLE_GIT_VERSION%-64-bit.7z.exe
+    78      %CURL_CMD% -o %EASY_GIT_DIR%\env\PortableGit.7z.exe https://github.com/git-for-windows/git/releases/download/v%PORTABLE_GIT_VERSION%.windows.1/PortableGit-%PORTABLE_GIT_VERSION%-64-bit.7z.exe
+            ANNOTATION: Download Portable Git installer.
+            CURL OPTIONS:
+               -o: Output file (where to save)
+            URL: github.com/.../PortableGit-2.48.1-64-bit.7z.exe
+            SAVE TO: C:\...\EasyTools\Git\env\PortableGit.7z.exe
+            SIZE: ~50-60 MB
+            NETWORK: Requires internet; will fail if GitHub unreachable
+            NOTE: Line 77 echoes command before execution (for debugging)
+
+    79      if !ERRORLEVEL! neq 0 ( pause & endlocal & exit /b 1 )
+            ANNOTATION: Error check after download.
+            ERRORLEVEL: 0 = success, non-zero = failure
+            ERROR PATH: pause + cleanup (endlocal) + exit 1
+            WHY ENDLOCAL: Exits local scope before exiting script
+
+    80  (blank line)
+
+    81      start "" %PS_CMD% -Command "Start-Sleep -Seconds 5; $title='Portable Git for Windows 64-bit'; $window=Get-Process | Where-Object { $_.MainWindowTitle -eq $title } | Select-Object -First 1; if ($window -ne $null) { [void][System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic'); [Microsoft.VisualBasic.Interaction]::AppActivate($window.Id); Start-Sleep -Seconds 1; Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait('{ENTER}') }"
+            ANNOTATION: Launch 7z installer and auto-press Enter key.
+            PURPOSE: Automate GUI interaction - 7z.exe shows extraction dialog
+            LOGIC:
+               1. Start PowerShell with 5 second delay
+               2. Find window titled "Portable Git for Windows 64-bit"
+               3. If found:
+                  a. Load Microsoft.VisualBasic assembly
+                  b. AppActivate the window (bring to foreground)
+                  c. Wait 1 second
+                  d. Load System.Windows.Forms
+                  e. Send {ENTER} key (press OK button)
+            START "": No window title for PowerShell process
+            COMPLEXITY: Very convoluted - could have been simpler
+            FALLBACK: User must press Enter manually if script doesn't work
+
+    82  (blank line)
+
+    83      echo "操作せずに、そのまま Portable Git for Windows をインストールしてください。"
+            ANNOTATION: Instruction message to user (Japanese).
+            MESSAGE: "Just install Portable Git for Windows as is without doing anything."
+            PURPOSE: Tell user to let 7z installer run (don't do anything)
+
+    84      %EASY_GIT_DIR%\env\PortableGit.7z.exe
+            ANNOTATION: Execute the 7z self-extracting archive.
+            FILE: C:\...\EasyTools\Git\env\PortableGit.7z.exe
+            BEHAVIOR: Shows extraction GUI dialog
+            OUTPUT: Extracts to C:\...\EasyTools\Git\env\PortableGit\
+            NOTE: PowerShell from line 81 should have auto-pressed Enter
+                  If PowerShell fails, user must press Enter manually
+
+    85      if !ERRORLEVEL! neq 0 ( pause & endlocal & exit /b 1 )
+            ANNOTATION: Error check after 7z extraction.
+            ERRORLEVEL: 0 = success, non-zero = failure
+            ERROR: pause + cleanup + exit
+
+    86  (blank line)
+
+    87      echo del %EASY_GIT_DIR%\env\PortableGit.7z.exe
+    88      del %EASY_GIT_DIR%\env\PortableGit.7z.exe
+            ANNOTATION: Delete installer after extraction (cleanup).
+            FILE: C:\...\EasyTools\Git\env\PortableGit.7z.exe
+            SIZE SAVED: ~50-60 MB
+            NOTE: Line 87 echoes command before execution
+
+    89      if !ERRORLEVEL! neq 0 ( pause & endlocal & exit /b 1 )
+            ANNOTATION: Error check after deletion.
+            NOTE: Unlikely to fail unless file locked by antivirus
+
+    90      endlocal
+            ANNOTATION: End local scope (exit setlocal enabledelayedexpansion).
+
+    91  )
+            ANNOTATION: End of "if not exist %PORTABLE_GIT_BIN%" block.
+
+    92  (blank line)
+
+    93  set "PATH=%PORTABLE_GIT_BIN%;%PATH%"
+            ANNOTATION: Prepend portable Git to PATH for this process.
+            EFFECT: Processes launched after this point will find git.exe first
+            ORDER: %PORTABLE_GIT_BIN% comes first, so takes precedence
+            SCOPE: Process-level (not system-level; only affects this script)
+
+    94  (blank line)
+
+    95  where /Q git
+    96  if %ERRORLEVEL% equ 0 ( goto :EASY_GIT_FOUND )
+    97  echo "[Error] Git をインストールできませんでした。手動で Git for Windows をインストールしてください。"
+    98  pause & exit /b 1
+            ANNOTATION: Final Git verification check.
+            WHERE /Q GIT: Check if git.exe now findable
+            ERRORLEVEL 0: Success - jump to :EASY_GIT_FOUND
+            ERROR: Git still not found after download attempt
+               MESSAGE: "Could not install Git. Please manually install Git for Windows."
+               EXIT: pause + exit 1
+
+    99  (blank line)
+
+   100  :EASY_GIT_FOUND
+            ANNOTATION: Label - jump target for successful Git detection.
+            REACHED BY: Line 66 or line 96 (both via goto)
+            MEANING: Git is now available (system or portable)
+
+   101  @REM ---- ここまで Git/Git_SetPath.bat と同期 --------
+            ANNOTATION: End of Git setup section (synchronized with external script)
+
+   102  (blank line)
+
+   103  call :INIT_REPO %EASY_TOOLS_DIR% %EASY_TOOLS_URL% %EASY_TOOLS_BRANCH%
+            ANNOTATION: Initialize EasyTools repository.
+            SUBROUTINE: :INIT_REPO (defined at line 118)
+            PARAMETERS:
+               %1 = %EASY_TOOLS_DIR% (C:\...\EasyTools)
+               %2 = %EASY_TOOLS_URL% (https://github.com/Zuntan03/EasyTools)
+               %3 = %EASY_TOOLS_BRANCH% (main)
+            PURPOSE: Clone/fetch EasyTools repository containing helper scripts
+            ERRORLEVEL: 0 = success, 1 = failure
+
+   104  if %ERRORLEVEL% neq 0 ( exit /b 1 )
+            ANNOTATION: Error check - exit if INIT_REPO failed.
+            EXIT: exit /b 1 (propagate failure to parent)
+
+   105  (blank line)
+
+   106  call :INIT_REPO %PROJECT_DIR% %PROJECT_URL% %PROJECT_BRANCH%
+            ANNOTATION: Initialize EasyReforge main repository.
+            SUBROUTINE: :INIT_REPO (same as line 103)
+            PARAMETERS:
+               %1 = %PROJECT_DIR% (C:\...\EasyReforge)
+               %2 = %PROJECT_URL% (https://github.com/Zuntan03/EasyReforge)
+               %3 = %PROJECT_BRANCH% (main)
+            PURPOSE: Clone/fetch EasyReforge main repository
+
+   107  if %ERRORLEVEL% neq 0 ( exit /b 1 )
+            ANNOTATION: Error check - exit if INIT_REPO failed.
+
+   108  (blank line)
+
+   109  call %PROJECT_SETUP_BAT%
+            ANNOTATION: Call main setup script.
+            SCRIPT: %PROJECT_SETUP_BAT% = C:\...\EasyReforge\Setup.bat
+            PURPOSE: Main installation orchestrator
+               - Calls Reforge.bat (PyTorch, dependencies)
+               - Calls ReforgeExtension.bat (13 extensions)
+               - Calls ReforgeLink.bat (symlink junctions)
+               - Downloads VC redistributable
+               - Optional: SetupForge.bat, NoobAiCommon_Minimum.bat
+            DURATION: 30+ minutes (depends on network speed, GPU)
+            ERRORLEVEL: 0 = success, 1 = failure
+
+   110  if %ERRORLEVEL% neq 0 ( exit /b 1 )
+            ANNOTATION: Error check - exit if Setup.bat failed.
+            EXIT: exit /b 1 (propagate failure)
+
+   111  (blank line)
+
+   112  if /i "%DOWNLOAD_MDOEL_YES_OR_NO%" == "n" ( goto :FINALIZE )
+            ANNOTATION: Check user's model download preference.
+            /I: Case-insensitive comparison
+            CONDITION: User answered "n" to download prompt (line 60-62)
+            IF TRUE: Jump to :FINALIZE (skip model download)
+            IF FALSE: Continue to line 113 (download models)
+            NOTE: Empty string or anything other than "n" continues
+
+   113  call %PROJECT_MODEL_DOWNLOAD_BAT%
+            ANNOTATION: Download minimum models if user agreed.
+            SCRIPT: %PROJECT_MODEL_DOWNLOAD_BAT% = Download\NoobAiEpsilonPred_Minimum.bat
+            WHAT IT DOWNLOADS:
+               - NoobAI Epsilon-prediction models (no Civitai login required)
+               - Includes: copycatNoob, HarmoniqMixSpoE
+               - Plus: adetailer models, ControlNets, LoRAs, wildcards
+            DURATION: 5-15 minutes (depends on models + network)
+
+   114  @REM if %ERRORLEVEL% neq 0 ( exit /b 1 )
+            ANNOTATION: Error check DISABLED (commented out).
+            WHY: Model download failures are not critical
+               - User can manually download models later
+               - WebUI works without models
+            NOTE: Error is ignored - installation continues even if download fails
+
+   115  (blank line)
+
+   116  goto :FINALIZE
+            ANNOTATION: Jump to finalization section.
+            PURPOSE: Skip redundant code if model download was called
+            NOTE: If user chose 'n', also reaches :FINALIZE (line 112)
+
+   117  (blank line)
+
+   118  :INIT_REPO
+            ANNOTATION: Subroutine label for repository initialization.
+            CALLED BY: Line 103 (EasyTools), Line 106 (EasyReforge)
+            PARAMETERS:
+               %~1 = Repository directory (must be created)
+               %~2 = Git URL to clone
+               %~3 = Branch to checkout
+
+   119  set INIT_REPO_DIR=%~1
+   120  set INIT_REPO_URL=%~2
+   121  set INIT_REPO_BRANCH=%~3
+            ANNOTATION: Store subroutine parameters in variables.
+            %~1, %~2, %~3: Subroutine parameters (like $1, $2, $3 in bash)
+            SCOPE: Global (not locally scoped like function params)
+
+   122  (blank line)
+
+   123  if not exist %INIT_REPO_DIR%\ ( mkdir %INIT_REPO_DIR% )
+            ANNOTATION: Create repository directory if missing.
+            BEHAVIOR: mkdir silently fails if already exists (idempotent)
+
+   124  pushd %INIT_REPO_DIR%
+            ANNOTATION: Save current directory and change to repo directory.
+            STACK: Pushes current directory onto internal stack
+            EFFECT: Subsequent commands run in %INIT_REPO_DIR%
+            RESTORE: Paired with popd at line 146
+
+   125  (blank line)
+
+   126  echo git init -q
+   127  git init -q
+            ANNOTATION: Initialize git repository (create .git directory).
+            -Q: Quiet mode (suppress output)
+            .GIT CREATED: %INIT_REPO_DIR%\.git\
+            PURPOSE: Set up git metadata for repository
+
+   128  if %ERRORLEVEL% neq 0 ( pause & popd & exit /b 1 )
+            ANNOTATION: Error check - git init failed.
+            ACTIONS: pause (let user see error) + popd (restore directory) + exit
+
+   129  (blank line)
+
+   130  git remote get-url origin > NUL 2>&1
+            ANNOTATION: Check if git remote 'origin' already configured.
+            OUTPUT: Redirected to NUL (discarded)
+            STDERR: Redirected to NUL (suppress error message)
+            ERRORLEVEL: 0 = remote exists, 1 = not configured
+
+   131  if %ERRORLEVEL% neq 0 (
+            ANNOTATION: If remote doesn't exist, add it.
+
+   132      cd > NUL
+            ANNOTATION: Set current directory (pointless, seems copy-pasted)
+
+   133      setlocal enabledelayedexpansion
+            ANNOTATION: Enable delayed expansion for variables.
+
+   134      echo git remote add origin %INIT_REPO_URL%
+   135      git remote add origin %INIT_REPO_URL%
+            ANNOTATION: Add git remote named 'origin' with cloned repository URL.
+            REMOTE: https://github.com/Zuntan03/EasyTools or EasyReforge
+
+   136      if !ERRORLEVEL! neq 0 ( pause & endlocal % popd & exit /b 1 )
+            ANNOTATION: Error check - git remote add failed.
+            NOTE: Typo "%" should be "&" before "popd"
+                  This is a bug but might work anyway
+
+   137      endlocal
+            ANNOTATION: End delayed expansion scope.
+
+   138  )
+            ANNOTATION: End of "if remote doesn't exist" block.
+
+   139  (blank line)
+
+   140  echo git fetch
+   141  git fetch
+            ANNOTATION: Download all refs (branches, tags) from remote.
+            PURPOSE: Get latest code from GitHub without checking out
+            OUTPUT: Progress messages (suppressed by 2>&1 > NUL if needed)
+            DURATION: Few seconds to 1 minute depending on network
+
+   142  if %ERRORLEVEL% neq 0 ( pause & popd & exit /b 1 )
+            ANNOTATION: Error check - git fetch failed.
+            FAILURE REASONS:
+               - Network unreachable
+               - GitHub down
+               - Invalid URL
+               - Network authentication required
+
+   143  (blank line)
+
+   144  echo "git switch %INIT_REPO_BRANCH% 2>NUL || git checkout -b %INIT_REPO_BRANCH%"
+   145  git switch %INIT_REPO_BRANCH% 2>NUL || git checkout -b %INIT_REPO_BRANCH%
+            ANNOTATION: Checkout specified branch (create if doesn't exist).
+            COMMAND: git switch (preferred in git 2.23+)
+            FALLBACK: git checkout -b (fallback if switch fails)
+            2>NUL: Suppress stderr from switch
+            ||: Logical OR - if switch fails, run checkout
+            BRANCH: 'main' for both EasyTools and EasyReforge
+            EFFECT: HEAD now points to specified branch
+
+   146  if %ERRORLEVEL% neq 0 ( pause & popd & exit /b 1 )
+            ANNOTATION: Error check - git switch/checkout failed.
+
+   147  (blank line)
+
+   148  exit /b 0
+            ANNOTATION: Return success (exit code 0) from subroutine.
+            SCOPE: Returns to caller (line 103 or 106)
+
+   149  (blank line)
+
+   150  :FINALIZE
+            ANNOTATION: Label - finalization section.
+            REACHED BY: Line 112 (skip model dl) or Line 116 (after model dl)
+
+   151  @REM HKEY_LOCAL_MACHINE の変更には管理者権限が必要
+            ANNOTATION: Comment: HKCU change doesn't require admin, but HKLM does.
+
+   152  echo reg add "HKCU\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1 /f
+   153  reg add "HKCU\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1 /f
+            ANNOTATION: Enable long path support in Windows registry.
+            HIVE: HKCU (current user) - doesn't require admin
+            PATH: SYSTEM\CurrentControlSet\Control\FileSystem
+            VALUE: LongPathsEnabled = 1 (DWORD)
+            /F: Force (overwrite if exists)
+            PURPOSE: Allow Windows paths > 260 characters (MAX_PATH)
+            REQUIREMENT: Needed because reForge models can have very long nested paths
+            NOTE: Requires Windows 10 1607+ or Windows Server 2016+
+
+   154  if %ERRORLEVEL% neq 0 (
+   155      echo "Windows の長いパス対応を有効にできませんでした。"
+   156      echo "Windows の管理者権限で EasyTools/EnableLongPaths.bat を実行してください。"
+   157      pause
+   158  )
+            ANNOTATION: Error handling - registry change failed (non-fatal).
+            ACTION: Show warning message (Japanese)
+               MESSAGE: "Could not enable Windows long path support. Run
+                        EasyTools/EnableLongPaths.bat with admin rights."
+            PAUSE: Let user read message
+            CONTINUES: Installation does NOT exit (error ignored)
+            WHY: Long paths optional - installation works without it
+
+   159  (blank line)
+
+   160  if exist "%~0" ( del "%~0" )
+            ANNOTATION: Self-delete the installer script.
+            %~0: Current script name with path (EasyReforgeInstaller.bat)
+            IF EXIST: File still exists
+            ACTION: del (delete) the script
+            PURPOSE: Cleanup after successful installation
+            SAFETY: Only deletes if script still exists (idempotent)
+
+   161  (end of file)
+
+```
+
+---
+
+## Key Subroutine Reference
+
+### :INIT_REPO Subroutine (Lines 118-148)
+
+**Purpose**: Initialize or update a git repository
+**Called**: Twice (line 103 for EasyTools, line 106 for EasyReforge)
+
+**Parameters**:
+```
+Parameter 1 (%~1): Directory path for repository
+Parameter 2 (%~2): Git repository URL
+Parameter 3 (%~3): Branch name to checkout
+```
+
+**Operations in Order**:
+1. Create directory if missing
+2. Initialize git repository (git init)
+3. Check if origin remote exists
+   - If not: Add origin remote with specified URL
+4. Fetch all refs from remote
+5. Switch/checkout to specified branch
+6. Return success (exit /b 0) or failure (exit /b 1 via error checks)
+
+**Idempotent Design**: Can be called multiple times safely
+- mkdir silently succeeds if directory exists
+- git remote add fails if already exists, but checked and skipped
+- git fetch updates existing refs
+- git switch updates branch reference
+
+---
+
+**Last Updated**: 2025-12-04
+**Lines Analyzed**: 160 complete
+**Diagrams**: 4 major + detailed callout
+**Annotations**: Line-by-line with context
