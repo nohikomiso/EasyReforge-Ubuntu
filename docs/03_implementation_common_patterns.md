@@ -582,7 +582,7 @@ main "$@"
 
 **Original (Windows)**:
 ```batch
-pip install torch==2.7.1 torchvision==0.18.1 torchaudio==2.7.1 --index-url https://download.pytorch.org/whl/cu128
+pip install torch==2.7.1 torchvision==0.22.1+cu128 torchaudio==2.7.1 --index-url https://download.pytorch.org/whl/cu128
 ```
 
 **Ubuntu Conversion**:
@@ -668,6 +668,51 @@ python3 -m pip check || true  # Show warnings but don't fail
 
 # Install with timeout for slow networks
 pip install --default-timeout=1000 -r requirements.txt
+```
+
+#### Caution 4.5: Platform-Specific Packages to Remove from requirements.txt
+
+When installing on Ubuntu, remove the following Windows-only packages from `requirements.txt`:
+
+| Package | Reason | Impact |
+|---------|--------|--------|
+| `pywin32==308` | Windows COM/registry access only | None - Python APIs don't need this on Linux |
+| `pyreadline3==3.5.4` | Windows terminal readline replacement | None - Linux has native readline |
+| `triton-windows` | Windows-specific Triton variant | None - PyTorch includes native Triton on Linux |
+
+**All other 195+ packages are cross-platform compatible.**
+
+**Implementation**:
+```bash
+# Before installing requirements.txt, remove Windows-only packages
+sed -i '/^pywin32/d' requirements.txt
+sed -i '/^pyreadline3/d' requirements.txt
+sed -i '/^triton-windows/d' requirements.txt
+
+# Then install
+pip install --default-timeout=1000 -r requirements.txt
+```
+
+#### Caution 4.6: Windows-to-Linux Wheel Platform Migration
+
+When installing Python packages on Ubuntu, wheels automatically convert to Linux equivalents:
+
+| Component | Windows Wheel Tag | Ubuntu Wheel Tag | Installation Method |
+|-----------|------------------|------------------|---------------------|
+| **PyTorch** | cp310-cp310-win_amd64 | cp310-cp310-manylinux_2_17_x86_64 | Automatic via PyTorch index |
+| **TorchVision** | cp310-cp310-win_amd64 | cp310-cp310-manylinux_2_17_x86_64 | Automatic via PyTorch index |
+| **SageAttention** | cp39-abi3-win_amd64 | cp310-cp310-linux_x86_64 | Local wheel file |
+| **llama-cpp-python** | cp310-cp310-win_amd64 | Build from source with CUDA | CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install |
+
+**Note**: Wheel platform tags are automatically selected by pip. Ensure you're using the correct Python version (3.10.x).
+
+**Verification**:
+```bash
+# Check installed packages and their wheel platforms
+pip show torch torchvision sageattention llama-cpp-python
+
+# Verify correct CUDA version installed
+python3 -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}')"
 ```
 
 #### Caution 5: pushd/popd Replacement
@@ -757,11 +802,11 @@ install_pytorch() {
     # Check for NVIDIA GPU
     if command -v nvidia-smi &>/dev/null; then
         echo "NVIDIA GPU detected, installing CUDA version..."
-        pip install torch==2.7.1 torchvision==0.18.1 torchaudio==2.7.1 \
+        pip install torch==2.7.1 torchvision==0.22.1+cu128 torchaudio==2.7.1 \
             --index-url https://download.pytorch.org/whl/cu128
     else
         echo "No NVIDIA GPU detected, installing CPU version..."
-        pip install torch==2.7.1 torchvision==0.18.1 torchaudio==2.7.1 \
+        pip install torch==2.7.1 torchvision==0.22.1+cu128 torchaudio==2.7.1 \
             --index-url https://download.pytorch.org/whl/cpu
     fi
 }

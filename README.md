@@ -181,7 +181,8 @@ Phase 3-5: Download Helpers & Scripts
 
 ### 主なテクノロジー
 
-- **Python**: 3.10+
+- **Python**: 3.10.x (tested on 3.10.6+, strictly 3.10, no 3.11)
+  - **Note**: cp310 wheel compatibility required - Python 3.11 wheels (cp311) are not compatible
 - **PyTorch**: 2.7.1 with CUDA 12.8
 - **reForge WebUI**: Git submodule (Panchovix 版)
 - **ShellScript**: Bash 4.0+

@@ -24,8 +24,8 @@
 **ステータス**: 🟡 回避策あり
 
 **説明**:
-- Windows版: `torch-2.7.1+cu128-cp311-cp311-win_amd64.whl`
-- Linux版: `torch-2.7.1+cu128-cp311-cp311-manylinux2014_x86_64.whl`
+- Windows版: `torch-2.7.1+cu128-cp310-cp310-win_amd64.whl`
+- Linux版: `torch-2.7.1+cu128-cp310-cp310-manylinux_2_17_x86_64.whl`
 
 プラットフォーム固有のwheel名が異なるため、ダウンロードURLを動的に構築する必要があります。
 
@@ -80,6 +80,40 @@ pip install sageattention==2.2.0 --no-binary sageattention
 - [ ] 公式リポジトリでLinux wheelの提供状況確認
 - [ ] コミュニティビルドwheel探索
 - [ ] 代替最適化ライブラリ検討
+
+---
+
+### プラットフォーム固有Wheel利用可能性と対応方法
+
+#### PyTorch (torch, torchvision, torchaudio)
+- **ステータス**: ✅ WindowsおよびLinux両方で利用可能
+- **アクション**: PyTorchインデックスを通じた自動インストール（`--index-url https://download.pytorch.org/whl/cu128`）
+- **プラットフォームタグ**:
+  - Windows: `cp310-cp310-win_amd64`
+  - Linux: `cp310-cp310-manylinux_2_17_x86_64`
+
+#### SageAttention 2.2.0
+- **ステータス**: ✅ Linuxwheel利用可能（ユーザー構築）
+- **保存場所**: `EasyReforge/Reforge/wheels/sageattention-2.2.0-cp310-cp310-linux_x86_64.whl`
+- **アクション**: ローカルwheelファイルからインストール
+- **フォールバック**: 利用不可の場合はスキップ（重要でないパフォーマンス最適化）
+
+#### llama-cpp-python 0.3.4
+- **ステータス**: ⚠️ LinuxのCUDA対応pre-builtwheel不足
+- **アクション**: CUDA対応でソースからビルド
+- **コマンド**: `CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python==0.3.4`
+- **時間**: ~10-15分のビルド時間
+- **フォールバック**: ビルド失敗時はCPU版（`pip install llama-cpp-python==0.3.4`）
+
+#### triton-windows
+- **ステータス**: ❌ Windows専用、Linux不要
+- **アクション**: Ubuntu版のrequirements.txtから削除
+- **理由**: PyTorchはLinuxにネイティブTritonを含みます
+
+#### pywin32, pyreadline3
+- **ステータス**: ❌ Windows専用、Linux不要
+- **アクション**: Ubuntu版のrequirements.txtから削除
+- **理由**: Windows COM/レジストリアクセスおよびターミナルサポート（Linuxはネイティブ相当機能あり）
 
 ---
 
@@ -169,6 +203,8 @@ sudo apt-get install -y \
 
 **説明**:
 PyTorch 2.7.1+cu128 はCUDA 12.8を要求しますが、Ubuntu 18.04/20.04のデフォルトリポジトリには含まれていません。
+
+**注記**: PyTorchバンドルCUDAを使用するため、別途CUDA Toolkitをインストール不要です。
 
 **影響**:
 - 手動でCUDA Toolkitをインストール必要

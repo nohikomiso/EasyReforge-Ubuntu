@@ -265,7 +265,7 @@ if %ERRORLEVEL% neq 0 ( pause & exit /b 1 )
 - Windows 10+ (for built-in curl, PowerShell 5.1)
 - Administrator rights (for HKEY_CURRENT_USER registry edit, optional)
 - GPU drivers for CUDA (downstream, in Reforge.bat)
-- Python 3.10+ (required downstream by Reforge.bat)
+- Python 3.10.x (required downstream by Reforge.bat, strictly 3.10, no 3.11)
 
 ---
 

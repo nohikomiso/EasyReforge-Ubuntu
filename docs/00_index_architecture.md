@@ -187,7 +187,7 @@ bash reforge.sh
 **最重要スクリプト** - 環境セットアップの中核
 
 **処理内容**:
-1. Python 3.10+ 検証
+1. Python 3.10.x 検証（厳密に 3.10、3.11 不可）
 2. 仮想環境作成・有効化
 3. PyTorchインストール（CUDA対応）
 4. SageAttention, llama-cpp-python などの特殊ホイール

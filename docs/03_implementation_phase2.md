@@ -172,10 +172,11 @@ This script is the most complex. Plan 40-50 hours for it.
 
 ### reforge.sh Platform-Specific Cautions (40+ hours work)
 
-**Caution 1: PyTorch Wheels**
-- Windows: `torch-2.7.1+cu128-cp311-cp311-win_amd64.whl`
-- Ubuntu: `torch-2.7.1+cu128-cp311-cp311-manylinux2014_x86_64.whl`
-- **Action**: Detect CUDA version, download correct wheel
+**Caution 1: PyTorch Wheels - CRITICAL Python 3.10 Requirement**
+- Windows: `torch-2.7.1+cu128-cp310-cp310-win_amd64.whl`
+- Ubuntu: `torch-2.7.1+cu128-cp310-cp310-manylinux_2_17_x86_64.whl`
+- **CRITICAL**: Must use Python 3.10.x (not 3.11 or 3.12) - all wheels are tagged cp310
+- **Action**: Detect CUDA version, download correct Linux manylinux wheel for Python 3.10
 
 **Caution 2: SageAttention**
 - Windows wheel (win_amd64) not available on Linux
@@ -198,6 +199,86 @@ This script is the most complex. Plan 40-50 hours for it.
 - Windows: `xcopy`, `rmdir /S /Q`
 - Ubuntu: `cp -r`, `rm -rf`
 - **Action**: Use rsync for large copies, rm -rf with caution
+
+---
+
+## Python 3.10 Installation (Required for All Wheel Tags)
+
+**CRITICAL**: The entire wheel ecosystem uses `cp310` tags. You MUST install Python 3.10.x, not 3.11 or 3.12.
+
+### Python 3.10 Installation (Ubuntu 24.04 and modern versions)
+
+The deadsnakes PPA provides Python 3.10 on modern Ubuntu versions where it's not in default repos:
+
+```bash
+# Add deadsnakes PPA for Python 3.10 availability
+sudo add-apt-repository ppa:deadsnakes/ppa -y
+sudo apt update
+sudo apt install -y python3.10 python3.10-venv python3.10-dev
+
+# Verify installation
+python3.10 --version  # Should output: Python 3.10.x (e.g., 3.10.6)
+```
+
+### Why strictly Python 3.10.x?
+
+- **Original Windows version**: Uses Python 3.10.6 (portable)
+- **All wheel tags**: Every critical package uses `cp310` tags (CPython 3.10)
+- **Python 3.11+ incompatible**: cp311/cp312 wheels are incompatible with cp310 requirements
+- **Wheel examples**:
+  - `torch-2.7.1+cu128-cp310-cp310-manylinux_2_17_x86_64.whl` ✓ Compatible
+  - `torch-2.7.1+cu128-cp311-cp311-manylinux_2_17_x86_64.whl` ✗ Incompatible
+  - `torch-2.7.1+cu128-cp312-cp312-manylinux_2_17_x86_64.whl` ✗ Incompatible
+
+---
+
+## Specialized Wheel Installation Instructions
+
+### SageAttention 2.2.0 Linux Wheel Installation
+
+Unlike Windows, SageAttention must be installed from a pre-built Linux wheel:
+
+```bash
+# The wheel is located at: wheels/sageattention-2.2.0-cp310-cp310-linux_x86_64.whl
+# Ensure the wheels directory exists relative to the script
+pip install wheels/sageattention-2.2.0-cp310-cp310-linux_x86_64.whl
+
+# Verify installation
+python -c "from sageattention import sageattn; print('✓ SageAttention loaded')"
+```
+
+**Failure handling**: If the wheel is not found or installation fails:
+- Log the error but continue (non-critical functionality)
+- The WebUI will work without SageAttention optimization
+- Attempt to install again in a future update if the wheel becomes available
+
+**Wheel location**: Must be bundled with the project at:
+- `EasyReforge/Reforge/wheels/sageattention-2.2.0-cp310-cp310-linux_x86_64.whl`
+
+### llama-cpp-python 0.3.4 with CUDA Support
+
+Unlike Windows wheels, llama-cpp-python on Linux must be built from source with CUDA support enabled:
+
+```bash
+# Build llama-cpp-python with CUDA support
+# This enables GPU acceleration for local LLM inference
+CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python==0.3.4
+
+# Verify CUDA support is enabled
+python -c "from llama_cpp import Llama; print('✓ llama-cpp-python with CUDA loaded')"
+```
+
+**Build requirements**:
+- cmake (typically installed with build-essential)
+- NVIDIA CUDA toolkit (included with PyTorch installation)
+- Requires 10-15 minutes for source build on first install
+
+**Failure handling**: If source build fails:
+1. Attempt CPU-only fallback: `pip install llama-cpp-python==0.3.4`
+2. If still failing, skip LLM features (non-critical)
+3. Log the error and continue WebUI setup
+
+**Performance note**: CUDA-enabled llama-cpp-python is significantly faster for local LLM inference. Worth the build time.
 
 ---
 

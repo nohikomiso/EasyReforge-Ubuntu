@@ -123,12 +123,10 @@ pydantic @ https://github.com/Panchovix/pydantic-fixreforge/releases/download/ma
 pydub==0.25.1
 Pygments==2.18.0
 pyparsing==3.2.0
-pyreadline3==3.5.4
 python-dateutil==2.9.0.post0
 python-multipart==0.0.17
 pytorch-lightning==1.9.4
 pytz==2024.2
-pywin32==308
 PyYAML==6.0.2
 referencing==0.35.1
 regex==2024.11.6

@@ -108,7 +108,7 @@ EasyReforge-Ubuntu/
 ## Core Technologies & Dependencies
 
 ### ML Stack
-- **PyTorch** 2.7.1 with CUDA 12.8 support
+- **PyTorch** 2.7.1 with CUDA 12.8 support (Python 3.10.x required)
 - **reForge** (git submodule at `stable-diffusion-webui-reForge/`)
 - **FastAPI/Uvicorn** + **Gradio 3.41.2** for WebUI
 - **198 Python packages** (see `requirements.txt`)
@@ -125,10 +125,34 @@ EasyReforge-Ubuntu/
 ### System Requirements
 - **OS**: Ubuntu 18.04+ (recommended: 20.04 or later)
 - **Git**, **curl**, **bash** 4.0+
-- **Python** 3.10+ with pip3
+- **Python** 3.10.x with pip3 (tested on 3.10.6+, strictly 3.10, no 3.11)
 - **NVIDIA GPU** with CUDA 12.8 support (RTX 3060+ recommended)
 - **20GB+** free disk space
-- **CUDA Toolkit** and **cuDNN** (installed separately)
+- **CUDA Toolkit** and **cuDNN** (bundled in PyTorch, no separate installation needed)
+
+### Python/CUDA Version Compatibility Matrix
+
+| Component | Windows Original | Ubuntu Target | Verified |
+|-----------|------------------|---------------|----------|
+| **Python** | 3.10.6 (portable) | 3.10.x (system) | ✅ Ubuntu 24.04 |
+| **CUDA Toolkit** | Not needed (bundled) | Not needed (bundled in PyTorch) | ✅ |
+| **NVIDIA Driver** | 525.60.13+ | 525.60.13+ | Required for GPU |
+| **PyTorch** | 2.7.1+cu128 | 2.7.1+cu128 | ✅ |
+| **TorchVision** | 0.22.1+cu128 | 0.22.1+cu128 | ✅ |
+| **TorchAudio** | 2.7.1+cu128 | 2.7.1+cu128 | ✅ |
+| **SageAttention** | 2.2.0 (win_amd64) | 2.2.0 (linux_x86_64) | ✅ User-built |
+| **llama-cpp-python** | 0.3.4 (wheel) | 0.3.4 (build with CUDA) | Needs testing |
+| **Wheel ABI** | cp310-cp310-win_amd64 | cp310-cp310-linux_x86_64 | ✅ |
+
+**Python Installation** (Ubuntu 24.04):
+```bash
+sudo add-apt-repository ppa:deadsnakes/ppa -y
+sudo apt update
+sudo apt install -y python3.10 python3.10-venv python3.10-dev
+python3.10 --version  # Verify 3.10.x
+```
+
+**Note**: No CUDA Toolkit installation needed. PyTorch 2.7.1+cu128 includes all necessary CUDA 12.8 libraries and cuDNN.
 
 ### Pre-Installation Checklist
 ```bash
