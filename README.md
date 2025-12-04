@@ -272,9 +272,9 @@ set -euo pipefail
 trap 'echo "Error on line $LINENO"; exit 1' ERR
 
 # 命名規則
-lowercase_with_underscores.sh    # ✅ 正しい
-CamelCase.sh                     # ❌ 避ける
-kebab-case.sh                    # ❌ 避ける
+lowercase_with_underscores.sh    # 正しい
+CamelCase.sh                     # 避ける
+kebab-case.sh                    # 避ける
 
 # 検証
 shellcheck script.sh             # 構文チェック
@@ -282,6 +282,19 @@ bash script.sh                   # 実行テスト
 ```
 
 詳細は [.claude/CLAUDE.md](.claude/CLAUDE.md) を参照。
+
+### 重要: 設計優先の開発プロセス
+
+**バッチファイルの単純な構文置換は禁止です。**
+
+各スクリプトを実装する前に、以下のプロセスに従ってください:
+
+1. **バッチファイルの「目的」を理解する**
+2. **Linux での最適な実装方法を設計する**
+3. **shell-scripting Skill を活用する**
+4. **構文リファレンスは補助的に使う**
+
+詳細は [docs/03_implementation_common_patterns.md](docs/03_implementation_common_patterns.md) の「Batch File Analysis Process」セクションを参照。
 
 ---
 

@@ -82,7 +82,26 @@ EasyReforge（Stable Diffusion WebUI reForge向けのターンキーインスト
 
 ---
 
-## 🚀 クイックスタート
+## 重要: 設計優先の開発プロセス
+
+**バッチファイルの単純な構文置換は禁止です。**
+
+各スクリプトを実装する前に、以下のプロセスに従ってください:
+
+1. **バッチファイルの「目的」を理解する** - 何を達成しようとしているか
+2. **EasyEnv/EasyTools のパターンを学ぶ** - 参考: `/home/ytsubame/src/_research_reference/ANALYSIS_REPORT.md`
+3. **Ubuntu ネイティブな解決策を設計する** - apt でインストールされたツールを使う
+4. **`Skill shell-scripting` を呼び出す** - プロフェッショナルな実装のため
+5. **変換テーブルは構文確認のみに使う** - 主要参考資料としてではなく
+
+**必須ドキュメント**:
+- `.claude/CLAUDE.md` - Script Conversion Guidelines セクション
+- `docs/03_implementation_common_patterns.md` - Batch File Analysis Process
+- `docs/04_reference_conversion_table.md` - 構文リファレンス（補助的に使用）
+
+---
+
+## クイックスタート
 
 ### シナリオ別ガイド
 

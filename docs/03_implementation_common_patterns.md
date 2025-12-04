@@ -28,14 +28,21 @@
 
 1. **`.claude/CLAUDE.md`** - Project context and guidelines
    - Read completely to understand architecture patterns
+   - **CRITICAL**: Section "Script Conversion Guidelines" defines the design-first approach
    - Note: This file overrides all default behavior
 
-2. **`TODO.md`** - High-level implementation plan
+2. **`/home/ytsubame/src/_research_reference/ANALYSIS_REPORT.md`** - Windows library analysis
+   - Reference for understanding batch file patterns
+   - Shows how EasyEnv/EasyTools handle common problems
+   - Use to identify the "purpose" of batch files
+
+3. **`TODO.md`** - High-level implementation plan
    - Reference for overall timeline and scope
 
-3. **Original batch files** - For exact logic to replicate
+4. **Original batch files** - For exact logic to replicate
    - Always check the original .bat for correct behavior
    - Don't trust assumptions; verify against source
+   - Read multiple related .bat files to understand the pattern
 
 ### System Setup
 
@@ -53,6 +60,82 @@ git config user.email "your.email@example.com"
 
 # Create a branch for this work
 git checkout -b ubuntu-migration
+```
+
+### 📋 Batch File Analysis Process (Before Writing Code)
+
+**MANDATORY**: Before implementing any `.sh` file, analyze the original `.bat` using this process:
+
+#### Step 1: Read and Understand the Purpose
+```bash
+# Read the original batch file completely
+cat EasyReforge/Reforge/Reforge.bat
+
+# Ask yourself: "What is this script trying to accomplish?"
+# Examples:
+# - "Clone/update Git repository"
+# - "Create Python virtual environment"
+# - "Download and extract model files"
+# - "Create symlinks for directory linking"
+```
+
+#### Step 2: Identify Dependencies and Inputs
+```bash
+# What does the batch file depend on?
+# - External tools? (git, python, curl, etc.)
+# - Environment variables?
+# - Input parameters?
+# - Pre-existing directories or files?
+
+# Example analysis for Python_Activate.bat:
+# Depends on: Python runtime, virtualenv
+# Inputs: Python version, venv directory path
+# Output: Activated Python venv
+```
+
+#### Step 3: Map Windows-Specific Code to Linux Equivalents
+```bash
+# Reference: /home/ytsubame/src/_research_reference/ANALYSIS_REPORT.md
+
+# Windows pattern: What does it do?          → Linux equivalent:
+# chcp 65001 (UTF-8)                         → export LC_ALL=C.UTF-8
+# python -m venv (same in both!)             → python3 -m venv
+# mklink /j (junction)                       → ln -s (symlink)
+# curl.exe / aria2.exe                       → curl / aria2c (apt install)
+# PowerShell Expand-Archive                  → unzip command
+```
+
+#### Step 4: Design the Ubuntu Implementation
+```bash
+# Ask: "What's the Linux-native way to do this?"
+# Principles:
+# - Use apt-installed tools, not custom workarounds
+# - Prefer standard commands: git, curl, unzip, etc.
+# - Leverage bash features, not Windows workarounds
+
+# Example: If batch does "Install Python portable zip"
+# Ubuntu approach: Use "apt install python3-venv" (system package, not portable)
+```
+
+#### Step 5: Implement with shell-scripting Skill
+```bash
+# Use the Skill when implementing:
+# Skill shell-scripting
+
+# This ensures:
+# - Professional shell best practices
+# - Proper error handling
+# - Edge case coverage
+# - Linux optimization
+```
+
+#### Step 6: Verify with Reference Documentation
+```bash
+# If you need specific syntax, use (not as primary reference):
+# - docs/04_reference_conversion_table.md (syntax lookup only)
+# - CLAUDE.md "Script Conversion Guidelines"
+
+# But always prioritize "purpose" over "syntax"
 ```
 
 ### Code Style & Conventions

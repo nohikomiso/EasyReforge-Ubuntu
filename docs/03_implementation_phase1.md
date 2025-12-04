@@ -7,6 +7,24 @@
 
 ---
 
+## 重要: 実装前に必ず読むこと
+
+**バッチファイルの単純な構文置換は禁止です。**
+
+各スクリプトを実装する前に、以下のプロセスに従ってください:
+
+1. **バッチファイルの目的を理解する** - 何を達成しようとしているか
+2. **Linux での最適な実装方法を設計する** - Ubuntu のツールとベストプラクティスを使う
+3. **shell-scripting Skill を活用する** - 実装時に `Skill shell-scripting` を呼び出す
+4. **構文リファレンスは補助的に使う** - `04_reference_conversion_table.md` は最後に参照
+
+**参考資料**:
+- `/home/ytsubame/src/_research_reference/ANALYSIS_REPORT.md` - Windows ライブラリ分析
+- `docs/03_implementation_common_patterns.md` - バッチファイル分析プロセス（詳細）
+- `.claude/CLAUDE.md` - Script Conversion Guidelines セクション
+
+---
+
 ## 概要
 
 Phase 1 では以下の 5 つのスクリプトを作成します：
@@ -20,6 +38,29 @@ Phase 1 では以下の 5 つのスクリプトを作成します：
 ---
 
 ## Task 1: `EasyReforge/src/lib/github.sh` 実装
+
+### ステップ0: バッチファイル分析（必須）
+
+**実装前に必ず実施**:
+
+```bash
+# 1. 関連するWindowsバッチファイルを特定
+# EasyEnv/EasyToolsのGit関連スクリプトを参照
+cat /home/ytsubame/src/_research_reference/ANALYSIS_REPORT.md | grep -A 20 "Git"
+
+# 2. 目的を理解する
+# このスクリプトは「Git リポジトリのクローンまたは更新」を行う
+# Windows版では Git for Windows / PortableGit を使用
+# Ubuntu版では apt でインストールされた git を使用（ポータブル版不要）
+
+# 3. Linux最適化を検討
+# - git clone --depth=1 (shallow clone) でネットワーク効率化
+# - git -C オプションでディレクトリ変更不要
+# - SSH vs HTTPS の選択肢
+```
+
+**shell-scripting Skill を呼び出して実装**:
+- `Skill shell-scripting` を使用して、プロフェッショナルなシェルスクリプトを作成
 
 ### ステップ1: ファイルを読み込み
 

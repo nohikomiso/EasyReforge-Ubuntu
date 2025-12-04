@@ -2,8 +2,29 @@
 
 **Status**: Template for Phase 2 implementation work
 **Phase**: 2 of 5 (Weeks 3-4)
-**Complexity**: ⭐⭐⭐⭐⭐ (Highest - reforge.sh is CRITICAL)
+**Complexity**: HIGH (Highest - reforge.sh is CRITICAL)
 **Estimated Time**: 60-75 hours
+
+---
+
+## IMPORTANT: Design-First Approach (Required Reading)
+
+**DO NOT simply translate batch syntax to shell syntax.**
+
+Phase 2 contains the most critical scripts. Each must be designed from scratch:
+
+### Mandatory Process for Each Script
+
+1. **Analyze the original .bat file's PURPOSE** (not just its commands)
+2. **Study EasyEnv/EasyTools patterns**: `/home/ytsubame/src/_research_reference/ANALYSIS_REPORT.md`
+3. **Design the Ubuntu-optimal solution** using native Linux tools
+4. **Invoke `Skill shell-scripting`** when implementing
+5. **Use `04_reference_conversion_table.md` only for syntax lookup** (not as primary guide)
+
+### Reference Documents
+- `.claude/CLAUDE.md` - Script Conversion Guidelines section (MANDATORY)
+- `docs/03_implementation_common_patterns.md` - Batch File Analysis Process
+- `/home/ytsubame/src/_research_reference/ANALYSIS_REPORT.md` - Windows library analysis
 
 ---
 
@@ -60,6 +81,12 @@ This script is the most complex. Plan 40-50 hours for it.
 - **File**: `EasyReforge/Reforge/reforge.sh`
 - **Status**: [ ] Not started [ ] In progress [ ] Complete
 - **Time estimate**: 40-50 hours (most complex)
+- **Pre-implementation analysis** (REQUIRED):
+  - [ ] Read original Reforge.bat completely
+  - [ ] Study EasyEnv Python/venv handling: `_research_reference/ANALYSIS_REPORT.md`
+  - [ ] Document the PURPOSE of each section (not just commands)
+  - [ ] Design Ubuntu-native approach (apt packages, not portable binaries)
+  - [ ] Invoke `Skill shell-scripting` for implementation
 - **Key sections**:
   - [ ] Environment setup (CUDA, Triton cache, etc.)
   - [ ] Python venv creation

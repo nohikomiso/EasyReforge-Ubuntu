@@ -6,6 +6,23 @@
 
 ---
 
+## CRITICAL: Design-First Development Process
+
+**Before implementing ANY script, you MUST follow this process:**
+
+1. **Read the original .bat file** - Understand its PURPOSE, not just syntax
+2. **Study EasyEnv/EasyTools patterns** - Reference: `/home/ytsubame/src/_research_reference/ANALYSIS_REPORT.md`
+3. **Design Ubuntu-native solution** - Don't just translate syntax
+4. **Invoke `Skill shell-scripting`** - Use for professional implementation
+5. **Use conversion table as syntax reference ONLY** - Not as primary guide
+
+**Key documents for this process:**
+- `.claude/CLAUDE.md` - Script Conversion Guidelines section (MANDATORY)
+- `docs/03_implementation_common_patterns.md` - Batch File Analysis Process section
+- `docs/04_reference_conversion_table.md` - Syntax lookup only (not primary reference)
+
+---
+
 ## Quick Start - I want to...
 
 ### 1. Understand the project structure and scope

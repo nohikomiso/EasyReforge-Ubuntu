@@ -2,8 +2,40 @@
 
 **Status**: Template for Phase 3 implementation work
 **Phase**: 3 of 5 (Weeks 5-6)
-**Complexity**: ⭐⭐⭐ (Medium - 7 interdependent helpers)
+**Complexity**: MEDIUM (7 interdependent helpers)
 **Estimated Time**: 30-40 hours
+
+---
+
+## IMPORTANT: Design-First Approach
+
+**DO NOT simply translate batch download scripts to shell.**
+
+Phase 3 creates download helpers. Each must be designed for Ubuntu:
+
+### Mandatory Process
+
+1. **Analyze the original Download/*.bat files' PURPOSE**
+   - What API are they calling? (Civitai, HuggingFace, etc.)
+   - What parameters do they pass?
+   - How do they handle errors?
+
+2. **Study EasyEnv/EasyTools patterns**
+   - Reference: `/home/ytsubame/src/_research_reference/ANALYSIS_REPORT.md`
+   - Look for download/network handling patterns
+
+3. **Design Ubuntu-native solution**
+   - Use `curl` or `wget` (apt-installed, not custom binaries)
+   - Use `aria2c` for parallel downloads if needed
+   - Proper error handling with exit codes
+
+4. **Invoke `Skill shell-scripting`** for implementation
+
+5. **Syntax lookup**: `04_reference_conversion_table.md` (supplementary only)
+
+### Reference Documents
+- `.claude/CLAUDE.md` - Script Conversion Guidelines
+- `docs/03_implementation_common_patterns.md` - Batch File Analysis Process
 
 ---
 

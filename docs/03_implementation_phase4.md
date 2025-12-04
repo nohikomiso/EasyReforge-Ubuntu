@@ -2,8 +2,39 @@
 
 **Status**: Template for Phase 4 implementation work
 **Phase**: 4 of 5 (Weeks 7-8)
-**Complexity**: ⭐⭐ (Low - highly automated)
+**Complexity**: LOW (highly automated)
 **Estimated Time**: 30-40 hours
+
+---
+
+## IMPORTANT: Design-First Approach
+
+**Even for automated generation, design comes first.**
+
+Phase 4 generates 165+ scripts automatically. The generation process must be well-designed:
+
+### Mandatory Process
+
+1. **Analyze the original Download/*.bat files' PATTERNS**
+   - What common structure do they share?
+   - What parameters vary between scripts?
+   - How do meta-scripts orchestrate children?
+
+2. **Design the template generation system**
+   - Templates should produce Ubuntu-native scripts
+   - Not just batch-to-shell syntax conversion
+   - Each generated script must follow shell best practices
+
+3. **Invoke `Skill shell-scripting`** when creating templates
+
+4. **Manual scripts (meta-scripts) still need full analysis**
+   - Read original All/*.bat files completely
+   - Design Ubuntu-native orchestration
+
+### Reference Documents
+- `.claude/CLAUDE.md` - Script Conversion Guidelines
+- `docs/03_implementation_common_patterns.md` - Batch File Analysis Process
+- `/home/ytsubame/src/_research_reference/ANALYSIS_REPORT.md` - Windows library patterns
 
 ---
 

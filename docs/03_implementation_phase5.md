@@ -2,8 +2,39 @@
 
 **Status**: Template for Phase 5 implementation work
 **Phase**: 5 of 5 (Weeks 11-12)
-**Complexity**: ⭐ (Low - simple scripts and testing)
+**Complexity**: LOW (simple scripts and testing)
 **Estimated Time**: 20-25 hours
+
+---
+
+## IMPORTANT: Design-First Approach
+
+**Even for simple launchers, design comes first.**
+
+Phase 5 contains launchers and optional scripts. Each still requires analysis:
+
+### Mandatory Process
+
+1. **Analyze each launcher's PURPOSE**
+   - What command-line arguments does it set?
+   - What optimization does it enable?
+   - Is there an Ubuntu-native equivalent?
+
+2. **Design Ubuntu-native launchers**
+   - Environment variables should match Linux conventions
+   - CUDA paths differ from Windows
+   - Memory management may differ
+
+3. **Invoke `Skill shell-scripting`** for implementation
+
+4. **LLM scripts need special attention**
+   - Different wheel formats for Linux
+   - May need compilation flags
+
+### Reference Documents
+- `.claude/CLAUDE.md` - Script Conversion Guidelines
+- `docs/03_implementation_common_patterns.md` - Batch File Analysis Process
+- `/home/ytsubame/src/_research_reference/ANALYSIS_REPORT.md` - Windows library patterns
 
 ---
 

@@ -449,24 +449,84 @@ Pattern: Modular scripts where each performs one concern (clone repo, install de
 
 ## Script Conversion Guidelines
 
+### ⚠️ CRITICAL: Design-First Approach (NOT Simple Syntax Conversion)
+
+**RULE**: ❌ **DO NOT** simply convert `.bat` syntax to `.sh` syntax. Instead:
+
+1. **Analyze** the batch file to understand **what it's trying to do** (purpose/intent)
+2. **Design** the optimal Ubuntu/Linux implementation based on that understanding
+3. **Implement** using shell-scripting best practices with `shell-scripting` Skill
+4. **Leverage** Linux native commands and apt-installed tools (not Windows workarounds)
+
+**Bad Example (❌ Forbidden)**:
+```bash
+# DO NOT do this - simple syntax replacement
+# Windows: call other.bat
+bash other.sh  # ← Wrong: just replacing syntax
+
+# Windows: xcopy /sqy src dst
+cp -r src/* dst/  # ← Wrong: doesn't understand intent
+```
+
+**Good Example (✅ Correct)**:
+```bash
+# Understand the purpose: "Copy directory recursively with overwrite"
+# Linux implementation: Use rsync for efficiency
+rsync -av --delete src/ dst/  # ← Right: optimized for Linux
+
+# OR understand: "Install Python venv if needed"
+# Linux implementation: Use apt-get first
+if ! command -v python3 &> /dev/null; then
+    apt install -y python3 python3-venv
+fi
+```
+
+### Analysis-to-Design Process
+
+For each batch file you need to convert:
+
+1. **Read the original `.bat` file completely**
+   - Understand every step and variable
+   - Identify the overall goal (not individual commands)
+
+2. **Reference EasyEnv/EasyTools patterns** (see `/home/ytsubame/src/_research_reference/`)
+   - These Windows libraries often contain the logic to understand
+   - Example: `EasyEnv/Git/GitPull.bat` shows "URL validation → clone or pull decision"
+
+3. **Design the Ubuntu equivalent**
+   - What Linux tools are available? (git, curl, aria2c, unzip, etc.)
+   - Can apt install provide this? (avoid reinventing wheels)
+   - What's the most efficient bash approach?
+
+4. **Implement with shell-scripting Skill**
+   - Use `Skill shell-scripting` when implementing complex scripts
+   - Ensures Linux best practices and safety
+
+5. **Reference the conversion table as needed** (not as primary source)
+   - Use [docs/04_reference_conversion_table.md](../docs/04_reference_conversion_table.md) for specific syntax
+   - But always prioritize purpose-based design over syntax mapping
+
 ### Quick Batch-to-Shell Reference
 
-Use this table for 90% of conversions. See [SCRIPT_CONVERSION_REFERENCE.md](../SCRIPT_CONVERSION_REFERENCE.md) for complete reference.
+Use this table as a **syntax lookup**, not as implementation guidance. See [docs/04_reference_conversion_table.md](../docs/04_reference_conversion_table.md) for complete reference.
 
-| Windows Batch | Ubuntu Shell | Example |
-|--------------|-------------|---------|
-| `set VAR=value` | `VAR=value` | `MODEL_DIR="/path/to/models"` |
-| `%VAR%` | `$VAR` | `echo "$VAR"` |
-| `%~dp0` | `$(dirname "${BASH_SOURCE[0]}")` | `SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"` |
-| `call script.bat` | `bash script.sh` | `bash "${SCRIPT_DIR}/setup.sh"` |
-| `pushd dir & popd` | `(cd dir; ...)` | `(cd models; ls)` |
-| `rmdir /s /q dir` | `rm -rf dir` | `rm -rf cache/` |
-| `xcopy /sqy src dst` | `cp -r src/* dst/` | `cp -r webui/* deployment/` |
-| `findstr pattern file` | `grep pattern file` | `grep "error" log.txt` |
-| `if exist path` | `if [ -d "path" ]` | `if [ -d "models" ]; then...` |
-| `@echo off` | (no equivalent) | Bash runs quietly by default |
+| Windows Batch | Ubuntu Shell | Purpose | Example |
+|--------------|-------------|---------|---------|
+| `set VAR=value` | `VAR=value` | Variable assignment | `MODEL_DIR="/path/to/models"` |
+| `%VAR%` | `$VAR` | Variable expansion | `echo "$VAR"` |
+| `%~dp0` | `$(dirname "${BASH_SOURCE[0]}")` | Script directory | `SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"` |
+| `call script.bat` | `bash script.sh` | Call another script | `bash "${SCRIPT_DIR}/setup.sh"` |
+| `pushd dir & popd` | `(cd dir; ...)` | Temporary directory change | `(cd models; ls)` |
+| `rmdir /s /q dir` | `rm -rf dir` | Recursive delete | `rm -rf cache/` |
+| `xcopy /sqy src dst` | `cp -r src/* dst/` or `rsync -av` | Directory copy (choose based on purpose!) | See design note above |
+| `findstr pattern file` | `grep pattern file` | Text search | `grep "error" log.txt` |
+| `if exist path` | `if [ -d "path" ]` | Path exists check | `if [ -d "models" ]; then...` |
+| `@echo off` | (no equivalent) | Silence output | Bash is quiet by default |
 
-**Complete Reference**: See [docs/03_reference/batch_to_shell_conversion.md](../docs/03_reference/batch_to_shell_conversion.md) for all conversions including loops, functions, git operations, error handling patterns, and gotchas.
+**How to use this table**:
+- This is a **quick lookup for basic syntax**
+- It is **NOT** a substitute for design-first approach
+- Always understand the purpose first, then choose the right tool
 
 ### Script Structure Template
 
@@ -505,7 +565,26 @@ main "$@"
 - **Comments**: Only for non-obvious logic
 - **Helper sourcing**: Include with full path: `source "${SCRIPT_DIR}/../lib/common.sh"`
 
-**Reference**: [docs/02_implementation/common_patterns.md](../docs/02_implementation/common_patterns.md)
+**Reference**: [docs/03_implementation_common_patterns.md](../docs/03_implementation_common_patterns.md)
+
+### 🛠️ shell-scripting Skill Usage (MANDATORY)
+
+**When to use the `shell-scripting` Skill**:
+
+When implementing complex shell scripts (especially Phase 1-3 helper libraries), you **MUST** use the Claude Code `shell-scripting` Skill to ensure:
+- Shell best practices and safety
+- Proper error handling and edge cases
+- Cross-platform compatibility (bash 4.0+ on Ubuntu)
+- Efficient Linux native command usage
+
+**Example workflow**:
+1. Analyze the batch file purpose
+2. Design the Ubuntu/Linux approach
+3. Use `Skill shell-scripting` to implement the `.sh` file
+4. Review output for Linux best practices
+5. Test with `shellcheck` and manual testing
+
+This ensures all scripts follow professional shell scripting standards, not just quick syntax translations.
 
 ---
 
