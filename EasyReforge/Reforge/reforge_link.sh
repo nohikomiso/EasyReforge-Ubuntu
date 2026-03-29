@@ -141,7 +141,10 @@ setup_external_model_integration() {
     make_symlink "${external_models}/${controlnet_target}" "${internal_model_root}/ControlNet"
     make_symlink "${external_models}/${upscale_target}"    "${internal_model_root}/ESRGAN"
     
-    # wildcards handling
+    # adetailer and wildcards handling
+    if [ -d "${external_models}/adetailer" ]; then
+        make_symlink "${external_models}/adetailer" "${internal_model_root}/adetailer"
+    fi
     if [ -d "${external_path%/}/wildcards" ]; then
         make_symlink "${external_path%/}/wildcards" "${internal_model_root}/wildcards"
     fi

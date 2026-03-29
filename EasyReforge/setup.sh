@@ -204,16 +204,18 @@ phase_5_downloads() {
         return 0
     fi
 
-    # Download NoobE minimum models if directory exists
-    if [[ -d "${SCRIPT_DIR}/../Model/Stable-diffusion/NoobE" ]]; then
-        local download_script="${SCRIPT_DIR}/../Download/src/NoobAiCommon_Minimum.sh"
-        if [[ -f "$download_script" ]]; then
-            echo "Running minimum model download..."
-            # Ignore errors as per original batch script logic
-            bash "$download_script" || echo "Warning: Download script returned an error (continuing)" >&2
-        else
-            echo "Note: Download script not found: $download_script"
+    # Download minimum models using the download engine
+    # Tag 'minimum' corresponds to all initial required models.
+    local download_engine="${SCRIPT_DIR}/../Download/lib/download_engine.py"
+    if [[ -f "$download_engine" ]]; then
+        echo "Running minimum model download engine..."
+        echo "初期モデルのダウンロードエンジンを実行しています..."
+        if ! cd "${SCRIPT_DIR}/.." && uv run python3 "$download_engine" --tag minimum; then
+            echo "Warning: Download engine returned an error (continuing)" >&2
         fi
+        cd "$SCRIPT_DIR"
+    else
+        echo "Note: Download engine not found: $download_engine"
     fi
 
     log_success "初期ダウンロード確認が完了しました" "Initial downloads check completed"
