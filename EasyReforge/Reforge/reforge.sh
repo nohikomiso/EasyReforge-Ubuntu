@@ -21,6 +21,39 @@ setup_environment() {
     rm -rf "${TORCH_INDUCTOR_TEMP:?}/"*
 }
 
+verify_environment() {
+    echo "Verifying environment requirements..."
+    
+    # Check free disk space (require at least 20GB / 20000MB)
+    local free_space_mb
+    free_space_mb=$(df -m . | awk 'NR==2 {print $4}')
+    if [ "$free_space_mb" -lt 20000 ]; then
+        echo "WARNING: Less than 20GB of free disk space available (${free_space_mb}MB)."
+        echo "Installation might fail due to insufficient space. Continuing anyway..."
+    else
+        echo "Disk space: OK (${free_space_mb}MB free)"
+    fi
+    
+    # GPU and CUDA Toolkit detection
+    if command -v nvidia-smi &>/dev/null; then
+        local gpu_name
+        gpu_name=$(nvidia-smi --query-gpu=name --format=csv,noheader | head -1)
+        local gpu_vram
+        gpu_vram=$(nvidia-smi --query-gpu=memory.total --format=csv,noheader | head -1)
+        echo "Detected NVIDIA GPU: $gpu_name ($gpu_vram)"
+        
+        if command -v nvcc &>/dev/null; then
+            local nvcc_version
+            nvcc_version=$(nvcc --version | grep "release" | awk '{print $5}' | cut -d',' -f1)
+            echo "Detected CUDA Toolkit: $nvcc_version"
+        else
+            echo "Note: nvcc (CUDA Toolkit) not found. PyTorch will use its bundled libraries."
+        fi
+    else
+        echo "No NVIDIA GPU detected. Installation will fallback to CPU-only mode."
+    fi
+}
+
 clone_reforge_webui() {
     echo "Cloning/updating reForge WebUI..."
     # Specific commit from original (github_fetch_commit handles cloning internally)
@@ -119,7 +152,13 @@ copy_src_files() {
 }
 
 main() {
+    echo "============================================================="
+    echo "Phase 1: reForge Environment Setup"
+    echo "============================================================="
+    
     setup_environment
+    verify_environment
+    
     clone_reforge_webui
     setup_python_venv
     install_pytorch
@@ -127,6 +166,7 @@ main() {
     install_requirements
     copy_src_files
     
+    echo "reForge Environment Setup complete."
     echo "reforge.sh completed successfully."
 }
 
