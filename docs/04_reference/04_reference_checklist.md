@@ -190,9 +190,9 @@
   - [x] テンプレート作成
   - [x] 手動テスト
 
-- [ ] **Task 2b.3**: `Model/Stable-diffusion/link_output.sh` 実装
-  - [ ] テンプレート作成
-  - [ ] 手動テスト
+- [x] **Task 2b.3**: `Model/Stable-diffusion/link_output.sh` 実装
+  - [x] テンプレート作成
+  - [x] 手動テスト
 
 - [ ] **Task 2b.4**: テンプレート複製
   - [ ] `Model/Lora/` に複製
