@@ -186,9 +186,9 @@
   - [x] 検証処理
   - [x] shellcheck 合格
 
-- [ ] **Task 2b.2**: `Model/Stable-diffusion/link_input.sh` 実装
-  - [ ] テンプレート作成
-  - [ ] 手動テスト
+- [x] **Task 2b.2**: `Model/Stable-diffusion/link_input.sh` 実装
+  - [x] テンプレート作成
+  - [x] 手動テスト
 
 - [ ] **Task 2b.3**: `Model/Stable-diffusion/link_output.sh` 実装
   - [ ] テンプレート作成
