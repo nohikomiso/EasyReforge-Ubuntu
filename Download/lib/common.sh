@@ -90,7 +90,8 @@ download_with_retry() {
     validate_url "$url"
     
     # --- SMART SEARCH: カテゴリ配下を再帰的に探す ---
-    local dest_dir="$(dirname "$dest")"
+    local dest_dir
+    dest_dir="$(dirname "$dest")"
     
     # 1. 既定の場所に直接あるか？
     if [ -e "$dest" ]; then
@@ -99,8 +100,10 @@ download_with_retry() {
     fi
     
     # 2. サブディレクトリ内に潜んでいないか？ (find による再帰探索)
-    local fname="$(basename "$dest")"
-    local search_root="$dest_dir"
+    local fname
+    fname="$(basename "$dest")"
+    local search_root
+    search_root="$dest_dir"
     # 近接する親ディレクトリ (Stable-diffusion/ 等) から探索を開始
     # ※ models/ フォルダなど広範囲すぎる場所への波及を防ぐため dirname で制御
     if [[ "$dest_dir" == *"/"* ]] && [[ "$dest_dir" != *"/models" ]]; then

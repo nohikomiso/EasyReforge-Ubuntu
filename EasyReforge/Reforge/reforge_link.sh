@@ -30,6 +30,7 @@ make_symlink() {
             echo "Symlink already exists and valid: $link_dir -> $target_dir"
         fi
     elif [ -d "$link_dir" ]; then
+        local ls_res
         ls_res=$(ls -A "$link_dir" 2>/dev/null || true)
         if [ -z "$ls_res" ]; then
             # Directory is empty

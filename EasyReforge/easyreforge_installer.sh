@@ -68,11 +68,37 @@ fi
 # Derived paths (from Phase 0 variable mapping)
 PROJECT_DIR="${SCRIPT_DIR}"
 EASY_TOOLS_DIR="${SCRIPT_DIR}/EasyTools"
-SETUP_SH="${SCRIPT_DIR}/setup.sh"
-DOWNLOAD_SCRIPT="${SCRIPT_DIR}/../Download/NoobAiEpsilonPred_Minimum.sh"
+SETUP_SH="${SCRIPT_DIR}/EasyReforge/setup.sh"
+DOWNLOAD_SCRIPT="${SCRIPT_DIR}/Download/All/AllModels_Minimum.sh"
 
 # User choice for model download
 DOWNLOAD_YES_OR_NO=""
+export COMFY_PATH=""
+
+# Check for ComfyUI integration
+echo ""
+echo "╔════════════════════════════════════════════════════════════╗"
+echo "║             ComfyUI Integration Setup                      ║"
+echo "╚════════════════════════════════════════════════════════════╝"
+if [ -t 0 ]; then
+    echo "すでに ComfyUI をお使いの場合、モデルフォルダを共有（シンボリックリンク）して"
+    echo "ディスク容量を節約し、ダウンロードをスキップできます。"
+    read -r -p "ComfyUI のモデルと連携しますか？ / Link existing ComfyUI models? (y/N): " link_comfy
+    if [[ "$link_comfy" =~ ^[Yy]$ ]]; then
+        read -r -p "ComfyUI のパスを入力（例: /home/ytsubame/comfy/ComfyUI）: " user_comfy_path
+        if [ -d "$user_comfy_path" ]; then
+            export COMFY_PATH="$user_comfy_path"
+            echo "➔ ComfyUI 連携パスを確定しました: $COMFY_PATH"
+        else
+            echo "➔ 警告: パスが見つかりません。連携をスキップします。"
+        fi
+    fi
+else
+    # Non-interactive fallback
+    if [ -n "${COMFY_PATH:-}" ]; then
+        echo "➔ Non-interactive mode: Using established COMFY_PATH: $COMFY_PATH"
+    fi
+fi
 
 ##
 # Helper Functions
