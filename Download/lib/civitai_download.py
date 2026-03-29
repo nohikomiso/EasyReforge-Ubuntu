@@ -6,6 +6,33 @@ import subprocess
 import shutil
 from pathlib import Path
 
+def is_valid_model(file_path):
+    """
+    Linux 標準の file コマンドを使用し、MIME-type ベースで中身が正当な
+    バイナリ（モデル）か、失敗したテキストゴミ（HTML、JSON等）かを判定する。
+    """
+    if not file_path.exists():
+        return False
+    
+    try:
+        # mime-type を取得
+        result = subprocess.run(
+            ["file", "--brief", "--mime-type", str(file_path)],
+            capture_output=True, text=True, check=True
+        )
+        mime = result.stdout.strip()
+        
+        # text/html 等の「テキスト系」であれば、失敗したダウンロード（ゴミ）とみなす
+        if "text/" in mime:
+            return False
+            
+        return True
+        
+    except Exception:
+        # file コマンドが異常終了した場合などは、
+        # 安全側に倒して「既存ファイルを活かす」ように振る舞う
+        return True
+
 def download_civitai_model(model_version_id, output_dir, filename, api_token=None):
     """
     civitai-model-downloader を使用してモデルを物理的にダウンロードする。
@@ -26,16 +53,25 @@ def download_civitai_model(model_version_id, output_dir, filename, api_token=Non
 
     # 1. 指定の場所に直接存在するか？
     if target_file.exists():
-        print(f"INFO: Already exists at target: {target_file}")
-        return True
+        if is_valid_model(target_file):
+            print(f"INFO: Already exists and valid: {target_file}")
+            return True
+        else:
+            print(f"WARNING: Found invalid model (HTML trash or too small): {target_file}")
+            print(f"INFO: Removing invalid file and re-downloading...")
+            target_file.unlink()
         
     # 2. カテゴリのサブフォルダ内に存在するか？ (rglob)
     # これによりユーザー独自のサブフォルダ整理を許容し、二重ダウンロードを防ぐ
     print(f"INFO: Checking subdirectories in {category_top} for '{filename}'...")
     found_any = list(category_top.rglob(filename))
     if found_any:
-        print(f"INFO: Found existing file in subfolder: {found_any[0]}")
-        return True
+        for found_file in found_any:
+            if is_valid_model(found_file):
+                print(f"INFO: Found existing and valid file in subfolder: {found_file}")
+                return True
+            else:
+                print(f"INFO: Found invalid file in subfolder: {found_file}. Skipping it and continuing.")
 
     # コマンドの構築
     # civitai-downloader-cli download <version_id> --local-dir <output_dir>
