@@ -65,10 +65,17 @@ setup_comfyui_integration() {
 
     # NOTE: User's actual storage is in storage/ folders, but pointing to root/models is safer if symlinked there.
     # In this project, we map direct to the subfolders for maximum compatibility with WebUI extensions.
-    local comfy_models="${comfy_path%/}/models"
+    local comfy_models
+    # 入力されたパスそのものが 'models' で終わるかどうかを判定 (柔軟な対応)
+    if [[ "$comfy_path" == */models ]] || [[ "$comfy_path" == */models/ ]]; then
+        comfy_models="${comfy_path%/}"
+    else
+        comfy_models="${comfy_path%/}/models"
+    fi
     
     if [ ! -d "$comfy_models" ]; then
         echo "Error: ComfyUI models directory not found at $comfy_models"
+        echo "Please provide either the ComfyUI root path or the 'models' directory path."
         return 0
     fi
 

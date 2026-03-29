@@ -85,10 +85,16 @@ if [ -t 0 ]; then
     echo "ディスク容量を節約し、ダウンロードをスキップできます。"
     read -r -p "ComfyUI のモデルと連携しますか？ / Link existing ComfyUI models? (y/N): " link_comfy
     if [[ "$link_comfy" =~ ^[Yy]$ ]]; then
-        read -r -p "ComfyUI のパスを入力（例: /home/ytsubame/comfy/ComfyUI）: " user_comfy_path
+        read -r -p "ComfyUI 本体のルートパスを入力（例: /home/ytsubame/comfy/ComfyUI）: " user_comfy_path
         if [ -d "$user_comfy_path" ]; then
-            export COMFY_PATH="$user_comfy_path"
-            echo "➔ ComfyUI 連携パスを確定しました: $COMFY_PATH"
+            # models フォルダが含まれているか、またはそれ自身のディレクトリかを確認
+            if [ -d "${user_comfy_path%/}/models" ] || [[ "$user_comfy_path" == */models ]]; then
+                export COMFY_PATH="$user_comfy_path"
+                echo "➔ ComfyUI 連携パスを確定しました: $COMFY_PATH"
+            else
+                echo "➔ 警告: '$user_comfy_path' 内に 'models' フォルダが見つかりません。パスが正しいか確認してください。"
+                export COMFY_PATH="$user_comfy_path" # それでも渡して reforge_link 側で再度判定
+            fi
         else
             echo "➔ 警告: パスが見つかりません。連携をスキップします。"
         fi
