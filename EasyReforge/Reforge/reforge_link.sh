@@ -186,21 +186,7 @@ main() {
         cp "${src_wildcards}/play.txt" "${target_wildcards}/"
     fi
     
-    # 3. Create subdirectories for outputs inside the WebUI directory
-    mkdir -p "${REFORGE_WEBUI}/outputs/txt2img-images" \
-             "${REFORGE_WEBUI}/outputs/img2img-images" \
-             "${REFORGE_WEBUI}/outputs/extras-images" \
-             "${REFORGE_WEBUI}/outputs/txt2img-grids" \
-             "${REFORGE_WEBUI}/outputs/img2img-grids" \
-             "${REFORGE_WEBUI}/log/images"
-             
-    # 4. Outputs symlink
-    # Original Windows logic: call %JUNCTION% ..\OutputReforge outputs
-    # This means Target: reForge's internal "outputs" dir, Link: "OutputReforge" in EasyReforge root
-    local output_internal="${REFORGE_WEBUI}/outputs"
-    local output_reforge="${REFORGE_ROOT}/EasyReforge/OutputReforge"
-    make_symlink "$output_internal" "$output_reforge"
-    
+    # Model symlinks created successfully.
     echo "Model symlinks created successfully."
 }
 

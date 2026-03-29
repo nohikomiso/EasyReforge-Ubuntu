@@ -72,8 +72,8 @@ main() {
         fi
     fi
 
-    # Pass through command-line arguments
-    local final_args="${COMMANDLINE_ARGS:-} $*"
+    # Pass through command-line arguments (Add --gradio-allowed-path to fix image display issues on Linux/Snap)
+    local final_args="${COMMANDLINE_ARGS:-} --gradio-allowed-path \"${REFORGE_ROOT}\" $*"
     
     echo ""
     echo "VIRTUAL_ENV: $VIRTUAL_ENV"
