@@ -319,9 +319,9 @@
   - [x] `DRY_RUN=1` で各バリアントを実行
   - [x] CSV の全行が意図通りフィルタリング・実行されるか確認
 
-- [ ] **Integration Test 4**: メタスクリプト動作テスト
-  - [ ] `Download/All/AllStable-diffusion.sh` 実行
-  - [ ] 指定されたカテゴリがすべてエンジン経由で処理されることを確認
+- [x] **Integration Test 4**: メタスクリプト動作テスト
+  - [x] `Download/All/AllStable-diffusion.sh` 実行 (ドライラン確認)
+  - [x] 指定されたカテゴリがすべてエンジン経由で処理されることを確認 (実動作をワイルドカードで検証済み)
 
 ---
 
