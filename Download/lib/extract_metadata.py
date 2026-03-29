@@ -19,36 +19,48 @@ def parse_bat_file(bat_path):
     
     content = bat_path.read_text(encoding='utf-8', errors='ignore')
     
-    # max 6 args captured
-    call_pattern = re.compile(r'call\s+%([A-Z_]+)%\s+([^\s]+)\s+([^\s]+)\s+([^\s]+)(?:\s+([^\s]+))?(?:\s+([^\s]+))?')
+    # 行単位で処理して改行を跨がないようにする
+    # call %HEPLER% <arg1> <arg2> <arg3> [arg4] [arg5]
+    call_pattern = re.compile(r'call\s+%([A-Z_]+)%(?:\s+([^\s]+))?(?:\s+([^\s]+))?(?:\s+([^\s]+))?(?:\s+([^\s]+))?(?:\s+([^\s]+))?')
     
-    for match in call_pattern.finditer(content):
+    for line in content.splitlines():
+        line = line.strip()
+        if not line.startswith('call %'):
+            continue
+            
+        match = call_pattern.search(line)
+        if not match:
+            continue
+            
         helper_key = match.group(1)
+        
+        # 不要なヘルパー(JUNCTION, EXTRACT_ZIPなど)は除外
+        if helper_key not in helper_mapping:
+            continue
+            
+        arg1 = match.group(2) if match.group(2) else ""
+        arg2 = match.group(3) if match.group(3) else ""
+        arg3 = match.group(4) if match.group(4) else ""
+        arg4 = match.group(5) if match.group(5) else ""
+        arg5 = match.group(6) if match.group(6) else ""
+        
         # arg1: 通常は出力ディレクトリのサフィックス (例 `NoobE_Char\` や `.\` や `%~n0\`)
-        arg1 = match.group(2).replace('\\', '/').rstrip('/') if match.group(2) not in ['.\\', '.'] else ""
+        arg1 = arg1.replace('\\', '/').rstrip('/') if arg1 not in ['.\\', '.', ''] else ""
         
         # %~n0 の展開 (バッチファイル名(拡張子なし))
         if '%~n0' in arg1:
             arg1 = arg1.replace('%~n0', bat_path.stem)
             
-        arg2 = match.group(3)
-        arg3 = match.group(4)
-        arg4 = match.group(5) if match.group(5) else ""
-        arg5 = match.group(6) if match.group(6) else ""
-        
         try:
             rel_path = bat_path.relative_to(Path("Download").resolve().parent / "Download")
         except ValueError:
             rel_path = bat_path
             
         parts = rel_path.parts
-        model_type = parts[0] if len(parts) > 1 and parts[0] != "All" else "Unknown"
+        base_category = parts[0] if len(parts) > 1 and parts[0] != "All" else "Unknown"
         if rel_path.parent.name in ["Stable-diffusion", "Lora", "ControlNet", "VAE", "ESRGAN", "adetailer", "wildcards"]:
-            model_type = rel_path.parent.name
+            base_category = rel_path.parent.name
             
-        # フォルダがカテゴリ直下でない場合（例 Lora/NoobE_Char）
-        base_category = parts[0]
-        
         helper_name = helper_mapping.get(helper_key, helper_key.lower())
         
         # 各種IDの抽出
@@ -57,17 +69,19 @@ def parse_bat_file(bat_path):
         hf_model_id = ""
         direct_url = ""
         
+        # civitai_download 系は arg3 が model_id, arg4 が version_id となる場合が多い (arg2=filename)
         if helper_name in ['civitai_download', 'civitai_download_unzip']:
             civitai_model_id = arg3
             civitai_version_id = arg4
+        # huggingface 系
         elif helper_name in ['huggingface_download', 'huggingface_hub_download']:
-            # huggingface_hub の場合は、arg2がrepo (yyy/songMix)、arg3がタイプ、arg4がフィルタ など変則的になるが、
-            # とりあえず リポジトリID は arg2 か arg3 のどちらかに スラッシュ入り で存在する
-            if '/' in arg2 and not arg2.endswith('.safetensors'):
+            # repo は通常 arg2(ファイル名) と間違えて arg3 にあるか、arg2 に repo で arg3 に model となるケースがある
+            if '/' in arg2 and not arg2.endswith('.safetensors') and not arg2.endswith('.pth') and not arg2.endswith('.pt'):
                 hf_model_id = arg2
             elif '/' in arg3:
                 hf_model_id = arg3
-        elif 'aria' in helper_name:
+        # aria_download 系
+        elif 'aria_download' in helper_name:
             if arg3.startswith('http'):
                 direct_url = arg3
             elif arg4.startswith('http'):
@@ -75,7 +89,7 @@ def parse_bat_file(bat_path):
             elif arg5.startswith('http'):
                 direct_url = arg5
 
-        # 不要な末尾の ? を除去 (例: file.safetensors?)
+        # 不要な末尾の ? を除去
         arg2 = arg2.rstrip('?')
         arg3 = arg3.rstrip('?')
         arg4 = arg4.rstrip('?')
@@ -92,7 +106,7 @@ def parse_bat_file(bat_path):
             'direct_url': direct_url,
             'output_directory': output_dir,
             'helper_library': f"{helper_name}.sh",
-            'filename': arg2,   # Note: For HUGGING_FACE_HUB this might be a repo name instead of filename
+            'filename': arg2,
             'param1': arg3,
             'param2': arg4,
             'param3': arg5
@@ -108,15 +122,9 @@ def main():
     all_metadata = []
     
     for bat_path in base_dir.rglob("*.bat"):
-        if "lib" in bat_path.parts or bat_path.name in ["CivitaiModel.bat", "Aria.bat", "huggingface.bat"]:
+        if "lib" in bat_path.parts or bat_path.name in ["CivitaiModel.bat", "Aria.bat", "huggingface.bat", "CivitaiModelUnzip.bat"]:
             continue
                 
-        content = bat_path.read_text(encoding='utf-8', errors='ignore')
-        
-        # call がある行のみを処理するため一旦これで弾く
-        if "call %" not in content:
-            continue
-            
         extracted = parse_bat_file(bat_path)
         all_metadata.extend(extracted)
         
