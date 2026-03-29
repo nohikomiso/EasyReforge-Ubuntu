@@ -57,6 +57,11 @@ main() {
     venv_dir="$(pwd)/.venv"
     export VIRTUAL_ENV="$venv_dir"
 
+    # [Compatibility Enforcement] Use Constraint File
+    # This prevents any secondary installation (from launch.py or extensions) from breaking the environment.
+    export PIP_CONSTRAINT="${SCRIPT_DIR}/Reforge/src/constraints.txt"
+    export UV_CONSTRAINT="${SCRIPT_DIR}/Reforge/src/constraints.txt"
+
     # Try using TCMalloc (mimicking webui.sh behavior for performance)
     if [[ -z "${LD_PRELOAD:-}" ]]; then
         local tcmalloc_lib
