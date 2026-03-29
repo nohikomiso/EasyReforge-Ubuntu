@@ -40,11 +40,18 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ -f "${SCRIPT_DIR}/src/lib/github.sh" ]]; then
     source "${SCRIPT_DIR}/src/lib/github.sh"
 else
-    # First time clone behavior fallback (if script is piped)
+    # First time clone behavior fallback (if script is piped or standalone)
     github_clone_or_pull() {
         local url="$1"
         local tgt="$2"
-        git clone "$url" "$tgt" || return 1
+        if [ ! -d "$tgt/.git" ]; then
+            mkdir -p "$tgt"
+            cd "$tgt" || return 1
+            git init
+            git remote add origin "$url"
+            git fetch origin "$PROJECT_BRANCH"
+            git checkout -f "$PROJECT_BRANCH"
+        fi
     }
 fi
 if [[ -f "${SCRIPT_DIR}/src/lib/uv.sh" ]]; then
