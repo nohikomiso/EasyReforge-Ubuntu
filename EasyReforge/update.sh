@@ -22,9 +22,18 @@ export LC_ALL=C.UTF-8
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Source helpers
+if [[ -f "${SCRIPT_DIR}/src/lib/github.sh" ]]; then
+    source "${SCRIPT_DIR}/src/lib/github.sh"
+fi
+if [[ -f "${SCRIPT_DIR}/src/lib/uv.sh" ]]; then
+    source "${SCRIPT_DIR}/src/lib/uv.sh"
+fi
+
 # Configuration
-PROJECT_URL="https://github.com/Zuntan03/EasyReforge"
-PROJECT_BRANCH="main"
+# (For the main repo, we rely on the current git checkout to support forks)
+# PROJECT_URL="https://github.com/Zuntan03/EasyReforge"
+# PROJECT_BRANCH="main"
 EASY_TOOLS_URL="https://github.com/Zuntan03/EasyTools"
 EASY_TOOLS_BRANCH="main"
 
@@ -79,11 +88,16 @@ step_1_update_easyreforge() {
     log_step "1" "EasyReforgeリポジトリの更新" "Update EasyReforge Repository"
 
     # Verify git repo exists
-    if [[ ! -d "${PROJECT_DIR}/.git" ]]; then
+    if ! git -C "$PROJECT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
         die \
-            "EasyReforgeがGitリポジトリではありません" \
-            "EasyReforge is not a git repository" 1
+            "EasyReforgeがGitリポジトリ内にありません" \
+            "EasyReforge is not inside a git repository" 1
     fi
+
+    # フォークや別ブランチ運用を考慮し、現在のブランチをそのまま更新する
+    local current_branch
+    current_branch=$(git -C "$PROJECT_DIR" rev-parse --abbrev-ref HEAD)
+    echo "現在のブランチ ($current_branch) を更新します / Updating current branch ($current_branch)..."
 
     # Fetch latest changes
     if ! git -C "$PROJECT_DIR" fetch origin; then
@@ -92,20 +106,11 @@ step_1_update_easyreforge() {
             "Failed to fetch EasyReforge" 1
     fi
 
-    # Switch/checkout to main branch
-    if ! git -C "$PROJECT_DIR" switch "$PROJECT_BRANCH" 2> /dev/null; then
-        if ! git -C "$PROJECT_DIR" checkout "$PROJECT_BRANCH" 2> /dev/null; then
-            die \
-                "メインブランチに切り替えられません" \
-                "Failed to switch to main branch" 1
-        fi
-    fi
-
-    # Pull latest changes
-    if ! git -C "$PROJECT_DIR" pull origin "$PROJECT_BRANCH"; then
+    # Pull latest changes (uses configured upstream for the current branch)
+    if ! git -C "$PROJECT_DIR" pull origin "$current_branch"; then
         die \
-            "EasyReforgeの更新に失敗しました" \
-            "Failed to pull latest EasyReforge" 1
+            "EasyReforge ($current_branch) の更新に失敗しました" \
+            "Failed to pull latest EasyReforge ($current_branch)" 1
     fi
 
     log_success "EasyReforgeが更新されました" "EasyReforge updated successfully"
@@ -124,27 +129,19 @@ step_2_update_easytools() {
         return 0
     fi
 
-    # Fetch latest changes
-    if ! git -C "$EASY_TOOLS_DIR" fetch origin; then
-        echo "WARNING: Failed to fetch EasyTools (continuing anyway)" >&2
-        echo "警告: EasyToolsのフェッチに失敗しました（続行します）" >&2
-        return 0
-    fi
-
-    # Switch/checkout to branch
-    if ! git -C "$EASY_TOOLS_DIR" switch "$EASY_TOOLS_BRANCH" 2> /dev/null; then
-        if ! git -C "$EASY_TOOLS_DIR" checkout "$EASY_TOOLS_BRANCH" 2> /dev/null; then
-            echo "WARNING: Failed to switch EasyTools branch (continuing anyway)" >&2
-            echo "警告: EasyToolsブランチ切り替えに失敗しました（続行します）" >&2
+    # github_clone_or_pull を使用して安全にプル (関数が存在する場合)
+    if type github_clone_or_pull &>/dev/null; then
+        if ! github_clone_or_pull "${EASY_TOOLS_URL}.git" "${EASY_TOOLS_DIR}"; then
+            echo "WARNING: Failed to update EasyTools (continuing anyway)" >&2
+            echo "警告: EasyToolsの更新に失敗しました（続行します）" >&2
             return 0
         fi
-    fi
-
-    # Pull latest changes
-    if ! git -C "$EASY_TOOLS_DIR" pull origin "$EASY_TOOLS_BRANCH"; then
-        echo "WARNING: Failed to pull latest EasyTools (continuing anyway)" >&2
-        echo "警告: EasyToolsの更新に失敗しました（続行します）" >&2
-        return 0
+        git -C "$EASY_TOOLS_DIR" checkout "$EASY_TOOLS_BRANCH" 2>/dev/null || true
+    else
+        # フォールバック (github_clone_or_pullがない場合)
+        git -C "$EASY_TOOLS_DIR" fetch origin || return 0
+        git -C "$EASY_TOOLS_DIR" checkout "$EASY_TOOLS_BRANCH" 2>/dev/null || true
+        git -C "$EASY_TOOLS_DIR" pull origin "$EASY_TOOLS_BRANCH" || return 0
     fi
 
     log_success "EasyToolsが更新されました" "EasyTools updated successfully"
@@ -160,6 +157,7 @@ step_3_config_migration() {
     log_step "3" "設定のマイグレーション" "Configuration Migration"
 
     local config_script="${REFORGE_DIR}/src/reforge_update_config.py"
+    local target_config="${REFORGE_DIR}/config.json"
 
     # Check if migration script exists
     if [[ ! -f "$config_script" ]]; then
@@ -168,9 +166,19 @@ step_3_config_migration() {
         return 0
     fi
 
-    # Check if Python venv is activated (optional)
-    # If not activated, we'll use system python3
-    if ! python3 "$config_script"; then
+    # uv パラダイムで Python スクリプトを実行する
+    local python_cmd="python3"
+    if command -v uv &> /dev/null; then
+        # 仮想環境があれば指定して uv run を使用
+        if [[ -d "${SCRIPT_DIR}/src/venv" ]]; then
+            export VIRTUAL_ENV="${SCRIPT_DIR}/src/venv"
+        elif [[ -d "${SCRIPT_DIR}/src/.venv" ]]; then
+            export VIRTUAL_ENV="${SCRIPT_DIR}/src/.venv"
+        fi
+        python_cmd="uv run python"
+    fi
+
+    if ! $python_cmd "$config_script" "$target_config"; then
         echo "WARNING: Configuration migration failed (continuing anyway)" >&2
         echo "警告: 設定マイグレーションに失敗しました（続行します）" >&2
         return 0
@@ -191,7 +199,8 @@ step_4_reset_styles() {
     log_step "4" "UIスタイルのリセット" "Reset UI Styles"
 
     local styles_file="${REFORGE_DIR}/src/styles.csv"
-    local backup_file="${REFORGE_DIR}/src/styles.csv.backup.$(date +%Y%m%d_%H%M%S)"
+    local backup_file
+    backup_file="${REFORGE_DIR}/src/styles.csv.backup.$(date +%Y%m%d_%H%M%S)"
 
     # Skip if no styles.csv exists
     if [[ ! -f "$styles_file" ]]; then
