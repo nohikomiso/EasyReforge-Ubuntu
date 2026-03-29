@@ -21,11 +21,11 @@ export LC_ALL=C.UTF-8
 ##
 # Configuration (from Phase 0 analysis)
 ##
-# readonly PROJECT_NAME="EasyReforge" # unused in bootstrap
-readonly PROJECT_URL="https://github.com/nohikomiso/EasyReforge-Ubuntu"
-readonly PROJECT_BRANCH="ubuntu-migration"
-readonly EASY_TOOLS_URL="https://github.com/Zuntan03/EasyTools"
-readonly EASY_TOOLS_BRANCH="main"
+export PROJECT_NAME="EasyReforge"
+export PROJECT_URL="https://github.com/nohikomiso/EasyReforge-Ubuntu"
+export PROJECT_BRANCH="ubuntu-migration"
+export EASY_TOOLS_URL="https://github.com/Zuntan03/EasyTools"
+export EASY_TOOLS_BRANCH="main"
 
 # Minimum version requirements
 readonly MIN_BASH_VERSION="4"
