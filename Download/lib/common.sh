@@ -10,6 +10,10 @@ log_error() {
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] ERROR: $*" >&2
 }
 
+log_warn() {
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] WARN: $*"
+}
+
 error() {
     log_error "$@"
     exit 1

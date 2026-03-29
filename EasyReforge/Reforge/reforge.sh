@@ -66,7 +66,8 @@ clone_reforge_webui() {
 setup_python_venv() {
     echo "Setting up Python virtual environment..."
     cd "$REFORGE_WEBUI"
-    local venv_abs_path="$(pwd)/.venv"
+    local venv_abs_path
+    venv_abs_path="$(pwd)/.venv"
     uv_create_venv "$venv_abs_path"
     export VIRTUAL_ENV="$venv_abs_path"
     
