@@ -28,7 +28,7 @@ EasyReforge Ubuntuは、reForge WebUI（Stable Diffusion）のターンキーイ
 ┌─────────────────────────────────────────────────────────┐
 │          ヘルパーライブラリ層                              │
 │  - github.sh (Gitリポジトリ操作)                          │
-│  - python.sh (Python仮想環境管理)                        │
+│  - uv.sh (uvによる仮想環境管理)                            │
 │  - link_helper.sh (シンボリックリンクユーティリティ)       │
 │  - common.sh (共通関数)                                  │
 │  - civitai_download.sh (Civitai API)                    │
@@ -47,7 +47,7 @@ EasyReforge-Ubuntu/
 ├── EasyReforge/                    # メインインストール
 │   ├── src/lib/                   # ヘルパーライブラリ
 │   │   ├── github.sh              # Git操作
-│   │   └── python.sh              # Python venv管理
+│   │   └── uv.sh                  # uv venv管理
 │   │
 │   └── Reforge/                   # reForgeバリアント
 │       ├── src/
@@ -93,7 +93,7 @@ easyreforge_installer.sh
   └→ setup.sh 呼び出し
       ↓
       ├→ reforge.sh 実行
-      │   ├→ venv作成 (python.sh)
+      │   ├→ venv作成 (uv.sh)
       │   ├→ PyTorchインストール
       │   ├→ requirements.txt インストール
       │   └→ reForge submodule 初期化
@@ -127,7 +127,7 @@ bash Download/Stable-diffusion/NoobE/AniKawa.sh
   ↓
 bash reforge.sh
   ↓
-  ├→ venv有効化 (python.sh)
+  ├→ venv有効化 (uv.sh)
   ├→ 環境変数セット（CUDA, UTF-8）
   └→ python webui.py 実行
       ↓
@@ -151,15 +151,15 @@ bash reforge.sh
 
 **使用箇所**: reforge.sh, reforge_extension.sh, easyreforge_installer.sh
 
-#### python.sh
+#### uv.sh
 
-**責務**: Python仮想環境管理
+**責務**: uvによるPython仮想環境管理
 
 **関数**:
-- `python_create_venv(venv_path)`: venv作成
-- `python_activate_venv(venv_path)`: venv有効化
-- `python_install_packages(venv_path, requirements_file)`: パッケージインストール
-- `python_verify_activation()`: 有効化検証
+- `uv_create_venv(venv_path)`: venv作成
+- `uv_activate_venv(venv_path)`: venv有効化
+- `uv_install_packages(venv_path, requirements_file)`: パッケージインストール
+- `uv_verify_activation()`: 有効化検証
 
 **使用箇所**: reforge.sh, reforge_config.sh, reforge_ui_config.sh
 
@@ -195,7 +195,7 @@ bash reforge.sh
 6. reForge サブモジュール初期化
 7. 設定ファイルコピー
 
-**依存関係**: github.sh, python.sh
+**依存関係**: github.sh, uv.sh
 
 **予想工数**: 30-40時間（最複雑）
 
