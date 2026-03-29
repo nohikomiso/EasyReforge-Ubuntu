@@ -31,7 +31,7 @@ Phase 3 creates download helpers. Each must be designed for Ubuntu:
 
 4. **Invoke `Skill shell-scripting`** for implementation
 
-5. **Syntax lookup**: `04_reference_conversion_table.md` (supplementary only)
+5. **Syntax lookup**: `../04_reference/04_reference_conversion_table.md` (supplementary only)
 
 ### Reference Documents
 - `.claude/CLAUDE.md` - Script Conversion Guidelines
@@ -56,7 +56,7 @@ Phase 3 creates the foundation for 165+ model download scripts. It depends on Ph
 - [ ] Phase 1 complete and tested
 - [ ] Phase 2 complete and WebUI working
 - [ ] Read `docs/03_implementation_common_patterns.md` - Phase 3 section
-- [ ] Read `docs/04_reference_conversion_table.md` - Text processing section
+- [ ] Read `docs/../04_reference/04_reference_conversion_table.md` - Text processing section
 
 ### Phase 3 Helper Scripts (Create in Order)
 
@@ -280,7 +280,7 @@ Phase 3 creates the foundation for 165+ model download scripts. It depends on Ph
 
 - **Original files**: Check `Download/*.bat` for download logic
 - **Common patterns**: See `docs/03_implementation_common_patterns.md` - Phase 3 section
-- **Batch conversions**: Reference `docs/04_reference_conversion_table.md`
+- **Batch conversions**: Reference `docs/../04_reference/04_reference_conversion_table.md`
 - **Metadata format**: See Phase 4 section for expected CSV format
 
 ---

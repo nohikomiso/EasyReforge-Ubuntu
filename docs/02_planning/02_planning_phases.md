@@ -502,11 +502,11 @@ Phase 5: Launchers + E2E testing → COMPLETE
 
 All planning documents are in `/home/ytsubame/src/EasyReforge-Ubuntu/docs/`:
 
-- **01_analysis_overview.md** - Phase 0 analysis overview
-- **01_analysis_detailed.md** - Phase 0 flow diagrams and detailed analysis
+- **../01_analysis/01_analysis_overview.md** - Phase 0 analysis overview
+- **../01_analysis/01_analysis_detailed.md** - Phase 0 flow diagrams and detailed analysis
 - **02_planning_phases.md** - This file: Phase summaries and script inventory
-- **03_implementation_common_patterns.md** - Step-by-step implementation
-- **04_reference_conversion_table.md** - Command conversion table
+- **../03_implementation/03_implementation_common_patterns.md** - Step-by-step implementation
+- **../04_reference/04_reference_conversion_table.md** - Command conversion table
 - **.claude/CLAUDE.md** - Project control center
 
 ---
@@ -533,4 +533,4 @@ All planning documents are in `/home/ytsubame/src/EasyReforge-Ubuntu/docs/`:
 **Last Updated**: 2025-12-04
 **Status**: Ready for Phase 1 implementation
 **Next Step**: Begin Phase 1 with easyreforge_installer.sh conversion
-**Reference**: See [docs/03_implementation_common_patterns.md](03_implementation_common_patterns.md) for step-by-step guide
+**Reference**: See [docs/../03_implementation/03_implementation_common_patterns.md](../03_implementation/03_implementation_common_patterns.md) for step-by-step guide

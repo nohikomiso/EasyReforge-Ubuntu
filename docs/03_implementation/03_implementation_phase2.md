@@ -19,7 +19,7 @@ Phase 2 contains the most critical scripts. Each must be designed from scratch:
 2. **Study EasyEnv/EasyTools patterns**: `/home/ytsubame/src/_research_reference/ANALYSIS_REPORT.md`
 3. **Design the Ubuntu-optimal solution** using native Linux tools
 4. **Invoke `Skill shell-scripting`** when implementing
-5. **Use `04_reference_conversion_table.md` only for syntax lookup** (not as primary guide)
+5. **Use `../04_reference/04_reference_conversion_table.md` only for syntax lookup** (not as primary guide)
 
 ### Reference Documents
 - `.claude/CLAUDE.md` - Script Conversion Guidelines section (MANDATORY)
@@ -283,7 +283,7 @@ python -c "from llama_cpp import Llama; print('✓ llama-cpp-python with CUDA lo
 
 - **Original files**: Check `EasyReforge/Reforge/*.bat` for exact logic
 - **Common patterns**: See `docs/03_implementation_common_patterns.md` - Phase 2 section
-- **Batch conversions**: Reference `docs/04_reference_conversion_table.md`
+- **Batch conversions**: Reference `docs/../04_reference/04_reference_conversion_table.md`
 - **CLAUDE.md**: For cautions and conventions
 
 ---

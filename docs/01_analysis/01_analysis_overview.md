@@ -357,7 +357,7 @@ All subsequent phases depend on this foundation. Keep these documents handy whil
 
 ---
 
-**Next Step**: Begin Phase 1 implementation using [03_implementation_common_patterns.md](03_implementation_common_patterns.md)
+**Next Step**: Begin Phase 1 implementation using [../03_implementation/03_implementation_common_patterns.md](../03_implementation/03_implementation_common_patterns.md)
 
 **Reference**: For complete Phase 0 analysis documents:
 - [01_analysis_summary.md](01_analysis_summary.md) - Executive summary
