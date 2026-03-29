@@ -142,11 +142,11 @@
   - [x] styles.csv 管理
   - [x] shellcheck 合格
 
-- [ ] **Task 2.6**: Root Launcher `EasyReforge/reforge.sh` 実装
-  - [ ] WebUI起動スクリプト
-  - [ ] Reforge/reforge.sh からの呼び出し
-  - [ ] ログ出力
-  - [ ] エラーハンドリング
+- [x] **Task 2.6**: Root Launcher `EasyReforge/reforge.sh` 実装
+  - [x] WebUI起動スクリプト
+  - [x] Reforge/reforge.sh からの呼び出し
+  - [x] ログ出力
+  - [x] エラーハンドリング
 
 ### Phase 2 統合テスト
 
