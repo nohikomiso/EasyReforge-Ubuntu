@@ -49,8 +49,15 @@ else
             cd "$tgt" || return 1
             git init
             git remote add origin "$url"
-            git fetch origin "$PROJECT_BRANCH"
-            git checkout -f "$PROJECT_BRANCH"
+            git fetch origin
+            # Find default branch and checkout
+            local def_branch
+            def_branch=$(git remote show origin | awk '/HEAD branch/ {print $NF}')
+            if [ -n "$def_branch" ]; then
+                git checkout -f "$def_branch"
+            else
+                git checkout -f origin/HEAD
+            fi
         fi
     }
 fi
