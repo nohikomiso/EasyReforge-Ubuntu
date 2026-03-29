@@ -40,8 +40,10 @@ github_fetch_commit() {
     fi
 
     # 2. コミットをチェックアウト
+    # [Logical Fix] WebUI の Detached HEAD エラーを抑制するため、
+    # 特定コミットに対して 'fixed-version' というブランチ名を強制付与します。
     git -C "$destination" fetch origin "$commit_hash" 2>/dev/null || true
-    git -C "$destination" checkout "$commit_hash"
+    git -C "$destination" checkout -B fixed-version "$commit_hash"
 
     return 0
 }
