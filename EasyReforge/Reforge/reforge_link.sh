@@ -117,7 +117,7 @@ setup_external_model_integration() {
         echo "WARNING: Unknown structure. Defaulting to ComfyUI mapping."
     fi
 
-    # Core Model Mapping
+    # Core Model Mapping (for reForge WebUI)
     make_symlink "${external_models}/${sd_target}"         "${REFORGE_WEBUI}/models/Stable-diffusion"
     make_symlink "${external_models}/${lora_target}"       "${REFORGE_WEBUI}/models/Lora"
     make_symlink "${external_models}/${vae_target}"        "${REFORGE_WEBUI}/models/VAE"
@@ -128,6 +128,22 @@ setup_external_model_integration() {
     # Extension specific: adetailer
     if [ -d "${external_models}/adetailer" ]; then
         make_symlink "${external_models}/adetailer" "${REFORGE_WEBUI}/models/adetailer"
+    fi
+
+    # --- PROJECT-INTERNAL MODEL STORAGE REDIRECTION ---
+    # Redirect root/Model/* subfolders to external storage so that download_engine.py saves there automatically.
+    # Note: EASY_MODEL_DIR is root/EasyReforge/Model, which is already a link to root/Model.
+    local internal_model_root="${REFORGE_ROOT}/Model"
+    echo "➔ Redirecting internal model storage to external storage..."
+    make_symlink "${external_models}/${sd_target}"         "${internal_model_root}/Stable-diffusion"
+    make_symlink "${external_models}/${lora_target}"       "${internal_model_root}/Lora"
+    make_symlink "${external_models}/${vae_target}"        "${internal_model_root}/VAE"
+    make_symlink "${external_models}/${controlnet_target}" "${internal_model_root}/ControlNet"
+    make_symlink "${external_models}/${upscale_target}"    "${internal_model_root}/ESRGAN"
+    
+    # wildcards handling
+    if [ -d "${external_path%/}/wildcards" ]; then
+        make_symlink "${external_path%/}/wildcards" "${internal_model_root}/wildcards"
     fi
 }
 
