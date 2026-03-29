@@ -243,11 +243,11 @@
   - [x] shellcheck 合格
   - [x] API テスト
 
-- [ ] **Task 3.4**: `Download/lib/civitai_download_unzip.sh` 実装
-  - [ ] Zipダウンロード処理
-  - [ ] 解凍ロジック
-  - [ ] エラーハンドリング
-  - [ ] shellcheck 合格
+- [x] **Task 3.4**: `Download/lib/civitai_download_unzip.sh` 実装
+  - [x] Zipダウンロード処理
+  - [x] 解凍ロジック
+  - [x] エラーハンドリング
+  - [x] shellcheck 合格
 
 - [ ] **Task 3.5**: `Download/lib/huggingface_hub_download.sh` 実装
   - [ ] HF Hub-CLI 統合
