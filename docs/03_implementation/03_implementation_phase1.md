@@ -30,8 +30,8 @@
 Phase 1 では以下の 5 つのスクリプトを作成します：
 
 1. **`EasyReforge/src/lib/github.sh`** - Git操作ユーティリティ
-2. **`EasyReforge/src/lib/python.sh`** - Python仮想環境管理
-3. **`EasyReforge/easyreforge_installer.sh`** - インストーラー
+2. **`EasyReforge/src/lib/uv.sh`** - Python仮想環境管理（uv専用）
+3. **`EasyReforge/easyreforge_installer.sh`** - 起点インストーラー（環境変数カスケード対応）
 4. **`update.sh`** - アップデートスクリプト
 5. **`setup.sh`** - セットアップスクリプト
 
@@ -183,7 +183,7 @@ shellcheck EasyReforge/src/lib/github.sh
 
 ---
 
-## Task 2: `EasyReforge/src/lib/python.sh` 実装
+## Task 2: `EasyReforge/src/lib/uv.sh` 実装 (旧python.sh)
 
 ### ステップ1: uv 要件の確認
 
@@ -223,23 +223,10 @@ python_create_venv() {
     return 0
 }
 
-# 関数2: 仮想環境を有効化
-# 使用例: python_activate_venv "/path/to/venv"
-# 注意: この関数は source で実行される必要がある
-python_activate_venv() {
-    local venv_path="$1"
-
-    if [ ! -f "$venv_path/bin/activate" ]; then
-        echo "Error: activate script not found at $venv_path/bin/activate"
-        return 1
-    fi
-
-    # ポイント: source で実行することで、現在のシェルに環境を反映
-    # shellcheck disable=SC1090  # 動的ファイルパスのため
-    source "$venv_path/bin/activate"
-
-    return 0
-}
+# 関数2: 仮想環境でのコマンド実行 (source/activateを廃止)
+# 従来は activate スクリプトを呼び出していましたが、Ubuntu移行では常に uv run を使います。
+# 仮想環境のパスを VIRTUAL_ENV で指定するだけです。
+# 使用例: VIRTUAL_ENV="/path/to/venv" uv run python script.py
 
 # 関数3: パッケージをインストール
 # 使用例: python_install_packages "/path/to/venv" "requirements.txt"
@@ -253,7 +240,7 @@ python_install_packages() {
     fi
 
     echo "Installing packages from $requirements_file..."
-    # uv pip を使用 (仮想環境パスを VIRTUAL_ENV で指定)
+    # pip インストールは `uv pip` を使用 (仮想環境パスを VIRTUAL_ENV で指定)
     VIRTUAL_ENV="$venv_path" uv pip install -r "$requirements_file"
 
     return 0
@@ -283,35 +270,25 @@ main() {
 ```bash
 #!/bin/bash
 
-source EasyReforge/src/lib/python.sh
+source EasyReforge/src/lib/uv.sh
 
 # テスト1: venv 作成
-python_create_venv "/tmp/test_venv"
+uv_create_venv "/tmp/test_venv"
 
-# テスト2: venv 有効化
-source EasyReforge/src/lib/python.sh
-(
-    # サブシェルで有効化テスト
-    python_activate_venv "/tmp/test_venv"
-    python_verify_activation
-    which python  # venv 内の python を使用していることを確認
-)
-
-# テスト3: パッケージインストール（小規模テスト）
+# テスト2: venv 環境でのパッケージインストール（小規模テスト）
 echo "requests==2.31.0" > /tmp/test_requirements.txt
-python_install_packages "/tmp/test_venv" "/tmp/test_requirements.txt"
+VIRTUAL_ENV="/tmp/test_venv" uv pip install -r /tmp/test_requirements.txt
 
-# テスト4: shellcheck
-shellcheck EasyReforge/src/lib/python.sh
+# テスト3: shellcheck
+shellcheck EasyReforge/src/lib/uv.sh
 ```
 
 ### 実装ポイント (shell-scriptingスキル)
 
 **重要なポイント**:
-- `source` での有効化: 現在のシェル環境に反映
-- `source` できないなら新プロセスで実行: `"$venv_path/bin/python" script.py`
-- `VIRTUAL_ENV` 環境変数で有効化確認
-- pip インストールは `uv pip install` を使い圧倒的に高速化
+- `source bin/activate` は**絶対に使用しない**こと。
+- 常に `VIRTUAL_ENV="/path/to/venv" uv run python ...` の形式で実行する。
+- pip インストールは `uv pip install` を使い圧倒的に高速化する。
 
 ---
 
@@ -385,6 +362,11 @@ setup_environment() {
     # UTF-8設定
     export LC_ALL=C.UTF-8
     export LANG=C.UTF-8
+
+    # 環境変数カスケードの起点 (ダウンストリームスクリプトへ継承させるため export 必須)
+    export PROJECT_NAME="EasyReforge"
+    export PROJECT_URL="https://github.com/nohikomiso/EasyReforge-Ubuntu"
+    export PROJECT_BRANCH="ubuntu-migration"
 
     echo "Checking requirements..."
     check_requirement git
@@ -470,7 +452,7 @@ main "$@"
 
 - [ ] `shellcheck` が全スクリプトをパス
 - [ ] `github.sh` のクローン・プル機能が動作
-- [ ] `python.sh` の venv 作成・有効化が動作
+- [ ] `uv.sh` の venv 作成が動作
 - [ ] `easyreforge_installer.sh` がエラーなく実行完了
 - [ ] `setup.sh` が `easyreforge_installer.sh` から呼び出せる
 - [ ] `update.sh` が既存環境を更新できる
@@ -492,9 +474,9 @@ echo "=== Testing Phase 1 Scripts ==="
 echo "Testing github.sh..."
 source ./lib/github.sh 2>/dev/null && echo "✓ github.sh loads" || echo "✗ github.sh failed"
 
-# テスト2: python.sh
-echo "Testing python.sh..."
-source ./lib/python.sh 2>/dev/null && echo "✓ python.sh loads" || echo "✗ python.sh failed"
+# テスト2: uv.sh
+echo "Testing uv.sh..."
+source ./lib/uv.sh 2>/dev/null && echo "✓ uv.sh loads" || echo "✗ uv.sh failed"
 
 # テスト3: shellcheck
 echo "Testing shellcheck..."
