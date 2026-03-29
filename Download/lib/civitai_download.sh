@@ -18,24 +18,13 @@ civitai_download() {
 
     log_info "Civitai Model ID: $model_id, Version ID: $version_id"
 
-    # Python 正規版ダウンローダーの呼び出し (正式な API トークンを利用)
-    # .venv がルートにあることを想定
-    local project_root
-    project_root="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-
-    if [ -x "${project_root}/.venv/bin/python3" ]; then
-        cd "${project_root}"
-        uv run python3 "${SCRIPT_DIR}/civitai_download.py" "$version_id" "$model_dir" "$filename"
-    else
-        # フォールバック: 標準の curl 方式 (WAFブロックに弱い可能性あり)
-        log_warn "Python env not found. Falling back to curl method."
-        local token_suffix=""
-        if [ -n "${CIVITAI_API_TOKEN:-}" ]; then
-            token_suffix="?token=${CIVITAI_API_TOKEN}"
-        fi
-        local url="https://civitai.com/api/v1/model-versions/${version_id}/download${token_suffix}"
-        download_with_retry "$url" "${model_dir}/${filename}" 3
-    fi
+    # Python 公式ダウンローダーのみを使用 (uv 経由で実行)
+    # これにより、ゴミの検知（MIME-type検証）と公式 SDK による取得が一本化されます
+    uv run python3 "${SCRIPT_DIR}/civitai_download.py" \
+        "$version_id" \
+        "$model_dir" \
+        "$filename" \
+        --token "${CIVITAI_API_TOKEN:-}"
 }
 
 # スクリプトとして直接実行された場合
