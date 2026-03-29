@@ -51,7 +51,7 @@
 # Required tools
 git --version          # Should be 2.25+
 bash --version         # Should be 4.0+
-python3 --version      # Should be 3.8+
+uv --version           # Should be installed
 shellcheck --version   # For validation (optional but recommended)
 
 # Git configuration
@@ -99,7 +99,7 @@ cat EasyReforge/Reforge/Reforge.bat
 
 # Windows pattern: What does it do?          → Linux equivalent:
 # chcp 65001 (UTF-8)                         → export LC_ALL=C.UTF-8
-# python -m venv (same in both!)             → python3 -m venv
+# python -m venv                             → uv venv
 # mklink /j (junction)                       → ln -s (symlink)
 # curl.exe / aria2.exe                       → curl / aria2c (apt install)
 # PowerShell Expand-Archive                  → unzip command
@@ -114,7 +114,7 @@ cat EasyReforge/Reforge/Reforge.bat
 # - Leverage bash features, not Windows workarounds
 
 # Example: If batch does "Install Python portable zip"
-# Ubuntu approach: Use "apt install python3-venv" (system package, not portable)
+# Ubuntu approach: Use "uv" (downloads isolated Python automatically)
 ```
 
 #### Step 5: Implement with shell-scripting Skill
@@ -203,7 +203,7 @@ WEEK 1-2: PHASE 1
     ↓
   [Wait] GitHub_CloneOrPull.sh complete + tested
     ↓
-  [Start] Helper: Python_Activate.sh
+  [Start] Helper: uv.sh
     ↓
   [Parallel] easyreforge_installer.sh, update.sh, setup.sh (depend on helpers)
 
@@ -296,62 +296,52 @@ git -C /tmp/test_repo rev-parse HEAD | grep xyz789 && echo "PASS: Reset" || echo
 
 ---
 
-### Task 2: Create Python_Activate.sh Helper
+### Task 2: Create uv.sh Helper
 
-**File**: `EasyReforge/src/lib/python.sh`
+**File**: `EasyReforge/src/lib/uv.sh`
 
 **Cautions**:
-- Virtual environment must use python3 (not python)
-- Location must be consistent with reforge.sh expectations
-- Activation script path differs on macOS/Linux
-- Handle case where python3 is not available
+- 仮想環境の作成と管理はすべて `uv` に統合します
+- 実行時は `source` による有効化を行わず、常に `uv run` を用います
+- `uv` コマンドが未インストールの場合はエラー終了させるか自動インストールを促します
 
 **Implementation Notes**:
 ```bash
 #!/bin/bash
-# Creates and activates Python venv
+# Creates Python venv using uv
 
-VENV_DIR="${1:-.}/venv"  # Default to ./venv
+VENV_DIR="${1:-.}/.venv"  # Default to ./.venv
 
-# CAUTION 1: Use python3 explicitly
-if ! command -v python3 &> /dev/null; then
-    echo "Error: python3 not found" >&2
+# CAUTION 1: Require uv
+if ! command -v uv &> /dev/null; then
+    echo "Error: uv not found" >&2
     exit 1
 fi
 
-# CAUTION 2: Check Python version
-PYTHON_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
-if [ "${PYTHON_VERSION%.*}" -lt 3 ] || [ "${PYTHON_VERSION#*.}" -lt 8 ]; then
-    echo "Error: Python 3.8+ required, found $PYTHON_VERSION" >&2
-    exit 1
-fi
-
-# CAUTION 3: Create venv if not exists
+# CAUTION 2: Create venv if not exists (using Python 3.10)
 if [ ! -d "$VENV_DIR" ]; then
-    python3 -m venv "$VENV_DIR" || exit 1
+    uv venv "$VENV_DIR" --python 3.10 || exit 1
 fi
 
-# CAUTION 4: Source activation (return the path, don't activate directly)
-# Allow calling script to activate from correct directory
+# 呼び出し元でパスを利用できるよう標準出力に返す
 echo "$VENV_DIR"
 ```
 
 **Usage Pattern**:
 ```bash
-VENV_DIR=$(source python.sh)
-source "$VENV_DIR/bin/activate"
+VENV_DIR=$(bash uv.sh ./.venv)
+# 実行時は有効化不要で直接 uv run を使用
+VIRTUAL_ENV="$VENV_DIR" uv run python script.py
 ```
 
 **Testing**:
 ```bash
 # Test venv creation
-VENV=$(bash python.sh /tmp/test_venv)
-[ -f "$VENV/bin/activate" ] && echo "PASS: venv created" || echo "FAIL"
+VENV=$(bash uv.sh /tmp/test_venv)
+[ -d "$VENV" ] && echo "PASS: venv created" || echo "FAIL"
 
-# Test activation
-source "$VENV/bin/activate"
-python3 -c "import sys; sys.exit(0 if 'venv' in sys.prefix else 1)" && echo "PASS: activated" || echo "FAIL"
-deactivate
+# Test execution (without activation)
+VIRTUAL_ENV="$VENV" uv run python -c "import sys; sys.exit(0 if sys.prefix != sys.base_prefix else 1)" && echo "PASS: execution" || echo "FAIL"
 ```
 
 ---
@@ -601,9 +591,9 @@ get_cuda_version() {
 # Install correct PyTorch version
 CUDA_VERSION=$(get_cuda_version)
 if [ "$CUDA_VERSION" = "cpu" ]; then
-    pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
+    uv pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cpu
 else
-    pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cu128
+    uv pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cu128
 fi
 ```
 
@@ -626,9 +616,9 @@ download_sageattention() {
     if ! curl -fL -o "$WHEEL_NAME" "${URL}${WHEEL_NAME}"; then
         # Fallback: Try building from source
         echo "Warning: Pre-built wheel not available, attempting source build..."
-        pip install sageattention[all] --no-binary sageattention
+        uv pip install sageattention[all] --no-binary sageattention
     else
-        pip install "$WHEEL_NAME"
+        uv pip install "$WHEEL_NAME"
         rm "$WHEEL_NAME"
     fi
 }
@@ -647,7 +637,7 @@ set TORCH_INDUCTOR_TEMP=C:\Users\%USERNAME%\AppData\Local\Temp\torchinductor_%US
 
 **Ubuntu**:
 ```bash
-# Must set BEFORE pip install for correct caching
+# Must set BEFORE uv pip install for correct caching
 export TRITON_CACHE="$HOME/.triton/cache"
 export TORCH_INDUCTOR_CACHE="$HOME/.cache/torch"
 export TORCH_INDUCTOR_TEMP="$HOME/.cache/torch/inductor_$(whoami)"
@@ -660,14 +650,11 @@ mkdir -p "$TRITON_CACHE" "$TORCH_INDUCTOR_TEMP"
 
 **Solution**:
 ```bash
-# Before installing requirements
-pip install --upgrade pip setuptools wheel
+# Before installing requirements (uv pip requires far fewer updates than pip)
+uv pip check || true  # Show warnings but don't fail
 
-# Check for known issues with requirements
-python3 -m pip check || true  # Show warnings but don't fail
-
-# Install with timeout for slow networks
-pip install --default-timeout=1000 -r requirements.txt
+# Install requirements
+uv pip install -r requirements.txt
 ```
 
 #### Caution 4.5: Platform-Specific Packages to Remove from requirements.txt
@@ -690,7 +677,7 @@ sed -i '/^pyreadline3/d' requirements.txt
 sed -i '/^triton-windows/d' requirements.txt
 
 # Then install
-pip install --default-timeout=1000 -r requirements.txt
+uv pip install -r requirements.txt
 ```
 
 #### Caution 4.6: Windows-to-Linux Wheel Platform Migration
@@ -702,17 +689,17 @@ When installing Python packages on Ubuntu, wheels automatically convert to Linux
 | **PyTorch** | cp310-cp310-win_amd64 | cp310-cp310-manylinux_2_17_x86_64 | Automatic via PyTorch index |
 | **TorchVision** | cp310-cp310-win_amd64 | cp310-cp310-manylinux_2_17_x86_64 | Automatic via PyTorch index |
 | **SageAttention** | cp39-abi3-win_amd64 | cp310-cp310-linux_x86_64 | Local wheel file |
-| **llama-cpp-python** | cp310-cp310-win_amd64 | Build from source with CUDA | CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install |
+| **llama-cpp-python** | cp310-cp310-win_amd64 | Build from source with CUDA | CMAKE_ARGS="-DLLAMA_CUBLAS=on" uv pip install |
 
 **Note**: Wheel platform tags are automatically selected by pip. Ensure you're using the correct Python version (3.10.x).
 
 **Verification**:
 ```bash
 # Check installed packages and their wheel platforms
-pip show torch torchvision sageattention llama-cpp-python
+uv pip show torch torchvision sageattention llama-cpp-python
 
-# Verify correct CUDA version installed
-python3 -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}')"
+# Verify correct CUDA version installed via uv run
+uv run python -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}')"
 ```
 
 #### Caution 5: pushd/popd Replacement
@@ -765,7 +752,7 @@ REFORGE_ROOT="${SCRIPT_DIR}/../.."
 
 # Source helpers
 source "${REFORGE_ROOT}/src/lib/github.sh"
-source "${REFORGE_ROOT}/src/lib/python.sh"
+source "${REFORGE_ROOT}/src/lib/uv.sh"
 
 # Setup environment
 setup_environment() {
@@ -788,25 +775,24 @@ clone_reforge_webui() {
 # Create Python virtual environment
 setup_python_venv() {
     echo "Setting up Python virtual environment..."
-    VENV_PATH=$(python_activate_venv "${SCRIPT_DIR}/src/venv")
+    VENV_PATH=$(uv_create_venv "${SCRIPT_DIR}/src/venv")
 
-    # Activate venv
-    source "${VENV_PATH}/bin/activate"
+    # source による有効化は行わず、uv の環境変数をエクスポートして以降すべて uv 経由で実行します
+    export VIRTUAL_ENV="$VENV_PATH"
 }
 
 # Install PyTorch
 install_pytorch() {
     echo "Installing PyTorch with CUDA 12.8 support..."
-    pip install --upgrade pip setuptools wheel
 
     # Check for NVIDIA GPU
     if command -v nvidia-smi &>/dev/null; then
         echo "NVIDIA GPU detected, installing CUDA version..."
-        pip install torch==2.7.1 torchvision==0.22.1+cu128 torchaudio==2.7.1 \
+        uv pip install torch==2.7.1 torchvision==0.22.1+cu128 torchaudio==2.7.1 \
             --index-url https://download.pytorch.org/whl/cu128
     else
         echo "No NVIDIA GPU detected, installing CPU version..."
-        pip install torch==2.7.1 torchvision==0.22.1+cu128 torchaudio==2.7.1 \
+        uv pip install torch==2.7.1 torchvision==0.22.1+cu128 torchaudio==2.7.1 \
             --index-url https://download.pytorch.org/whl/cpu
     fi
 }
@@ -819,22 +805,22 @@ install_specialized_wheels() {
     rm -rf "$TRITON_CACHE"/* "$TORCH_INDUCTOR_TEMP"/* || true
 
     # SageAttention
-    pip install sageattention==2.2.0 || {
+    uv pip install sageattention==2.2.0 || {
         echo "Warning: SageAttention installation failed, attempting source build..."
-        pip install sageattention --no-binary sageattention
+        uv pip install sageattention --no-binary sageattention
     }
 
     # llama-cpp-python
-    pip install llama-cpp-python==0.3.4 || {
+    uv pip install llama-cpp-python==0.3.4 || {
         echo "Warning: llama-cpp-python pre-built wheel not available"
-        pip install llama-cpp-python --no-binary llama-cpp-python
+        uv pip install llama-cpp-python --no-binary llama-cpp-python
     }
 }
 
 # Install requirements
 install_requirements() {
     echo "Installing Python dependencies from requirements.txt..."
-    pip install --default-timeout=1000 -r src/requirements.txt
+    uv pip install -r src/requirements.txt
 }
 
 # Copy WebUI files
