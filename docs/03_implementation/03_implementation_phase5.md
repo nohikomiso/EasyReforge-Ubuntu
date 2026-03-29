@@ -195,22 +195,17 @@ Phase 5 creates optional launcher variants and performs comprehensive end-to-end
 
 ### Ubuntu Version Testing
 
-#### Ubuntu 24.04 (Primary)
+#### Ubuntu 24.04 (Primary & Verified)
 - [ ] [ ] Test on Ubuntu 24.04
 - [ ] [ ] Verify all features (uv + SD + LLM)
 - [ ] [ ] Document system performance (RTX 40/50 ready)
 
-#### Ubuntu 22.04 (LTS)
-- [ ] [ ] Test on Ubuntu 22.04
-- [ ] [ ] Verify newer libraries compatible
-- [ ] [ ] Verify all features work
-- [ ] [ ] Document results
+#### Other Ubuntu Versions (Optional Compatibility)
+> [!NOTE]
+> 以下のOSバージョンでのテストは現実的な理由（環境不足など）によりオプショナルとなりますが、uvの採用により上位OSでの動作は高い確率で予測されます。
 
-#### Ubuntu 20.04 (Legacy Base)
-- [ ] [ ] Test on Ubuntu 20.04
-- [ ] [ ] Verify default path (recommended)
-- [ ] [ ] Verify all features work
-- [ ] [ ] Document results
+- [ ] [ ] Ubuntu 22.04 LTS (Compatibility Check)
+- [ ] [ ] Ubuntu 20.04 LTS (Legacy Compatibility)
 
 ### Documentation Updates
 
@@ -325,7 +320,7 @@ Phase 5 creates optional launcher variants and performs comprehensive end-to-end
 - 8+ Reforge launcher variants ✓
 - 8+ LLM inference scripts ✓
 - Optional extension launchers ✓
-- E2E testing on Ubuntu 20.04, 22.04, 24.04 ✓
+- E2E testing on Ubuntu 24.04 (Benchmark Focus) ✓
 - Complete documentation ✓
 - All 237 scripts converted ✓
 - All tests passing ✓
@@ -339,7 +334,7 @@ Phase 5 (and entire project) is complete when:
 - [ ] All 237 batch files have .sh equivalents
 - [ ] All scripts pass shellcheck validation
 - [ ] WebUI launches and generates images on fresh Ubuntu VM
-- [ ] All 3 Ubuntu versions tested successfully
+- [ ] Primary Ubuntu 24.04 version tested successfully
 - [ ] E2E testing documented
 - [ ] Performance meets expectations
 - [ ] No blocking issues

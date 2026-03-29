@@ -494,7 +494,7 @@ Phase 5: Launchers + E2E testing → COMPLETE
 - [ ] 8 LLM scripts functional
 - [ ] End-to-end test on fresh Ubuntu VM passes
 - [ ] All 237 scripts have .sh equivalents
-- [ ] Tested on Ubuntu 20.04, 22.04, 24.04
+- [ ] Tested on Ubuntu 24.04 (Primary Target)
 
 ---
 

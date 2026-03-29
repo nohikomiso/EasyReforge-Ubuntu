@@ -168,7 +168,7 @@ START
   │
   ├─→ Phase 5: Optional & QA (11-12 weeks)
   │     ├─→ Task 5.1-5.2: Convert launchers
-  │     ├─→ Integration Test 5.1-5.3: Ubuntu 20.04, 22.04, 24.04
+  │     ├─→ Integration Test 5.1-5.3: Ubuntu 24.04 (Primary Focus)
   │     ├─→ Task 5.3-5.4: Documentation & release
   │     └─→ All tests PASS
   │
@@ -293,7 +293,7 @@ Phase 4 では 165+ スクリプトをテンプレートから自動生成
 1. shellcheck で文法検証
 2. 手動テスト実行
 3. 統合テスト実施
-4. 複数 Ubuntu バージョンでテスト (20.04 - 24.04)
+4. Ubuntu 24.04 でテスト確認 (Benchmark)
 ```
 
 ---
@@ -460,7 +460,7 @@ DRY_RUN=1 bash script.sh
 
 ### 全体完了
 - [ ] 237 全スクリプト変換完了
-- [ ] 複数 Ubuntu バージョンでテスト合格 (20.04, 22.04, 24.04)
+- [ ] Ubuntu 24.04 でテスト合格 (Primary Benchmark)
 - [ ] ドキュメント完成
 - [ ] リリース準備完了
 

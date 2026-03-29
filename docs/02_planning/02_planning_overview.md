@@ -134,7 +134,7 @@ EasyReforge（Stable Diffusion WebUI reForge向けのターンキーインスト
 - [ ] シンボリックリンク機能動作
 - [ ] 日本語UI完全対応（UTF-8）
 - [ ] shellcheck 全スクリプト合格
-- [ ] 複数Ubuntuバージョン (20.04, 22.04, 24.04) でテスト済み
+- [ ] Ubuntu 24.04 (Primary) での完全テスト済み
 - [ ] ドキュメント完全
 - [ ] ユーザーワークフローに変更なし
 

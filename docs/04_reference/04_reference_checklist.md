@@ -345,18 +345,16 @@
 
 ### エンドツーエンドテスト
 
-- [ ] **Integration Test 5.1**: Ubuntu 22.04 での完全テスト
+- [ ] **Integration Test 5.1**: Ubuntu 24.04 での完全テスト (Primary)
   - [ ] インストール実行
   - [ ] WebUI起動
   - [ ] 画像生成テスト
   - [ ] モデルダウンロード
   - [ ] 全機能テスト合格
 
-- [ ] **Integration Test 5.2**: Ubuntu 24.04 での完全テスト
-  - [ ] 上記と同じテスト実施
-
-- [ ] **Integration Test 5.3**: Ubuntu 20.04 での完全テスト
-  - [ ] 上記と同じテスト実施
+- [ ] **Integration Test 5.2**: 追加検証 (Optional)
+  - [ ] GPU と CPU の切り替えテスト (24.04)
+  - [ ] 他OSでの限定的な動作確認 (もし可能であれば)
 
 ### ドキュメント・リリース
 
