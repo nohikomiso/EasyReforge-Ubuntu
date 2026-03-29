@@ -17,14 +17,14 @@
   - [x] 手動テスト合格
   - [x] Git を追加・コミット
 
-- [ ] **Task 1.2**: `EasyReforge/src/lib/python.sh` 作成
-  - [ ] `python_create_venv()` 関数実装
-  - [ ] `python_activate_venv()` 関数実装
-  - [ ] `python_install_packages()` 関数実装
-  - [ ] `python_verify_activation()` 関数実装
-  - [ ] shellcheck 合格
-  - [ ] 手動テスト合格
-  - [ ] Git を追加・コミット
+- [x] **Task 1.2**: `EasyReforge/src/lib/python.sh` 作成
+  - [x] `python_create_venv()` 関数実装
+  - [x] `python_activate_venv()` 関数実装
+  - [x] `python_install_packages()` 関数実装
+  - [x] `python_verify_activation()` 関数実装
+  - [x] shellcheck 合格
+  - [x] 手動テスト合格
+  - [x] Git を追加・コミット
 
 ### メインスクリプト変換
 
