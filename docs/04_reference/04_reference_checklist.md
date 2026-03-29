@@ -55,10 +55,10 @@
 
 ### Phase 1 統合テスト
 
-- [ ] **Integration Test 1.1**: ヘルパーライブラリの相互動作
-  - [ ] github.sh でリポジトリをクローン
-  - [ ] python.sh で uv venv を作成・有効化
-  - [ ] 連続実行テスト成功
+- [x] **Integration Test 1.1**: ヘルパーライブラリの相互動作
+  - [x] github.sh でリポジトリ(https://github.com/nohikomiso/EasyReforge-Ubuntu.git)ubuntu-migrationブランチをクローン
+  - [x] uv.sh で uv venv を作成・有効化
+  - [x] 連続実行テスト成功
 
 - [ ] **Integration Test 1.2**: easyreforge_installer.sh の完全実行
   - [ ] スクリプト実行開始
