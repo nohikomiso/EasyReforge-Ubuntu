@@ -225,15 +225,15 @@
   - [x] shellcheck 合格
   - [x] ユニットテスト実行
 
-- [ ] **Task 3.2**: `Download/lib/civitai_download.sh` 実装
-  - [ ] Civitai API認証
-  - [ ] `civitai_download()` 関数
-  - [ ] `civitai_get_download_url()` 関数
-  - [ ] `civitai_verify_api_key()` 関数
-  - [ ] レート制限対応
-  - [ ] エラーハンドリング
-  - [ ] shellcheck 合格
-  - [ ] API テスト
+- [x] **Task 3.2**: `Download/lib/civitai_download.sh` 実装
+  - [x] Civitai API認証
+  - [x] `civitai_download()` 関数
+  - [x] `civitai_get_download_url()` 関数
+  - [x] `civitai_verify_api_key()` 関数
+  - [x] レート制限対応
+  - [x] エラーハンドリング
+  - [x] shellcheck 合格
+  - [x] API テスト
 
 - [ ] **Task 3.3**: `Download/lib/huggingface_download.sh` 実装
   - [ ] HF Hub APIサポート
