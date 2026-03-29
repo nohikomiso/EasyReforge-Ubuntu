@@ -130,11 +130,11 @@
   - [x] shellcheck 合格
   - [x] WebUIがsymlink経由でモデル読み込み確認
 
-- [ ] **Task 2.4**: `EasyReforge/Reforge/reforge_config.sh` 実装
-  - [ ] reforge_update_config.py 呼び出し
-  - [ ] 後方互換性処理
-  - [ ] エラーハンドリング
-  - [ ] shellcheck 合格
+- [x] **Task 2.4**: `EasyReforge/Reforge/reforge_config.sh` 実装
+  - [x] reforge_update_config.py 呼び出し
+  - [x] 後方互換性処理
+  - [x] エラーハンドリング
+  - [x] shellcheck 合格
 
 - [ ] **Task 2.5**: `EasyReforge/Reforge/reforge_ui_config.sh` 実装
   - [ ] reforge_update_ui-config.py 呼び出し
