@@ -159,13 +159,74 @@ phase_3_model_links() {
 }
 
 ##
+# Phase 4: Setup other WebUI variants if present
+##
+phase_4_variants() {
+    log_phase "4" "他のWebUIバリアントのセットアップ" "Other WebUI Variants Setup"
+
+    # Setup A1111 if directory exists and script exists
+    if [[ -d "${SCRIPT_DIR}/../stable-diffusion-webui" ]] || [[ -d "${SCRIPT_DIR}/../automatic1111" ]]; then
+        if [[ -f "${SCRIPT_DIR}/setup_a1111.sh" ]]; then
+            echo "Setting up A1111..."
+            if ! bash "${SCRIPT_DIR}/setup_a1111.sh"; then
+                die "A1111のセットアップに失敗しました" "Failed to setup A1111" 1
+            fi
+        else
+            echo "Note: setup_a1111.sh not found (will skip A1111 setup)"
+        fi
+    fi
+
+    # Setup Forge if directory exists and script exists
+    if [[ -d "${SCRIPT_DIR}/../stable-diffusion-webui-forge" ]] || [[ -d "${SCRIPT_DIR}/../forge" ]]; then
+        if [[ -f "${SCRIPT_DIR}/setup_forge.sh" ]]; then
+            echo "Setting up Forge..."
+            if ! bash "${SCRIPT_DIR}/setup_forge.sh"; then
+                die "Forgeのセットアップに失敗しました" "Failed to setup Forge" 1
+            fi
+        else
+            echo "Note: setup_forge.sh not found (will skip Forge setup)"
+        fi
+    fi
+
+    log_success "バリアントの確認が完了しました" "Variants check completed"
+}
+
+##
+# Phase 5: Minimum Model Downloads
+##
+phase_5_downloads() {
+    log_phase "5" "初期モデルのダウンロード" "Minimum Model Downloads"
+
+    # Skip if disable flag exists
+    if [[ -f "${REFORGE_DIR}/Update_DisableMinimumDownload.txt" ]]; then
+        echo "Update_DisableMinimumDownload.txt found. Skipping automatic downloads."
+        echo "自動ダウンロードが無効化されています。"
+        return 0
+    fi
+
+    # Download NoobE minimum models if directory exists
+    if [[ -d "${SCRIPT_DIR}/../Model/Stable-diffusion/NoobE" ]]; then
+        local download_script="${SCRIPT_DIR}/../Download/src/NoobAiCommon_Minimum.sh"
+        if [[ -f "$download_script" ]]; then
+            echo "Running minimum model download..."
+            # Ignore errors as per original batch script logic
+            bash "$download_script" || echo "Warning: Download script returned an error (continuing)" >&2
+        else
+            echo "Note: Download script not found: $download_script"
+        fi
+    fi
+
+    log_success "初期ダウンロード確認が完了しました" "Initial downloads check completed"
+}
+
+##
 # Main orchestration
 ##
 main() {
     echo ""
     echo "╔════════════════════════════════════════════════════════════╗"
     echo "║                                                            ║"
-    echo "║          EasyReforge Setup Orchestrator                   ║"
+    echo "║          ${PROJECT_NAME} Setup Orchestrator                   ║"
     echo "║                                                            ║"
     echo "╚════════════════════════════════════════════════════════════╝"
     echo ""
@@ -174,6 +235,8 @@ main() {
     phase_1_reforge_environment
     phase_2_reforge_extensions
     phase_3_model_links
+    phase_4_variants
+    phase_5_downloads
 
     # Success
     echo ""

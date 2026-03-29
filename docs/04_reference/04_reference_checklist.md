@@ -44,12 +44,12 @@
   - [x] テスト実行
   - [x] Git を追加・コミット
 
-- [ ] **Task 1.5**: `EasyReforge/setup.sh` 変換
-  - [ ] 元の `Setup.bat` を確認
-  - [ ] バリアント選択ロジックを変換
-  - [ ] shellcheck 合格
-  - [ ] テスト実行
-  - [ ] Git を追加・コミット
+- [x] **Task 1.5**: `EasyReforge/setup.sh` 変換
+  - [x] 元の `Setup.bat` を確認
+  - [x] バリアント選択ロジックを変換
+  - [x] shellcheck 合格
+  - [x] テスト実行
+  - [x] Git を追加・コミット
 
 ### Phase 1 統合テスト
 
