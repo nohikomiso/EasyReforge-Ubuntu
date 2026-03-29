@@ -19,6 +19,8 @@ uv_create_venv() {
     (cd "$venv_dir" && uv init --bare) 2>/dev/null || true
     
     uv venv "$venv_path" --python 3.10
+    # Civitai ダウンロードに必要なライブラリを仮想環境に事前インストール
+    VIRTUAL_ENV="$venv_path" uv pip install civitai-model-downloader requests
 
     # 権限設定
     chmod -R u+w "$venv_path"

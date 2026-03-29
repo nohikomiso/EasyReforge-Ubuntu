@@ -273,11 +273,11 @@
 - [x] **Task 3.8.1**: huggingface_download_sh 改修
   - [x] リネーム保存用第4引数サポート追加
 
-- [ ] **Integration Test 3**: ダウンロードヘルパーテスト
-  - [ ] 各ヘルパーの基本動作確認
-  - [ ] Civitai API テスト
-  - [ ] HuggingFace API テスト
-  - [ ] エラーハンドリング確認
+- [x] **Integration Test 3**: ダウンロードヘルパーテスト
+  - [x] 各ヘルパーの基本動作確認
+  - [x] Civitai API テスト
+  - [x] HuggingFace API テスト
+  - [x] エラーハンドリング確認
 
 ---
 
