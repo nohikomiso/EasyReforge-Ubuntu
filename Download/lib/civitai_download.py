@@ -75,9 +75,9 @@ def download_civitai_model(model_version_id, output_dir, filename, api_token=Non
 
     # コマンドの構築
     # civitai-downloader-cli download <version_id> --local-dir <output_dir>
-    # 注意: ライブラリは元のファイル名で保存するため、後でリネームする
+    # uvx (uv tool run) を使用することで、仮想環境がなくてもオンデマンドで実行可能にする
     cmd = [
-        "uv", "run", "civitai-downloader-cli", "download",
+        "uvx", "civitai-downloader-cli", "download",
         str(model_version_id),
         "--local-dir", str(output_path)
     ]
