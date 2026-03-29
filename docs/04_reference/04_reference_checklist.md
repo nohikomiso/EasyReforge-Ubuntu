@@ -253,10 +253,10 @@
   - [x] HF Hub-CLI 統合
   - [x] shellcheck 合格
 
-- [ ] **Task 3.6**: `Download/lib/aria_download.sh` 実装
-  - [ ] aria2c による直接ダウンロード
-  - [ ] マルチスレッド対応
-  - [ ] shellcheck 合格
+- [x] **Task 3.6**: `Download/lib/aria_download.sh` 実装
+  - [x] aria2c による直接ダウンロード
+  - [x] マルチスレッド対応
+  - [x] shellcheck 合格
 
 - [ ] **Task 3.7**: `Download/lib/recursive_call.sh` 実装
   - [ ] ディレクトリ再帰処理
