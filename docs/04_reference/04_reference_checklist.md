@@ -258,9 +258,9 @@
   - [x] マルチスレッド対応
   - [x] shellcheck 合格
 
-- [ ] **Task 3.7**: `Download/lib/recursive_call.sh` 実装
-  - [ ] ディレクトリ再帰処理
-  - [ ] shellcheck 合格
+- [x] **Task 3.7**: `Download/lib/recursive_call.sh` 実装
+  - [x] ディレクトリ再帰処理
+  - [x] shellcheck 合格
 
 ### メタデータ抽出
 
