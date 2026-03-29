@@ -3,8 +3,8 @@ set -euo pipefail
 trap 'echo "Error on line $LINENO"; exit 1' ERR
 
 # 関数1: 仮想環境を作成
-# 使用例: python_create_venv "/path/to/venv"
-python_create_venv() {
+# 使用例: uv_create_venv "/path/to/venv"
+uv_create_venv() {
     local venv_path="$1"
 
     if [ -d "$venv_path" ]; then
@@ -27,9 +27,9 @@ python_create_venv() {
 }
 
 # 関数2: 仮想環境を有効化
-# 使用例: python_activate_venv "/path/to/venv"
+# 使用例: uv_activate_venv "/path/to/venv"
 # 注意: この関数は source で実行される必要がある
-python_activate_venv() {
+uv_activate_venv() {
     local venv_path="$1"
 
     if [ ! -f "$venv_path/bin/activate" ]; then
@@ -45,8 +45,8 @@ python_activate_venv() {
 }
 
 # 関数3: パッケージをインストール
-# 使用例: python_install_packages "/path/to/venv" "requirements.txt"
-python_install_packages() {
+# 使用例: uv_install_packages "/path/to/venv" "requirements.txt"
+uv_install_packages() {
     local venv_path="$1"
     local requirements_file="$2"
 
@@ -63,8 +63,8 @@ python_install_packages() {
 }
 
 # 関数4: venv の有効化を検証
-# 使用例: python_verify_activation
-python_verify_activation() {
+# 使用例: uv_verify_activation
+uv_verify_activation() {
     # venv が有効かどうか検証
     # set -u環境下で未定義エラーを防ぐため ${VIRTUAL_ENV:-} を使用
     if [[ "${VIRTUAL_ENV:-}" == "" ]]; then

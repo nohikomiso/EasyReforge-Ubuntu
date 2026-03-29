@@ -17,11 +17,11 @@
   - [x] 手動テスト合格
   - [x] Git を追加・コミット
 
-- [x] **Task 1.2**: `EasyReforge/src/lib/python.sh` 作成
-  - [x] `python_create_venv()` 関数実装
-  - [x] `python_activate_venv()` 関数実装
-  - [x] `python_install_packages()` 関数実装
-  - [x] `python_verify_activation()` 関数実装
+- [x] **Task 1.2**: `EasyReforge/src/lib/uv.sh` 作成
+  - [x] `uv_create_venv()` 関数実装
+  - [x] `uv_activate_venv()` 関数実装
+  - [x] `uv_install_packages()` 関数実装
+  - [x] `uv_verify_activation()` 関数実装
   - [x] shellcheck 合格
   - [x] 手動テスト合格
   - [x] Git を追加・コミット
