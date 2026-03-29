@@ -235,13 +235,13 @@
   - [x] shellcheck 合格
   - [x] API テスト
 
-- [ ] **Task 3.3**: `Download/lib/huggingface_download.sh` 実装
-  - [ ] HF Hub APIサポート
-  - [ ] `huggingface_download()` 関数
-  - [ ] `huggingface_list_files()` 関数
-  - [ ] エラーハンドリング
-  - [ ] shellcheck 合格
-  - [ ] API テスト
+- [x] **Task 3.3**: `Download/lib/huggingface_download.sh` 実装
+  - [x] HF Hub APIサポート
+  - [x] `huggingface_download()` 関数
+  - [x] `huggingface_list_files()` 関数
+  - [x] エラーハンドリング
+  - [x] shellcheck 合格
+  - [x] API テスト
 
 - [ ] **Task 3.4**: `Download/lib/civitai_download_unzip.sh` 実装
   - [ ] Zipダウンロード処理
