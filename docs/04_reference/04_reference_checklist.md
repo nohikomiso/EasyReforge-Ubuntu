@@ -5,7 +5,9 @@
 
 ---
 
-## Phase 1: 基盤スクリプト（1-2週間）
+## Phase 1: 基盤スクリプト変換 (Weeks 1-2)
+
+**⚠️ 【重要】実装時は必ず [03_implementation_phase1.md](../03_implementation/03_implementation_phase1.md) の詳細要件とコードパターンを熟読してから作業を開始すること！**
 
 ### ヘルパーライブラリ作成
 
@@ -71,7 +73,9 @@
 
 ---
 
-## Phase 2: コア環境セットアップ（3-4週間）
+## Phase 2: コア環境構築変換 (Weeks 3-4)
+
+**⚠️ 【重要】実装時は必ず [03_implementation_phase2.md](../03_implementation/03_implementation_phase2.md) の詳細要件とコードパターンを熟読してから作業を開始すること！**
 
 ### Critical: reforge.sh 実装
 
@@ -172,7 +176,9 @@
 
 ---
 
-## Phase 2b: モデルリンキング（並行実施、9-10週間）
+## Phase 2b: モデルリンク変換 (Weeks 9-10)
+
+**⚠️ 【重要】実装時は必ず相関するリンクロジックパターン（[03_implementation_phase2.md](../03_implementation/03_implementation_phase2.md) 等）を熟読してから作業を開始すること！**
 
 - [ ] **Task 2b.1**: `EasyReforge/Reforge/src/link_helper.sh` 実装
   - [ ] 全7つのリンク関数実装
@@ -204,7 +210,9 @@
 
 ---
 
-## Phase 3: ダウンロードヘルパー（5-6週間）
+## Phase 3: ダウンロードヘルパー変換 (Weeks 5-6)
+
+**⚠️ 【重要】実装時は必ず [03_implementation_phase3.md](../03_implementation/03_implementation_phase3.md) の詳細要件とコードパターンを熟読してから作業を開始すること！**
 
 ### ヘルパーライブラリ実装
 
@@ -270,7 +278,9 @@
 
 ---
 
-## Phase 4: モデルスクリプト自動生成（7-8週間）
+## Phase 4: モデル・拡張スクリプト変換 (Weeks 7-8)
+
+**⚠️ 【重要】実装時は必ず [03_implementation_phase4.md](../03_implementation/03_implementation_phase4.md) の詳細要件とコードパターンを熟読してから作業を開始すること！**
 
 ### 自動生成
 
@@ -307,7 +317,9 @@
 
 ---
 
-## Phase 5: オプション機能・QA（11-12週間）
+## Phase 5: オプションランチャー変換 (Weeks 11-12)
+
+**⚠️ 【重要】実装時は必ず [03_implementation_phase5.md](../03_implementation/03_implementation_phase5.md) の詳細要件とコードパターンを熟読してから作業を開始すること！**
 
 ### ランチャースクリプト
 
