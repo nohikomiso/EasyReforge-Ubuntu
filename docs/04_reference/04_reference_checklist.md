@@ -331,12 +331,12 @@
 
 ### ランチャースクリプト
 
-- [ ] **Task 5.1**: Reforge ランチャー変換
-  - [ ] `reforge_gpu.sh` 変換
-  - [ ] `reforge_cpu.sh` 変換
-  - [ ] その他バリアント変換（6個）
-  - [ ] shellcheck 合格
-  - [ ] 実行テスト
+- [x] **Task 5.1**: Reforge ランチャー変換
+  - [x] `reforge_gpu.sh` 変換
+  - [x] `reforge_cpu.sh` 変換
+  - [x] その他バリアント変換（6個）
+  - [x] shellcheck 合格
+  - [x] 実行テスト
 
 - [ ] **Task 5.2**: LLM推論スクリプト変換
   - [ ] 8個の LLM スクリプト変換
