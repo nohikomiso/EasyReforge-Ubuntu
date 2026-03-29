@@ -249,9 +249,9 @@
   - [x] エラーハンドリング
   - [x] shellcheck 合格
 
-- [ ] **Task 3.5**: `Download/lib/huggingface_hub_download.sh` 実装
-  - [ ] HF Hub-CLI 統合
-  - [ ] shellcheck 合格
+- [x] **Task 3.5**: `Download/lib/huggingface_hub_download.sh` 実装
+  - [x] HF Hub-CLI 統合
+  - [x] shellcheck 合格
 
 - [ ] **Task 3.6**: `Download/lib/aria_download.sh` 実装
   - [ ] aria2c による直接ダウンロード
