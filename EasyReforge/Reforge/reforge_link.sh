@@ -53,65 +53,93 @@ make_symlink() {
     fi
 }
 
-setup_comfyui_integration() {
-    local comfy_path="${COMFY_PATH:-}"
+setup_external_model_integration() {
+    local external_path="${COMFY_PATH:-}"
     
-    if [ -z "$comfy_path" ]; then
-        echo "COMFY_PATH not specified. Skipping physical model integration."
+    if [ -z "$external_path" ]; then
+        echo "External model path not specified. Skipping physical model integration."
         return 0
     fi
 
-    echo "Integrating models from ComfyUI path: $comfy_path"
+    echo "Integrating models from external path: $external_path"
 
-    # NOTE: User's actual storage is in storage/ folders, but pointing to root/models is safer if symlinked there.
-    # In this project, we map direct to the subfolders for maximum compatibility with WebUI extensions.
-    local comfy_models
+    local external_models
     # --- SMART YAML PARSING: extra_model_paths.yaml を自動検知 ---
-    local extra_yaml="${comfy_path%/}/extra_model_paths.yaml"
+    local extra_yaml="${external_path%/}/extra_model_paths.yaml"
     local detected_base=""
     
     if [ -f "$extra_yaml" ]; then
         echo "Found extra_model_paths.yaml. Detecting real storage location..."
-        # 'storage:' ブロックの下にある 'base_path:' を抽出（簡易的な正規表現で取得）
         detected_base=$(grep -A 10 "storage:" "$extra_yaml" | grep "base_path:" | head -n 1 | sed 's/.*base_path:[[:space:]]*//;s/[[:space:]]*$//;s/"//g;s/'\''//g')
         
         if [ -n "$detected_base" ]; then
             echo "➔ Detected real storage path from YAML: $detected_base"
-            comfy_models="${detected_base%/}/models"
+            external_models="${detected_base%/}/models"
         fi
     fi
 
-    # 自動検知に失敗した場合や YAML がない場合は、従来のフォールバックを利用
     if [ -z "$detected_base" ]; then
-        if [[ "$comfy_path" == */models ]] || [[ "$comfy_path" == */models/ ]]; then
-            comfy_models="${comfy_path%/}"
+        if [[ "$external_path" == */models ]] || [[ "$external_path" == */models/ ]]; then
+            external_models="${external_path%/}"
         else
-            comfy_models="${comfy_path%/}/models"
+            external_models="${external_path%/}/models"
         fi
     fi
     
-    if [ ! -d "$comfy_models" ]; then
-        echo "Error: ComfyUI models directory not found at $comfy_models"
-        echo "Please provide either the ComfyUI root path or the 'models' directory path."
-        return 0
+    if [ ! -d "$external_models" ]; then
+        # Check if the root itself contains model folders (A1111 style sometimes)
+        if [ -d "${external_path%/}/Stable-diffusion" ]; then
+            external_models="${external_path%/}"
+        else
+            echo "Error: External models directory not found at $external_models"
+            return 0
+        fi
     fi
 
-    # Core Model Mapping (Standard Forge/WebUI locations)
-    create_symlink "${REFORGE_WEBUI}/models/Stable-diffusion" "${comfy_models}/checkpoints"
-    create_symlink "${REFORGE_WEBUI}/models/Lora"             "${comfy_models}/loras"
-    create_symlink "${REFORGE_WEBUI}/models/VAE"              "${comfy_models}/vae"
-    create_symlink "${REFORGE_WEBUI}/models/ControlNet"       "${comfy_models}/controlnet"
-    create_symlink "${REFORGE_WEBUI}/models/ESRGAN"           "${comfy_models}/upscale_models"
-    create_symlink "${REFORGE_WEBUI}/embeddings"              "${comfy_models}/embeddings"
+    # Detect Structure (WebUI vs ComfyUI)
+    local sd_target="checkpoints" # ComfyUI default
+    local lora_target="loras"
+    local vae_target="vae"
+    local controlnet_target="controlnet"
+    local upscale_target="upscale_models"
+    local embed_target="${external_models}/embeddings"
+
+    if [ -d "${external_models}/Stable-diffusion" ]; then
+        echo "➔ Identified WebUI (A1111/Forge) style structure."
+        sd_target="Stable-diffusion"
+        lora_target="Lora"
+        vae_target="VAE"
+        controlnet_target="ControlNet"
+        upscale_target="ESRGAN"
+    elif [ -d "${external_models}/checkpoints" ]; then
+        echo "➔ Identified ComfyUI style structure."
+    else
+        echo "WARNING: Unknown structure. Defaulting to ComfyUI mapping."
+    fi
+
+    # Core Model Mapping
+    make_symlink "${external_models}/${sd_target}"         "${REFORGE_WEBUI}/models/Stable-diffusion"
+    make_symlink "${external_models}/${lora_target}"       "${REFORGE_WEBUI}/models/Lora"
+    make_symlink "${external_models}/${vae_target}"        "${REFORGE_WEBUI}/models/VAE"
+    make_symlink "${external_models}/${controlnet_target}" "${REFORGE_WEBUI}/models/ControlNet"
+    make_symlink "${external_models}/${upscale_target}"    "${REFORGE_WEBUI}/models/ESRGAN"
+    make_symlink "$embed_target"                          "${REFORGE_WEBUI}/embeddings"
     
     # Extension specific: adetailer
-    if [ -d "${comfy_models}/adetailer" ]; then
-        create_symlink "${REFORGE_WEBUI}/models/adetailer" "${comfy_models}/adetailer"
+    if [ -d "${external_models}/adetailer" ]; then
+        make_symlink "${external_models}/adetailer" "${REFORGE_WEBUI}/models/adetailer"
     fi
 }
 
 main() {
-    setup_comfyui_integration
+    # 0. Ensure project structure (matching original standard)
+    # The real storage is in ${REFORGE_ROOT}/Model, but scripts refer to it via ${REFORGE_ROOT}/EasyReforge/Model
+    local real_storage_dir="${REFORGE_ROOT}/Model"
+    [ ! -d "$real_storage_dir" ] && mkdir -p "$real_storage_dir"
+    make_symlink "$real_storage_dir" "$EASY_MODEL_DIR"
+
+    # Setup external integration if path provided
+    setup_external_model_integration
 
     echo "============================================================="
     echo "Phase 2b: Model Symlink Creation"

@@ -37,6 +37,7 @@ readonly MIN_GIT_VERSION="2.25"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source helpers
+# shellcheck disable=SC1091
 if [[ -f "${SCRIPT_DIR}/src/lib/github.sh" ]]; then
     source "${SCRIPT_DIR}/src/lib/github.sh"
 else
@@ -61,6 +62,7 @@ else
         fi
     }
 fi
+# shellcheck disable=SC1091
 if [[ -f "${SCRIPT_DIR}/src/lib/uv.sh" ]]; then
     source "${SCRIPT_DIR}/src/lib/uv.sh"
 fi
@@ -75,26 +77,20 @@ DOWNLOAD_SCRIPT="${SCRIPT_DIR}/Download/All/AllModels_Minimum.sh"
 DOWNLOAD_YES_OR_NO=""
 export COMFY_PATH=""
 
-# Check for ComfyUI integration
+# Check for External Model integration (A1111/Forge/ComfyUI)
 echo ""
 echo "╔════════════════════════════════════════════════════════════╗"
-echo "║             ComfyUI Integration Setup                      ║"
+echo "║             External Model Integration Setup               ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 if [ -t 0 ]; then
-    echo "すでに ComfyUI をお使いの場合、モデルフォルダを共有（シンボリックリンク）して"
-    echo "ディスク容量を節約し、ダウンロードをスキップできます。"
-    read -r -p "ComfyUI のモデルと連携しますか？ / Link existing ComfyUI models? (y/N): " link_comfy
-    if [[ "$link_comfy" =~ ^[Yy]$ ]]; then
-        read -r -p "ComfyUI 本体のルートパスを入力（例: /home/ytsubame/comfy/ComfyUI）: " user_comfy_path
-        if [ -d "$user_comfy_path" ]; then
-            # models フォルダが含まれているか、またはそれ自身のディレクトリかを確認
-            if [ -d "${user_comfy_path%/}/models" ] || [[ "$user_comfy_path" == */models ]]; then
-                export COMFY_PATH="$user_comfy_path"
-                echo "➔ ComfyUI 連携パスを確定しました: $COMFY_PATH"
-            else
-                echo "➔ 警告: '$user_comfy_path' 内に 'models' フォルダが見つかりません。パスが正しいか確認してください。"
-                export COMFY_PATH="$user_comfy_path" # それでも渡して reforge_link 側で再度判定
-            fi
+    echo "既存の WebUI (A1111/Forge) や ComfyUI をすでにお使いの場合、"
+    echo "モデルフォルダを共有（シンボリックリンク）してディスク容量を節約できます。"
+    read -r -p "既存の WebUI / ComfyUI モデルと連携しますか？ / Link existing models? (y/N): " link_external
+    if [[ "$link_external" =~ ^[Yy]$ ]]; then
+        read -r -p "WebUI または ComfyUI 本体のルートパスを入力（例: /home/ytsubame/comfy/ComfyUI）: " user_path
+        if [ -d "$user_path" ]; then
+            export COMFY_PATH="$user_path" # Internally use COMFY_PATH for link script
+            echo "➔ 連携パスを確定しました: $COMFY_PATH"
         else
             echo "➔ 警告: パスが見つかりません。連携をスキップします。"
         fi
@@ -102,7 +98,7 @@ if [ -t 0 ]; then
 else
     # Non-interactive fallback
     if [ -n "${COMFY_PATH:-}" ]; then
-        echo "➔ Non-interactive mode: Using established COMFY_PATH: $COMFY_PATH"
+        echo "➔ Non-interactive mode: Using established EXTERNAL_PATH: $COMFY_PATH"
     fi
 fi
 

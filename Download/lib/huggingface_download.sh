@@ -10,9 +10,12 @@ source "${SCRIPT_DIR}/common.sh"
 huggingface_get_download_url() {
     local model_id="$1"
     local hf_filename="$2"
+    # Encode spaces as %20 in the filename for the URL
+    local encoded_filename
+    encoded_filename="${hf_filename// /%20}"
     # Hugging Faceの直接ダウンロード用URLフォーマット
     # 例: https://huggingface.co/Lykon/AnyLoRA/resolve/main/AnyLoRA_bakedVae_blessed_fp16.safetensors
-    echo "https://huggingface.co/${model_id}/resolve/main/${hf_filename}"
+    echo "https://huggingface.co/${model_id}/resolve/main/${encoded_filename}"
 }
 
 # Hub APIを利用したファイルリスティング

@@ -11,7 +11,9 @@ def get_script_dir():
 
 def download_engine(csv_path, filter_type=None, filter_tag=None, filter_name=None):
     lib_dir = get_script_dir()
-    download_root = lib_dir.parent
+    # The models should be stored in the 'Model' directory at the project root.
+    # root/Download/lib/ -> root/Model/
+    download_root = lib_dir.parent.parent / "Model"
     
     if not os.path.exists(csv_path):
         print(f"Error: {csv_path} not found.")
@@ -19,6 +21,10 @@ def download_engine(csv_path, filter_type=None, filter_tag=None, filter_name=Non
 
     is_dry_run = os.environ.get("DRY_RUN") == "1"
     
+    if not is_dry_run and not os.path.exists(download_root):
+        print(f"Creating storage directory: {download_root}")
+        os.makedirs(download_root, exist_ok=True)
+
     executed_count = 0
     skipped_count = 0
     
@@ -66,7 +72,7 @@ def download_engine(csv_path, filter_type=None, filter_tag=None, filter_name=Non
             
             if not is_dry_run:
                 try:
-                    # Run in download_root to keep relative paths consistent
+                    # Run in download_root (Model/) to keep relative paths consistent with project standard
                     subprocess.run(['bash', '-c', bash_cmd], cwd=download_root, check=True)
                     executed_count += 1
                 except subprocess.CalledProcessError as e:
