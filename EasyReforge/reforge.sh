@@ -13,12 +13,25 @@ main() {
         exit 1
     fi
 
+    # 1.5. Prepare reForge for launch (GPU Detection & Link validation)
+    # This replaces the need for specific RTX30/40 launchers.
     echo "============================================================="
     echo "Preparing reForge for launch"
     echo "============================================================="
+    
+    # Check for symlinks validity
+    # shellcheck disable=SC1091
+    if [ -f "${SCRIPT_DIR}/Reforge/reforge_link.sh" ]; then
+        bash "${SCRIPT_DIR}/Reforge/reforge_link.sh"
+    fi
+
+    # Automatically detect GPU optimizations
+    # shellcheck disable=SC1091
+    if [ -f "${SCRIPT_DIR}/Reforge/reforge_gpu_detect.sh" ]; then
+        source "${SCRIPT_DIR}/Reforge/reforge_gpu_detect.sh"
+    fi
 
     # 2. Update configurations using the newly created scripts
-    # Pass explicit arguments for clarity, though they fallback to these anyway
     bash "${SCRIPT_DIR}/Reforge/reforge_config.sh" "${REFORGE_WEBUI}/config.json"
     bash "${SCRIPT_DIR}/Reforge/reforge_ui_config.sh" "${REFORGE_WEBUI}/ui-config.json"
 
