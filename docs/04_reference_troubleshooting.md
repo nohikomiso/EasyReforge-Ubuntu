@@ -45,31 +45,25 @@ git --version
 
 ---
 
-### 問題2: `python3: command not found`
+### 問題2: `uv: command not found`
 
 **症状**:
 ```bash
 bash easyreforge_installer.sh
-python3: command not found
+uv: command not found
 ```
 
-**原因**: Python 3がインストールされていない
+**原因**: uv（Python環境管理ツール）がインストールされていない
 
 **解決策**:
 ```bash
-sudo apt-get update
-sudo apt-get install -y python3 python3-venv python3-pip
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source $HOME/.cargo/env
 ```
 
 **確認**:
 ```bash
-python3 --version
-# Python 3.10 以上であること
-```
-
-**注意**: Python 3.8以下の場合、アップグレードが必要：
-```bash
-sudo apt-get install -y python3.10 python3.10-venv python3.10-dev
+uv --version
 ```
 
 ---
@@ -134,26 +128,23 @@ test -f venv/bin/activate && echo "activate exists" || echo "activate missing"
 
 ---
 
-### 問題5: `pip install` が失敗する
+### 問題5: `uv pip install` が失敗する
 
 **症状**:
 ```bash
-pip install -r requirements.txt
-ERROR: Could not find a version that satisfies the requirement...
+uv pip install -r requirements.txt
+ERROR: No solution found when resolving dependencies...
 ```
 
-**原因**: pip バージョンが古い、またはパッケージが見つからない
+**原因**: 依存関係の競合、またはパッケージが見つからない
 
 **解決策**:
 ```bash
-# 1. pip をアップグレード
-python -m pip install --upgrade pip
+# 1. キャッシュを無視して再試行
+uv pip install -r requirements.txt --no-cache
 
-# 2. requirements.txt を再インストール
-pip install -r requirements.txt --no-cache-dir
-
-# 3. 個別パッケージを確認
-pip install torch --index-url https://download.pytorch.org/whl/cu128
+# 2. 個別パッケージを確認（PyTorchなど）
+uv pip install torch --index-url https://download.pytorch.org/whl/cu128
 ```
 
 **代替案**:
@@ -162,24 +153,26 @@ pip install torch --index-url https://download.pytorch.org/whl/cu128
 sudo apt-get install -y build-essential python3-dev
 
 # 再試行
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 ```
 
 ---
 
-### 問題6: `ModuleNotFoundError: No module named 'venv'`
+### 問題6: `uv venv` 作成エラー
 
 **症状**:
 ```bash
-python3 -m venv venv
-/usr/bin/python3: No module named venv
+uv venv venv --python 3.10
+error: No such Python version found
 ```
 
-**原因**: `python3-venv` パッケージが未インストール
+**原因**: 必須の Python バージョンがダウンロードできない（ネットワークエラー等）
 
 **解決策**:
 ```bash
-sudo apt-get install -y python3-venv
+# 手動でPythonをインストールしてから仮想環境作成
+uv python install 3.10
+uv venv venv --python 3.10
 ```
 
 ---
@@ -213,8 +206,8 @@ nvcc --version
 
 **ステップ3**: PyTorchを再インストール
 ```bash
-pip uninstall torch torchvision torchaudio
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+uv pip uninstall torch torchvision torchaudio
+uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 ```
 
 **ステップ4**: 確認
@@ -230,7 +223,7 @@ print(torch.cuda.get_device_name(0))  # GPU名
 
 **症状**:
 ```bash
-pip install sageattention-2.2.0-cp311-cp311-linux_x86_64.whl
+uv pip install sageattention-2.2.0-cp311-cp311-linux_x86_64.whl
 ERROR: Could not find a version that satisfies...
 ```
 
@@ -244,7 +237,7 @@ ERROR: Could not find a version that satisfies...
 sudo apt-get install -y build-essential python3-dev cuda-toolkit-12-8
 
 # ソースからインストール
-pip install sageattention --no-binary sageattention
+uv pip install sageattention --no-binary sageattention
 ```
 
 **オプション2**: スキップ（オプショナル機能）
@@ -259,7 +252,7 @@ sed -i 's/^sageattention/#sageattention/' requirements.txt
 
 **症状**:
 ```bash
-pip install llama-cpp-python
+uv pip install llama-cpp-python
 error: command 'gcc' failed with exit status 1
 ```
 
@@ -276,7 +269,7 @@ sudo apt-get install -y \
     cuda-toolkit-12-8
 
 # CUDA有効でビルド
-CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python
+CMAKE_ARGS="-DLLAMA_CUBLAS=on" uv pip install llama-cpp-python
 ```
 
 ---
@@ -451,7 +444,7 @@ source venv/bin/activate
 python -c "import torch; print(torch.__version__)"
 
 # 3. インストールされていない場合
-pip install torch --index-url https://download.pytorch.org/whl/cu128
+uv pip install torch --index-url https://download.pytorch.org/whl/cu128
 
 # 4. WebUIを起動
 python stable-diffusion-webui-reForge/webui.py
