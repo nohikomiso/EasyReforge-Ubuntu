@@ -67,7 +67,7 @@ SageAttention 2.2.0のLinux用pre-built wheelが公式に提供されていな�
 sudo apt-get install -y build-essential cuda-toolkit-12-8
 
 # ソースからインストール
-pip install sageattention==2.2.0 --no-binary sageattention
+uv pip install sageattention==2.2.0 --no-binary sageattention
 ```
 
 **オプション2**: スキップ（オプショナル機能）
@@ -101,9 +101,9 @@ pip install sageattention==2.2.0 --no-binary sageattention
 #### llama-cpp-python 0.3.4
 - **ステータス**: ⚠️ LinuxのCUDA対応pre-builtwheel不足
 - **アクション**: CUDA対応でソースからビルド
-- **コマンド**: `CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python==0.3.4`
+- **コマンド**: `CMAKE_ARGS="-DLLAMA_CUBLAS=on" uv pip install llama-cpp-python==0.3.4`
 - **時間**: ~10-15分のビルド時間
-- **フォールバック**: ビルド失敗時はCPU版（`pip install llama-cpp-python==0.3.4`）
+- **フォールバック**: ビルド失敗時はCPU版（`uv pip install llama-cpp-python==0.3.4`）
 
 #### triton-windows
 - **ステータス**: ❌ Windows専用、Linux不要
@@ -172,17 +172,17 @@ chmod -R a+rX Model/Stable-diffusion/
 
 **オプション1**: Pre-built wheelを使用
 ```bash
-pip install llama-cpp-python --prefer-binary
+uv pip install llama-cpp-python --prefer-binary
 ```
 
 **オプション2**: CUDA有効でビルド
 ```bash
-CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python
+CMAKE_ARGS="-DLLAMA_CUBLAS=on" uv pip install llama-cpp-python
 ```
 
 **オプション3**: CPU版のみ
 ```bash
-pip install llama-cpp-python
+uv pip install llama-cpp-python
 # GPU加速なしだが動作は可能
 ```
 
@@ -230,7 +230,7 @@ export LD_LIBRARY_PATH=/usr/local/cuda-12.8/lib64:$LD_LIBRARY_PATH
 **CPU版フォールバック**:
 ```bash
 # GPU不要な場合
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 ```
 
 ---
@@ -316,7 +316,7 @@ MODEL_PATH="/external/models" bash Model/Stable-diffusion/link_input.sh
 
 **代替手段**:
 - Git: `apt-get install git`
-- Python: `apt-get install python3`
+- Python: `curl -LsSf https://astral.sh/uv/install.sh | sh` (uvによる自己完結)
 - 設定: 環境変数で管理
 
 ---
@@ -384,15 +384,13 @@ Ubuntu 18.04（2023年4月EOL）では一部パッケージが古い可能性が
 - Ubuntu 24.04 LTS（将来）
 
 **18.04での問題**:
-- Python 3.10が標準リポジトリにない
+- 古いシステムライブラリ（glibcなど）が uv や最新PyTorchと非互換になる可能性
 - CUDA Toolkit 12.8が非対応
 
 **回避策**:
 ```bash
-# deadsnakes PPAでPython 3.10
-sudo add-apt-repository ppa:deadsnakes/ppa
-sudo apt-get update
-sudo apt-get install python3.10 python3.10-venv
+# uv は自前で最新Pythonを取得するため、システムPythonの依存は最小限です。
+# ただし、完全な動作保証のためには Ubuntu 20.04+ へのアップグレードを強く推奨します。
 ```
 
 ---
@@ -448,7 +446,7 @@ sudo apt-get install python3.10 python3.10-venv
    # システム情報
    uname -a
    lsb_release -a
-   python3 --version
+   uv --version
    nvidia-smi
 
    # ログ収集
