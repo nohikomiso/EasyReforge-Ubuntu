@@ -202,11 +202,11 @@
   - [x] `Model/adetailer/` に複製
   - [x] `Model/wildcards/` に複製
 
-- [ ] **Integration Test 2b**: Symlink動作テスト
-  - [ ] link_input.sh で外部ディレクトリをリンク
-  - [ ] link_output.sh で出力ディレクトリをリンク
-  - [ ] WebUIから読み込み可能か確認
-  - [ ] Python での symlink 走査確認
+- [x] **Integration Test 2b**: Symlink動作テスト
+  - [x] link_input.sh で外部ディレクトリをリンク
+  - [x] link_output.sh で出力ディレクトリをリンク
+  - [x] WebUIから読み込み可能か確認
+  - [x] Python での symlink 走査確認
 
 ---
 
