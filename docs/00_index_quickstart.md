@@ -137,7 +137,7 @@ START
   │
   ├─→ Phase 1: Foundation Scripts (1-2 weeks)
   │     ├─→ Task 1.1: Implement github.sh
-  │     ├─→ Task 1.2: Implement python.sh
+  │     ├─→ Task 1.2: Implement uv.sh
   │     ├─→ Task 1.3: Convert easyreforge_installer.sh
   │     ├─→ Task 1.4: Convert update.sh
   │     ├─→ Task 1.5: Convert setup.sh
@@ -195,7 +195,7 @@ EasyReforge-Ubuntu/
 │   ├── src/
 │   │   ├── lib/
 │   │   │   ├── github.sh             # Phase 1 Helper
-│   │   │   └── python.sh             # Phase 1 Helper
+│   │   │   └── uv.sh                 # Phase 1 Helper
 │   │   ├── requirements.txt          # NO CONVERSION
 │   │   ├── reforge_update_config.py  # NO CONVERSION
 │   │   ├── styles.csv                # NO CONVERSION
@@ -244,7 +244,7 @@ EasyReforge-Ubuntu/
 ### 核となるツール
 - **Bash 4.0+** - シェルスクリプト実行環境
 - **Git 2.25+** - バージョン管理・リポジトリ操作
-- **Python 3.10+** - ML フレームワーク
+- **uv (Python 3.10+)** - Python 仮想環境およびパッケージ管理
 - **CUDA 12.8** - GPU 計算（オプション）
 - **PyTorch 2.7.1** - ディープラーニング
 - **reForge** - Stable Diffusion WebUI
@@ -470,7 +470,7 @@ DRY_RUN=1 bash script.sh
 
 | 週 | フェーズ | 主要成果物 |
 |----|---------|----------|
-| 1-2 | Phase 1 | github.sh, python.sh, easyreforge_installer.sh |
+| 1-2 | Phase 1 | github.sh, uv.sh, easyreforge_installer.sh |
 | 3-4 | Phase 2 | **reforge.sh** (CRITICAL), reforge_extension.sh |
 | 5-6 | Phase 3 | 7つのダウンロード helper, メタデータ CSV |
 | 7-8 | Phase 4 | 165+ モデルスクリプト（自動生成） |
@@ -487,7 +487,7 @@ DRY_RUN=1 bash script.sh
 3. `.claude/PHASE1_IMPLEMENTATION.md` で Task 1.1 開始
 
 ### 📋 準備作業
-- [ ] 開発環境の確認（Git, Bash, Python3.10+）
+- [ ] 開発環境の確認（Git, Bash, uv / Python 3.10+）
 - [ ] 元の EasyReforge Windows 版を確認
 - [ ] ShellCheck インストール（推奨）
 
@@ -537,7 +537,7 @@ cat .claude/PHASE1_IMPLEMENTATION.md    # Phase 1 手引き
 cat .claude/IMPLEMENTATION_CHECKLIST.md # チェックリスト
 
 # 開発環境確認
-git --version && bash --version && python3 --version
+git --version && bash --version && uv --version
 
 # Shellcheck インストール
 sudo apt-get install shellcheck
