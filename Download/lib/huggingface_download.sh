@@ -9,10 +9,10 @@ source "${SCRIPT_DIR}/common.sh"
 # URL構築
 huggingface_get_download_url() {
     local model_id="$1"
-    local filename="$2"
+    local hf_filename="$2"
     # Hugging Faceの直接ダウンロード用URLフォーマット
     # 例: https://huggingface.co/Lykon/AnyLoRA/resolve/main/AnyLoRA_bakedVae_blessed_fp16.safetensors
-    echo "https://huggingface.co/${model_id}/resolve/main/${filename}"
+    echo "https://huggingface.co/${model_id}/resolve/main/${hf_filename}"
 }
 
 # Hub APIを利用したファイルリスティング
@@ -37,12 +37,14 @@ huggingface_list_files() {
 # メインダウンロード関数
 huggingface_download() {
     local model_dir="$1"
-    local filename="$2"
+    local local_filename="$2"
     local model_id="$3"
+    # 第4引数が省略された場合は、保存用ファイル名と同じものをHF上のファイル名とみなす
+    local hf_filename="${4:-$local_filename}"
 
     ensure_directory "$model_dir"
 
-    local file_path="${model_dir}/${filename}"
+    local file_path="${model_dir}/${local_filename}"
 
     if [ -f "$file_path" ]; then
         log_info "Already exists: $file_path"
@@ -50,9 +52,9 @@ huggingface_download() {
     fi
 
     local url
-    url=$(huggingface_get_download_url "$model_id" "$filename")
+    url=$(huggingface_get_download_url "$model_id" "$hf_filename")
 
-    log_info "Hugging Face Repo: $model_id, File: $filename"
+    log_info "Hugging Face Repo: $model_id, HF File: $hf_filename -> Local: $local_filename"
     
     # 秘密リポジトリ等で認証が必要な場合は HF_TOKEN を利用するが
     # 基本のダウンローダでは公開モデルを想定するため download_with_retry をそのまま利用

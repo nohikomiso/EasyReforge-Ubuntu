@@ -38,11 +38,17 @@ def parse_bat_file(bat_path):
         if helper_key not in helper_mapping:
             continue
             
-        arg1 = match.group(2) if match.group(2) else ""
-        arg2 = match.group(3) if match.group(3) else ""
-        arg3 = match.group(4) if match.group(4) else ""
-        arg4 = match.group(5) if match.group(5) else ""
-        arg5 = match.group(6) if match.group(6) else ""
+        import urllib.parse
+        # URLエンコーディングなどの都合で連続する % を単一の % に圧縮してから、URLデコードを行う
+        def decode_param(val):
+            if not val: return ""
+            return urllib.parse.unquote(re.sub(r'%+', '%', val))
+            
+        arg1 = decode_param(match.group(2))
+        arg2 = decode_param(match.group(3))
+        arg3 = decode_param(match.group(4))
+        arg4 = decode_param(match.group(5))
+        arg5 = decode_param(match.group(6))
         
         # arg1: 通常は出力ディレクトリのサフィックス (例 `NoobE_Char\` や `.\` や `%~n0\`)
         arg1 = arg1.replace('\\', '/').rstrip('/') if arg1 not in ['.\\', '.', ''] else ""

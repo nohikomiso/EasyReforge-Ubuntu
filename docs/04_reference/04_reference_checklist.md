@@ -270,6 +270,9 @@
   - [x] CSV バリデーション
   - [x] 欠落データ確認
 
+- [x] **Task 3.8.1**: huggingface_download_sh 改修
+  - [x] リネーム保存用第4引数サポート追加
+
 - [ ] **Integration Test 3**: ダウンロードヘルパーテスト
   - [ ] 各ヘルパーの基本動作確認
   - [ ] Civitai API テスト
