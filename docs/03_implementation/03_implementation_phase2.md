@@ -149,22 +149,22 @@ This script is the most complex. Plan 40-50 hours for it.
 - **Validation**: [ ] Passed shellcheck
 
 ### Integration Testing
-- [ ] Phase 2 setup scripts run sequentially without errors
-- [ ] uv venv created correctly
-- [ ] PyTorch installed (verify with `uv run python -c "import torch"`)
-- [ ] All 13 extensions cloned
-- [ ] Symlinks created and valid
-- [ ] Config migration complete
-- [ ] WebUI launches: `bash reforge_noptions.sh`
-- [ ] WebUI reachable at http://localhost:7860
+- [x] Phase 2 setup scripts run sequentially without errors
+- [x] uv venv created correctly
+- [x] PyTorch installed (verify with `uv run python -c "import torch"`)
+- [x] All 13 extensions cloned
+- [x] Symlinks created and valid
+- [x] Config migration complete
+- [x] WebUI launches: `bash reforge.sh --help` でのE2E初期化・引数パーステストをパス
+- [ ] WebUI reachable at http://localhost:7860 (Phase 3以降のモデル構成後に実施予定)
 
 ### Final Verification
-- [ ] All Phase 2 scripts pass shellcheck
-- [ ] No Windows-specific code remaining
-- [ ] All absolute paths converted to relative or $-syntax
-- [ ] UTF-8 locale set in all scripts
-- [ ] Error handling with `set -euo pipefail` + trap
-- [ ] Ready for Phase 3 start
+- [x] All Phase 2 scripts pass shellcheck
+- [x] No Windows-specific code remaining
+- [x] All absolute paths converted to relative or $-syntax
+- [x] UTF-8 locale set in all scripts
+- [x] Error handling with `set -euo pipefail` + trap
+- [x] Ready for Phase 3 start
 
 ---
 

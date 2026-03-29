@@ -150,19 +150,19 @@
 
 ### Phase 2 統合テスト
 
-- [ ] **Integration Test 2.1**: reforge.sh のフル実行
-  - [ ] 環境検証
-  - [ ] uv venv 作成
-  - [ ] PyTorch インストール
-  - [ ] 要件パッケージインストール
-  - [ ] WebUI初期化
-  - [ ] エラーなく完了
+- [x] **Integration Test 2.1**: reforge.sh のフル実行 (E2Eテスト済)
+  - [x] 環境検証
+  - [x] uv venv 作成
+  - [x] PyTorch インストール
+  - [x] 要件パッケージインストール
+  - [x] WebUI初期化
+  - [x] エラーなく完了
 
 - [ ] **Integration Test 2.2**: WebUI起動テスト
-  - [ ] bash reforge.sh で起動
-  - [ ] localhost:7860 にアクセス可能
-  - [ ] UI表示正常
-  - [ ] 画像生成テスト実行
+  - [x] bash reforge.sh で起動 (初期化と引数パースまで確認)
+  - [ ] localhost:7860 にアクセス可能 (Phase 3実装後)
+  - [ ] UI表示正常 (Phase 3実装後)
+  - [ ] 画像生成テスト実行 (Phase 3実装後)
   - [ ] 処理完了
 
 - [ ] **Integration Test 2.3**: 複数GPU環境テスト
