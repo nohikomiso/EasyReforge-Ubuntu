@@ -452,11 +452,16 @@ step_10_finalize() {
     echo "║  インストール完了！ / Installation Complete!              ║"
     echo "║                                                            ║"
     echo "║  次のステップ / Next Steps:                               ║"
-    echo "║  1. cd $PROJECT_DIR"
-    echo "║  2. bash EasyReforge/setup.sh                             ║"
+    echo "║  1. cd \"$PROJECT_DIR\""
+    echo "║  2. bash Reforge.sh                                        ║"
     echo "║                                                            ║"
     echo "╚════════════════════════════════════════════════════════════╝"
     echo ""
+    
+    # Self-deletion (matching the original .bat behavior on successful completion)
+    if [[ -f "$0" ]]; then
+        rm -- "$0"
+    fi
 }
 
 # Removed init_repository in favor of github.sh helper functions.

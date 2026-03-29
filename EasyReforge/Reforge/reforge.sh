@@ -152,6 +152,17 @@ copy_src_files() {
     fi
 }
 
+patch_reforge_uv() {
+    echo "Applying UV optimization patch to reForge (via git apply)..."
+    local patch_file="${SCRIPT_DIR}/src/reforge_uv.patch"
+    
+    if [ -f "$patch_file" ]; then
+        ( cd "${REFORGE_WEBUI}" && git apply "${patch_file}" ) || echo "Warning: UV patch application failed (maybe already applied)"
+    else
+        echo "Warning: UV patch file not found at ${patch_file}"
+    fi
+}
+
 main() {
     echo "============================================================="
     echo "Phase 1: reForge Environment Setup"
@@ -161,6 +172,7 @@ main() {
     verify_environment
     
     clone_reforge_webui
+    patch_reforge_uv
     setup_python_venv
     install_pytorch
     install_wheels
