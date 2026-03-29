@@ -22,6 +22,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Configuration (can be overridden by environment variables from parent installer)
 PROJECT_NAME="${PROJECT_NAME:-EasyReforge}"
 REFORGE_DIR="${SCRIPT_DIR}/Reforge"
+export CIVITAI_API_TOKEN="${CIVITAI_API_TOKEN:-}"
 
 ##
 # Helper Functions

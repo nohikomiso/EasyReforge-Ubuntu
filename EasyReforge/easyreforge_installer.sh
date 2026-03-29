@@ -95,6 +95,26 @@ if [ -t 0 ]; then
             echo "➔ 警告: パスが見つかりません。連携をスキップします。"
         fi
     fi
+    
+    # Check for Civitai API Token
+    echo ""
+    echo "╔════════════════════════════════════════════════════════════╗"
+    echo "║                Civitai API Key Setup                       ║"
+    echo "╚════════════════════════════════════════════════════════════╝"
+    if [ -n "${CIVITAI_API_TOKEN:-}" ]; then
+        echo "➔ Civitai API Key detected from environment."
+        echo "➔ 環境変数 CIVITAI_API_TOKEN が設定済みです。自動適用します。"
+    else
+        echo "Civitai (https://civitai.com) のログイン必須モデルを"
+        echo "ダウンロードする場合、API キー（API Token）が必要です。"
+        read -r -p "Enter Civitai API Key (Enter to skip): " user_token
+        if [ -n "$user_token" ]; then
+            export CIVITAI_API_TOKEN="$user_token"
+            echo "➔ API Key を設定しました。"
+        else
+            echo "➔ スキップしました。ログイン必須モデルは失敗する可能性があります。"
+        fi
+    fi
 else
     # Non-interactive fallback
     if [ -n "${COMFY_PATH:-}" ]; then
