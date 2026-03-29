@@ -136,11 +136,11 @@
   - [x] エラーハンドリング
   - [x] shellcheck 合格
 
-- [ ] **Task 2.5**: `EasyReforge/Reforge/reforge_ui_config.sh` 実装
-  - [ ] reforge_update_ui-config.py 呼び出し
-  - [ ] UI設定の移行
-  - [ ] styles.csv 管理
-  - [ ] shellcheck 合格
+- [x] **Task 2.5**: `EasyReforge/Reforge/reforge_ui_config.sh` 実装
+  - [x] reforge_update_ui-config.py 呼び出し
+  - [x] UI設定の移行
+  - [x] styles.csv 管理
+  - [x] shellcheck 合格
 
 - [ ] **Task 2.6**: Root Launcher `EasyReforge/reforge.sh` 実装
   - [ ] WebUI起動スクリプト
