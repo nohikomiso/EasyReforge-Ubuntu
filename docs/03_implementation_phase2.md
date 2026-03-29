@@ -55,7 +55,7 @@ This script is the most complex. Plan 40-50 hours for it.
 ### Before Starting Phase 2
 - [ ] Phase 1 (easyreforge_installer.sh) complete and tested
 - [ ] github.sh helper working
-- [ ] python.sh helper working
+- [ ] uv.sh helper working
 - [ ] Read `.claude/CLAUDE.md` - Caution sections
 - [ ] Read `docs/03_implementation_common_patterns.md` - Phase 2 section
 - [ ] Have access to original Phase 2 batch files for reference
@@ -150,8 +150,8 @@ This script is the most complex. Plan 40-50 hours for it.
 
 ### Integration Testing
 - [ ] Phase 2 setup scripts run sequentially without errors
-- [ ] Python venv created correctly
-- [ ] PyTorch installed (verify with `python -c "import torch"`)
+- [ ] uv venv created correctly
+- [ ] PyTorch installed (verify with `uv run python -c "import torch"`)
 - [ ] All 13 extensions cloned
 - [ ] Symlinks created and valid
 - [ ] Config migration complete
@@ -187,13 +187,13 @@ This script is the most complex. Plan 40-50 hours for it.
 - **Action**: Attempt pre-built wheel, fallback to source build
 
 **Caution 4: Environment Variables**
-- Set TRITON_CACHE, TORCH_INDUCTOR_TEMP **BEFORE** pip install
+- Set TRITON_CACHE, TORCH_INDUCTOR_TEMP **BEFORE** uv pip install
 - **Action**: Export before installing packages
 
 **Caution 5: Virtual Environment**
-- Windows: `venv\Scripts\activate.bat`
-- Ubuntu: `source venv/bin/activate`
-- **Action**: Use full path with source command
+- Windows: `venv\Scripts\activate.bat` に依存した実行
+- Ubuntu: `uv run` による仮想環境内コマンドの直接実行
+- **Action**: `source` を使った面倒な有効化作業を廃止し、Python実行時は常に `uv run` を使用する
 
 **Caution 6: File Operations**
 - Windows: `xcopy`, `rmdir /S /Q`
@@ -202,22 +202,20 @@ This script is the most complex. Plan 40-50 hours for it.
 
 ---
 
-## Python 3.10 Installation (Required for All Wheel Tags)
+## uv を利用した Python 3.10 自動取得 (Required for All Wheel Tags)
 
-**CRITICAL**: The entire wheel ecosystem uses `cp310` tags. You MUST install Python 3.10.x, not 3.11 or 3.12.
+**CRITICAL**: Stable Diffusion系やPyTorchのwheelエコシステムは `cp310` タグを前提としています。Python 3.11 や 3.12 は使用できません。
 
-### Python 3.10 Installation (Ubuntu 24.04 and modern versions)
+### Python 3.10 環境の構築 (uvを利用)
 
-The deadsnakes PPA provides Python 3.10 on modern Ubuntu versions where it's not in default repos:
+旧来の `python3 -m venv` や システムPPA (deadsnakes) の追加は不要です。`uv` を用いることで、OS環境を汚さずにプロジェクト専用の Python 3.10 を自動取得・配置できます。
 
 ```bash
-# Add deadsnakes PPA for Python 3.10 availability
-sudo add-apt-repository ppa:deadsnakes/ppa -y
-sudo apt update
-sudo apt install -y python3.10 python3.10-venv python3.10-dev
+# uv による Python 3.10 仮想環境の構築
+uv venv .venv --python 3.10
 
-# Verify installation
-python3.10 --version  # Should output: Python 3.10.x (e.g., 3.10.6)
+# 稼働確認（有効化手順なしで直接環境内コマンドを実行）
+uv run python --version  # Python 3.10.x が表示される
 ```
 
 ### Why strictly Python 3.10.x?
@@ -228,7 +226,6 @@ python3.10 --version  # Should output: Python 3.10.x (e.g., 3.10.6)
 - **Wheel examples**:
   - `torch-2.7.1+cu128-cp310-cp310-manylinux_2_17_x86_64.whl` ✓ Compatible
   - `torch-2.7.1+cu128-cp311-cp311-manylinux_2_17_x86_64.whl` ✗ Incompatible
-  - `torch-2.7.1+cu128-cp312-cp312-manylinux_2_17_x86_64.whl` ✗ Incompatible
 
 ---
 
@@ -241,7 +238,7 @@ Unlike Windows, SageAttention must be installed from a pre-built Linux wheel:
 ```bash
 # The wheel is located at: wheels/sageattention-2.2.0-cp310-cp310-linux_x86_64.whl
 # Ensure the wheels directory exists relative to the script
-pip install wheels/sageattention-2.2.0-cp310-cp310-linux_x86_64.whl
+uv pip install wheels/sageattention-2.2.0-cp310-cp310-linux_x86_64.whl
 
 # Verify installation
 python -c "from sageattention import sageattn; print('✓ SageAttention loaded')"
@@ -262,7 +259,7 @@ Unlike Windows wheels, llama-cpp-python on Linux must be built from source with 
 ```bash
 # Build llama-cpp-python with CUDA support
 # This enables GPU acceleration for local LLM inference
-CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python==0.3.4
+CMAKE_ARGS="-DLLAMA_CUBLAS=on" uv pip install llama-cpp-python==0.3.4
 
 # Verify CUDA support is enabled
 python -c "from llama_cpp import Llama; print('✓ llama-cpp-python with CUDA loaded')"
@@ -274,7 +271,7 @@ python -c "from llama_cpp import Llama; print('✓ llama-cpp-python with CUDA lo
 - Requires 10-15 minutes for source build on first install
 
 **Failure handling**: If source build fails:
-1. Attempt CPU-only fallback: `pip install llama-cpp-python==0.3.4`
+1. Attempt CPU-only fallback: `uv pip install llama-cpp-python==0.3.4`
 2. If still failing, skip LLM features (non-critical)
 3. Log the error and continue WebUI setup
 
