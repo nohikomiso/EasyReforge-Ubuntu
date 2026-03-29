@@ -66,11 +66,28 @@ setup_comfyui_integration() {
     # NOTE: User's actual storage is in storage/ folders, but pointing to root/models is safer if symlinked there.
     # In this project, we map direct to the subfolders for maximum compatibility with WebUI extensions.
     local comfy_models
-    # 入力されたパスそのものが 'models' で終わるかどうかを判定 (柔軟な対応)
-    if [[ "$comfy_path" == */models ]] || [[ "$comfy_path" == */models/ ]]; then
-        comfy_models="${comfy_path%/}"
-    else
-        comfy_models="${comfy_path%/}/models"
+    # --- SMART YAML PARSING: extra_model_paths.yaml を自動検知 ---
+    local extra_yaml="${comfy_path%/}/extra_model_paths.yaml"
+    local detected_base=""
+    
+    if [ -f "$extra_yaml" ]; then
+        echo "Found extra_model_paths.yaml. Detecting real storage location..."
+        # 'storage:' ブロックの下にある 'base_path:' を抽出（簡易的な正規表現で取得）
+        detected_base=$(grep -A 10 "storage:" "$extra_yaml" | grep "base_path:" | head -n 1 | sed 's/.*base_path:[[:space:]]*//;s/[[:space:]]*$//;s/"//g;s/'\''//g')
+        
+        if [ -n "$detected_base" ]; then
+            echo "➔ Detected real storage path from YAML: $detected_base"
+            comfy_models="${detected_base%/}/models"
+        fi
+    fi
+
+    # 自動検知に失敗した場合や YAML がない場合は、従来のフォールバックを利用
+    if [ -z "$detected_base" ]; then
+        if [[ "$comfy_path" == */models ]] || [[ "$comfy_path" == */models/ ]]; then
+            comfy_models="${comfy_path%/}"
+        else
+            comfy_models="${comfy_path%/}/models"
+        fi
     fi
     
     if [ ! -d "$comfy_models" ]; then
