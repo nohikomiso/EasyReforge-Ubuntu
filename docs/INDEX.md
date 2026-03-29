@@ -28,6 +28,9 @@
 * **01_analysis/ フォルダ**: 移行元のWindowsバッチ処理群に対する解析レポート
 * **02_planning/ フォルダ**: スケジュール計画とフェーズの概要定義
 
+### 🛠️ 5. メンテナンス・リリース戦略を知りたい場合
+* **[99_fork_and_porting_strategy.md](99_maintenance/99_fork_and_porting_strategy.md)**: **【重要】** 本家リスペクト、移植の作法、およびクローン配布時の戦略
+
 ---
 
 ## ⚡ 開発の最需要ルール (Antigravity 用ルール)
