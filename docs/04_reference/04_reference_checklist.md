@@ -194,13 +194,13 @@
   - [x] テンプレート作成
   - [x] 手動テスト
 
-- [ ] **Task 2b.4**: テンプレート複製
-  - [ ] `Model/Lora/` に複製
-  - [ ] `Model/ControlNet/` に複製
-  - [ ] `Model/VAE/` に複製
-  - [ ] `Model/ESRGAN/` に複製
-  - [ ] `Model/adetailer/` に複製
-  - [ ] `Model/wildcards/` に複製
+- [x] **Task 2b.4**: テンプレート複製
+  - [x] `Model/Lora/` に複製
+  - [x] `Model/ControlNet/` に複製
+  - [x] `Model/VAE/` に複製
+  - [x] `Model/ESRGAN/` に複製
+  - [x] `Model/adetailer/` に複製
+  - [x] `Model/wildcards/` に複製
 
 - [ ] **Integration Test 2b**: Symlink動作テスト
   - [ ] link_input.sh で外部ディレクトリをリンク
