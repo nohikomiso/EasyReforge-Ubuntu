@@ -55,7 +55,7 @@
 
 - [ ] **Integration Test 1.1**: ヘルパーライブラリの相互動作
   - [ ] github.sh でリポジトリをクローン
-  - [ ] python.sh で venv を作成・有効化
+  - [ ] python.sh で uv venv を作成・有効化
   - [ ] 連続実行テスト成功
 
 - [ ] **Integration Test 1.2**: easyreforge_installer.sh の完全実行
@@ -77,13 +77,13 @@
 
 - [ ] **Task 2.1**: `EasyReforge/Reforge/reforge.sh` 実装（CRITICAL）
   - [ ] 環境検証セクション
-    - [ ] Python 3.10+ 確認
+    - [ ] uv 要求検証 (Python 3.10環境はuvが自動構築)
     - [ ] NVIDIA GPU 検出（オプション）
     - [ ] CUDA Toolkit 確認（GPU使用時）
     - [ ] 20GB+ 空きディスク確認
 
-  - [ ] Python venv セットアップ
-    - [ ] lib/python.sh でvenv作成
+  - [ ] uv venv セットアップ
+    - [ ] lib/python.sh で uv プロジェクト・仮想環境作成
     - [ ] venv有効化検証
 
   - [ ] PyTorch インストール
@@ -94,7 +94,7 @@
 
   - [ ] 要件ファイルインストール
     - [ ] requirements.txt パース
-    - [ ] pip install 実行
+    - [ ] uv pip install 実行
     - [ ] エラーハンドリング
     - [ ] キャッシング戦略実装
 
@@ -148,7 +148,7 @@
 
 - [ ] **Integration Test 2.1**: reforge.sh のフル実行
   - [ ] 環境検証
-  - [ ] venv 作成
+  - [ ] uv venv 作成
   - [ ] PyTorch インストール
   - [ ] 要件パッケージインストール
   - [ ] WebUI初期化
