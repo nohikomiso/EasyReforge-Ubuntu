@@ -1,4 +1,4 @@
-﻿import json
+import json
 import os
 import sys
 
@@ -30,6 +30,24 @@ class ReforgeUiConfig:
 
         with open(cfg_path, "r+", encoding="utf-8") as f:
             cfg = json.load(f)
+            
+            # [Logical Fix] UI 設定値に含まれる Windows パス (\) をスラッシュ (/) に正規化
+            def normalize_paths(data):
+                if isinstance(data, dict):
+                    for k, v in data.items():
+                        data[k] = normalize_paths(v)
+                    return data
+                elif isinstance(data, list):
+                    return [normalize_paths(i) for i in data]
+                elif isinstance(data, str):
+                    # プロンプトの正規表現など、意図的なバックスラッシュがあるため、
+                    # パス区切りと思われる "フォルダ\\ファイル" 形式を優先的に検知し置換
+                    if "\\" in data:
+                        return data.replace("\\", "/")
+                return data
+
+            cfg = normalize_paths(cfg)
+
             if "easy_reforge_ui-config_version" not in cfg:  # ファイル生成なし対策
                 cfg["easy_reforge_ui-config_version"] = "0.0.0"
 

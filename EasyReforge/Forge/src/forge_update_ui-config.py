@@ -1,4 +1,4 @@
-﻿import json
+import json
 import os
 import sys
 
@@ -20,11 +20,27 @@ class ForgeUiConfig:
 
         with open(cfg_path, "r+", encoding="utf-8") as f:
             cfg = json.load(f)
-            if "easy_reforge_ui-config_version" not in cfg:  # ファイル生成なし対策
-                cfg["easy_reforge_ui-config_version"] = "0.0.0"
+            
+            # [Logical Fix] UI 設定値に含まれる Windows パス (\) をスラッシュ (/) に正規化
+            def normalize_paths(data):
+                if isinstance(data, dict):
+                    for k, v in data.items():
+                        data[k] = normalize_paths(v)
+                    return data
+                elif isinstance(data, list):
+                    return [normalize_paths(i) for i in data]
+                elif isinstance(data, str):
+                    if "\\" in data:
+                        return data.replace("\\", "/")
+                return data
+
+            cfg = normalize_paths(cfg)
+
+            if "easy_forge_ui-config_version" not in cfg:  # ファイル生成なし対策
+                cfg["easy_forge_ui-config_version"] = "0.0.0"
 
             if self.DEBUG_MODE:
-                cfg["easy_reforge_ui-config_version"] = "0.0.0"
+                cfg["easy_forge_ui-config_version"] = "0.0.0"
 
             if self.update(cfg):
                 f.seek(0)

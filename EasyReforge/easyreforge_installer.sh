@@ -24,8 +24,6 @@ export LC_ALL=C.UTF-8
 export PROJECT_NAME="EasyReforge"
 export PROJECT_URL="https://github.com/nohikomiso/EasyReforge-Ubuntu"
 export PROJECT_BRANCH="ubuntu-migration"
-export EASY_TOOLS_URL="https://github.com/Zuntan03/EasyTools"
-export EASY_TOOLS_BRANCH="main"
 
 # Minimum version requirements
 readonly MIN_BASH_VERSION="4"
@@ -69,7 +67,6 @@ fi
 
 # Derived paths (from Phase 0 variable mapping)
 PROJECT_DIR="${SCRIPT_DIR}"
-EASY_TOOLS_DIR="${SCRIPT_DIR}/EasyTools"
 SETUP_SH="${SCRIPT_DIR}/EasyReforge/setup.sh"
 DOWNLOAD_SCRIPT="${SCRIPT_DIR}/Download/All/AllModels_Minimum.sh"
 
@@ -357,26 +354,10 @@ step_5_check_git() {
 }
 
 ##
-# Step 6: Initialize EasyTools repository
+# Step 6: Initialize EasyReforge repository
 ##
-step_6_init_easytools() {
-    log_step "6" "EasyToolsリポジトリの初期化" "EasyTools Repository Initialization"
-
-    if ! github_clone_or_pull "${EASY_TOOLS_URL}.git" "$EASY_TOOLS_DIR"; then
-        die \
-            "EasyToolsリポジトリの初期化に失敗しました。ネットワーク接続を確認してください。" \
-            "Failed to initialize EasyTools repository. Check network connection." 1
-    fi
-    git -C "$EASY_TOOLS_DIR" checkout "$EASY_TOOLS_BRANCH" 2>/dev/null || true
-
-    log_success "EasyToolsが初期化されました: $EASY_TOOLS_DIR" "EasyTools initialized: $EASY_TOOLS_DIR"
-}
-
-##
-# Step 7: Initialize EasyReforge repository
-##
-step_7_init_easyreforge() {
-    log_step "7" "EasyReforgeリポジトリの初期化" "EasyReforge Repository Initialization"
+step_6_init_easyreforge() {
+    log_step "6" "EasyReforgeリポジトリの初期化" "EasyReforge Repository Initialization"
 
     if ! github_clone_or_pull "${PROJECT_URL}.git" "$PROJECT_DIR"; then
         die \

@@ -12,4 +12,4 @@ echo "============================================================="
 echo "Launch Variant: Dark Theme"
 echo "============================================================="
 
-bash "${SCRIPT_DIR}/Reforge_NoOptions.sh" "$@"
+bash "${SCRIPT_DIR}/Reforge.sh" "$@"

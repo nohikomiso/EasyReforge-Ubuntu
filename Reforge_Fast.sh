@@ -17,4 +17,4 @@ echo "Launch Variant: Fast Optimization"
 echo "Args: $COMMANDLINE_ARGS"
 echo "============================================================="
 
-bash "${SCRIPT_DIR}/Reforge_NoOptions.sh" "$@"
+bash "${SCRIPT_DIR}/Reforge.sh" "$@"

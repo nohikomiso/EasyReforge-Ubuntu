@@ -14,4 +14,4 @@ echo "============================================================="
 echo "Launch Variant: Low-VRAM Optimization"
 echo "============================================================="
 
-bash "${SCRIPT_DIR}/Reforge_NoOptions.sh" "$@"
+bash "${SCRIPT_DIR}/Reforge.sh" "$@"
