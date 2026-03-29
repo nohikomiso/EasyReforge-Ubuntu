@@ -52,18 +52,54 @@ make_symlink() {
     fi
 }
 
+setup_comfyui_integration() {
+    local comfy_path="${COMFY_PATH:-}"
+    
+    if [ -z "$comfy_path" ]; then
+        echo "COMFY_PATH not specified. Skipping physical model integration."
+        return 0
+    fi
+
+    echo "Integrating models from ComfyUI path: $comfy_path"
+
+    # NOTE: User's actual storage is in storage/ folders, but pointing to root/models is safer if symlinked there.
+    # In this project, we map direct to the subfolders for maximum compatibility with WebUI extensions.
+    local comfy_models="${comfy_path%/}/models"
+    
+    if [ ! -d "$comfy_models" ]; then
+        echo "Error: ComfyUI models directory not found at $comfy_models"
+        return 0
+    fi
+
+    # Core Model Mapping (Standard Forge/WebUI locations)
+    create_symlink "${REFORGE_WEBUI}/models/Stable-diffusion" "${comfy_models}/checkpoints"
+    create_symlink "${REFORGE_WEBUI}/models/Lora"             "${comfy_models}/loras"
+    create_symlink "${REFORGE_WEBUI}/models/VAE"              "${comfy_models}/vae"
+    create_symlink "${REFORGE_WEBUI}/models/ControlNet"       "${comfy_models}/controlnet"
+    create_symlink "${REFORGE_WEBUI}/models/ESRGAN"           "${comfy_models}/upscale_models"
+    create_symlink "${REFORGE_WEBUI}/embeddings"              "${comfy_models}/embeddings"
+    
+    # Extension specific: adetailer
+    if [ -d "${comfy_models}/adetailer" ]; then
+        create_symlink "${REFORGE_WEBUI}/models/adetailer" "${comfy_models}/adetailer"
+    fi
+}
+
 main() {
+    setup_comfyui_integration
+
     echo "============================================================="
     echo "Phase 2b: Model Symlink Creation"
     echo "============================================================="
     
     # 1. Models symlinks (Target: EasyReforge/Model/*, Link: stable-diffusion-webui-reForge/models/*)
-    make_symlink "${EASY_MODEL_DIR}/adetailer" "${REFORGE_WEBUI}/models/adetailer"
-    make_symlink "${EASY_MODEL_DIR}/ControlNet" "${REFORGE_WEBUI}/models/ControlNet"
-    make_symlink "${EASY_MODEL_DIR}/ESRGAN" "${REFORGE_WEBUI}/models/ESRGAN"
-    make_symlink "${EASY_MODEL_DIR}/Lora" "${REFORGE_WEBUI}/models/Lora"
-    make_symlink "${EASY_MODEL_DIR}/Stable-diffusion" "${REFORGE_WEBUI}/models/Stable-diffusion"
-    make_symlink "${EASY_MODEL_DIR}/VAE" "${REFORGE_WEBUI}/models/VAE"
+    # COMFY_PATH 指定時は既にリンク済みのため、既存のシンボリックリンクがある場合はスキップする
+    [ ! -L "${REFORGE_WEBUI}/models/adetailer" ]       && make_symlink "${EASY_MODEL_DIR}/adetailer"       "${REFORGE_WEBUI}/models/adetailer"
+    [ ! -L "${REFORGE_WEBUI}/models/ControlNet" ]      && make_symlink "${EASY_MODEL_DIR}/ControlNet"      "${REFORGE_WEBUI}/models/ControlNet"
+    [ ! -L "${REFORGE_WEBUI}/models/ESRGAN" ]          && make_symlink "${EASY_MODEL_DIR}/ESRGAN"          "${REFORGE_WEBUI}/models/ESRGAN"
+    [ ! -L "${REFORGE_WEBUI}/models/Lora" ]            && make_symlink "${EASY_MODEL_DIR}/Lora"            "${REFORGE_WEBUI}/models/Lora"
+    [ ! -L "${REFORGE_WEBUI}/models/Stable-diffusion" ] && make_symlink "${EASY_MODEL_DIR}/Stable-diffusion" "${REFORGE_WEBUI}/models/Stable-diffusion"
+    [ ! -L "${REFORGE_WEBUI}/models/VAE" ]              && make_symlink "${EASY_MODEL_DIR}/VAE"              "${REFORGE_WEBUI}/models/VAE"
     
     # 2. Extensions symlinks
     make_symlink "${EASY_MODEL_DIR}/wildcards" "${REFORGE_WEBUI}/extensions/sd-dynamic-prompts/wildcards"

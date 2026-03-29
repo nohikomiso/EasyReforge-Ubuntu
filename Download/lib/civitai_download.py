@@ -14,8 +14,27 @@ def download_civitai_model(model_version_id, output_dir, filename, api_token=Non
     output_path.mkdir(parents=True, exist_ok=True)
     
     target_file = output_path / filename
+    
+    # --- SMART SEARCH: 再帰的なチェックを追加 (サブフォルダ内も探索) ---
+    # カテゴリのトップ（Stable-diffusion, Lora等）を特定し、その配下を再帰的にスキャンする
+    category_top = output_path
+    # 'models' フォルダに到達するまで、または一定の深さまで親を辿る
+    for _ in range(3):
+        if category_top.parent.name == 'models' or category_top.name in ['Stable-diffusion', 'Lora', 'ControlNet', 'VAE', 'ESRGAN', 'adetailer', 'wildcards']:
+            break
+        category_top = category_top.parent
+
+    # 1. 指定の場所に直接存在するか？
     if target_file.exists():
-        print(f"INFO: Already exists: {target_file}")
+        print(f"INFO: Already exists at target: {target_file}")
+        return True
+        
+    # 2. カテゴリのサブフォルダ内に存在するか？ (rglob)
+    # これによりユーザー独自のサブフォルダ整理を許容し、二重ダウンロードを防ぐ
+    print(f"INFO: Checking subdirectories in {category_top} for '{filename}'...")
+    found_any = list(category_top.rglob(filename))
+    if found_any:
+        print(f"INFO: Found existing file in subfolder: {found_any[0]}")
         return True
 
     # コマンドの構築

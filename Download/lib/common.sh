@@ -89,6 +89,33 @@ download_with_retry() {
 
     validate_url "$url"
     
+    # --- SMART SEARCH: カテゴリ配下を再帰的に探す ---
+    local dest_dir="$(dirname "$dest")"
+    
+    # 1. 既定の場所に直接あるか？
+    if [ -e "$dest" ]; then
+        log_info "Skipping download: File already exists at $dest"
+        return 0
+    fi
+    
+    # 2. サブディレクトリ内に潜んでいないか？ (find による再帰探索)
+    local fname="$(basename "$dest")"
+    local search_root="$dest_dir"
+    # 近接する親ディレクトリ (Stable-diffusion/ 等) から探索を開始
+    # ※ models/ フォルダなど広範囲すぎる場所への波及を防ぐため dirname で制御
+    if [[ "$dest_dir" == *"/"* ]] && [[ "$dest_dir" != *"/models" ]]; then
+        search_root="$(dirname "$dest_dir")"
+    fi
+
+    log_info "Checking subdirectories in '$search_root' for '$fname'..."
+    local found_file
+    found_file=$(find "$search_root" -maxdepth 3 -name "$fname" -type f -print -quit 2>/dev/null || true)
+    
+    if [ -n "$found_file" ]; then
+        log_info "Skipping download: Found existing file in subdirectory: $found_file"
+        return 0
+    fi
+    
     if is_dry_run; then
         log_info "[DRY-RUN] Would download: $url -> $dest"
         return 0
