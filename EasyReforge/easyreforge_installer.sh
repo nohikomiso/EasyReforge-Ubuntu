@@ -370,10 +370,10 @@ step_6_init_easyreforge() {
 }
 
 ##
-# Step 8: Call main setup orchestrator
+# Step 7: Call main setup orchestrator
 ##
-step_8_run_setup() {
-    log_step "8" "セットアップスクリプトの実行" "Running Main Setup"
+step_7_run_setup() {
+    log_step "7" "セットアップスクリプトの実行" "Running Main Setup"
 
     if [[ ! -f "$SETUP_SH" ]]; then
         # If setup.sh doesn't exist yet, this is expected in early Phase 1
@@ -392,10 +392,10 @@ step_8_run_setup() {
 }
 
 ##
-# Step 9: Optional model downloads
+# Step 8: Optional model downloads
 ##
-step_9_download_models() {
-    log_step "9" "モデルダウンロード（オプション）" "Optional Model Downloads"
+step_8_download_models() {
+    log_step "8" "モデルダウンロード（オプション）" "Optional Model Downloads"
 
     # Skip if user said 'n'
     if [[ "${DOWNLOAD_YES_OR_NO:-}" == "n" ]]; then
@@ -422,10 +422,10 @@ step_9_download_models() {
 }
 
 ##
-# Step 10: Finalize and exit
+# Step 9: Finalize and exit
 ##
-step_10_finalize() {
-    log_step "10" "セットアップ完了" "Setup Complete"
+step_9_finalize() {
+    log_step "9" "セットアップ完了" "Setup Complete"
 
     echo ""
     echo "╔════════════════════════════════════════════════════════════╗"
@@ -493,15 +493,14 @@ main() {
     step_3_validate_path
     step_4_check_conflicts
     step_5_check_git
-    step_6_init_easytools
-    step_7_init_easyreforge
+    step_6_init_easyreforge
 
     # Ask about model downloads before running setup
     prompt_for_model_download
 
-    step_8_run_setup
-    step_9_download_models
-    step_10_finalize
+    step_7_run_setup
+    step_8_download_models
+    step_9_finalize
 
     return 0
 }
