@@ -23,11 +23,7 @@ setup_environment() {
 
 clone_reforge_webui() {
     echo "Cloning/updating reForge WebUI..."
-    github_clone_or_pull \
-        "https://github.com/Panchovix/stable-diffusion-webui-reForge.git" \
-        "$REFORGE_WEBUI"
-
-    # Specific commit from original
+    # Specific commit from original (github_fetch_commit handles cloning internally)
     github_fetch_commit \
         "https://github.com/Panchovix/stable-diffusion-webui-reForge.git" \
         "19395bf96ccdc605774c76a9fe8cc7145b637128" \
@@ -37,12 +33,12 @@ clone_reforge_webui() {
 setup_python_venv() {
     echo "Setting up Python virtual environment..."
     cd "$REFORGE_WEBUI"
-    # Get venv path via uv tool
-    VENV_DIR=$(bash "${REFORGE_ROOT}/EasyReforge/src/lib/uv.sh" ./.venv)
-    export VIRTUAL_ENV="$VENV_DIR"
+    local venv_abs_path="$(pwd)/.venv"
+    uv_create_venv "$venv_abs_path"
+    export VIRTUAL_ENV="$venv_abs_path"
     
     # Ensure pip/setuptools are updated
-    VIRTUAL_ENV="$VENV_DIR" uv pip install -U pip setuptools wheel
+    uv pip install -U pip setuptools wheel
 }
 
 get_cuda_version() {
@@ -79,9 +75,14 @@ install_wheels() {
     fi
 
     # llama-cpp-python
-    # Phase 2 doc says we should try building with CUDA
-    CMAKE_ARGS="-DLLAMA_CUBLAS=on" VIRTUAL_ENV="$VIRTUAL_ENV" uv pip install llama-cpp-python==0.3.4 || \
-        VIRTUAL_ENV="$VIRTUAL_ENV" uv pip install llama-cpp-python==0.3.4 || true
+    if [ -f "${SCRIPT_DIR}/wheels/llama_cpp_python-0.3.4-cp310-cp310-linux_x86_64.whl" ]; then
+        echo "Using pre-built local wheel for llama-cpp-python..."
+        uv pip install "${SCRIPT_DIR}/wheels/llama_cpp_python-0.3.4-cp310-cp310-linux_x86_64.whl" || true
+    else
+        # Phase 2 doc says we should try building with CUDA
+        CMAKE_ARGS="-DLLAMA_CUBLAS=on" uv pip install llama-cpp-python==0.3.4 || \
+            uv pip install llama-cpp-python==0.3.4 || true
+    fi
 }
 
 install_requirements() {
