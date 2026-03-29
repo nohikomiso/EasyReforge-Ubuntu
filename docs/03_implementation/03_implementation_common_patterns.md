@@ -1448,6 +1448,39 @@ fi
 
 ### Dry-Run Pattern
 
+Always support `DRY_RUN=1` environment variable for testing complex workflows without side effects.
+
+```bash
+# In common.sh
+is_dry_run() {
+    [ "${DRY_RUN:-0}" = "1" ]
+}
+
+# Usage in scripts
+if is_dry_run; then
+    echo "[DRY-RUN] Would execute: command args"
+else
+    command args
+fi
+```
+
+### Data-Driven Orchestration Pattern (CSV)
+
+When managing many similar tasks (like model downloads), decouple **data** (parameters) from **logic** (execution) using a CSV source.
+
+1. **metadata.csv**: Stores parameters for all tasks.
+2. **Download Engine**: A single script (`download_engine.py` or `.sh`) that reads the CSV and executes tasks based on filters.
+3. **Thin Wrappers**: Meta-scripts (`AllLora.sh`, etc.) that simply invoke the engine with specific filters.
+
+**Filtering Logic**:
+- By Category: `engine.py --type Lora`
+- By Variant Tag: `engine.py --tag minimum`
+
+**Benefits**:
+- **Single Source of Truth**: Changes to parameters in the CSV automatically propagate to all orchestration levels.
+- **Scalability**: New tasks are added by appending a row to the CSV, requiring zero code changes.
+- **Flexibility**: Complex subsets (e.g. "Standard models for EpsilonPred") are managed via tags, not nested script calls.
+
 ```bash
 # Enable with: DRY_RUN=1 script.sh
 if [ "${DRY_RUN:-0}" = "1" ]; then
@@ -1584,11 +1617,12 @@ python3 -c "import sys; print(sys.prefix)"  # Should show venv path
 - [ ] CSV metadata generated from all 176 .bat files
 
 ### Phase 4 (Weeks 7-8)
-- [ ] 165+ model download scripts generated
-- [ ] shellcheck validation passes
-- [ ] 20 meta-scripts converted
-- [ ] 2 composition scripts converted manually
-- [ ] Dry-run testing of all download flows
+- [x] 154+ model download scripts generated (Task 4.1)
+- [ ] CSV-driven Download Engine implemented (Task 4.2)
+- [ ] metadata.csv enriched with variant tags (Task 4.3)
+- [ ] Meta-scripts (All/*.sh) re-implemented as engine wrappers (Task 4.4)
+- [ ] shellcheck validation of engine and wrappers (Task 4.5)
+- [ ] Dry-run testing of all download variants (Task 4.6)
 
 ### Phase 2b (Weeks 9-10)
 - [ ] link_input.sh created and replicated to 7 categories

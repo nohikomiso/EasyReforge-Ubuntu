@@ -1,235 +1,104 @@
 # Phase 4 Implementation Guide - Model Script Generation
 
-**Status**: Template for Phase 4 implementation work
+**Status**: Updated for Data-Driven Orchestration (CSV-based)
 **Phase**: 4 of 5 (Weeks 7-8)
-**Complexity**: LOW (highly automated)
-**Estimated Time**: 30-40 hours
+**Complexity**: MEDIUM (Engine implementation + Metadata management)
+**Estimated Time**: 25-30 hours (Reduced by automation)
 
 ---
 
-## IMPORTANT: Design-First Approach
+## IMPORTANT: Data-Driven Approach
 
-**Even for automated generation, design comes first.**
+**Phase 4 follows a "Data Source as Truth" architecture.**
 
-Phase 4 generates 165+ scripts automatically. The generation process must be well-designed:
+Instead of mimicking the nested Windows batch file calls, we use `Download/metadata.csv` to drive all download operations.
 
 ### Mandatory Process
 
-1. **Analyze the original Download/*.bat files' PATTERNS**
-   - What common structure do they share?
-   - What parameters vary between scripts?
-   - How do meta-scripts orchestrate children?
+1. **Enhance Metadata (`metadata.csv`)**
+   - Add a `tags` column to identify variants (Minimum, Standard, etc.).
+   - Ensure `model_type` correctly identifies categories (ControlNet, Lora, etc.).
 
-2. **Design the template generation system**
-   - Templates should produce Ubuntu-native scripts
-   - Not just batch-to-shell syntax conversion
-   - Each generated script must follow shell best practices
+2. **Implement Unified Download Engine**
+   - A single engine (Python or Bash) that reads the CSV and filters rows.
+   - It orchestrates calls to the helper libraries (`civitai_download.sh`, etc.).
 
-3. **Invoke `Skill shell-scripting`** when creating templates
-
-4. **Manual scripts (meta-scripts) still need full analysis**
-   - Read original All/*.bat files completely
-   - Design Ubuntu-native orchestration
+3. **Create Thin-Wrapper Meta-Scripts**
+   - Category-level scripts (e.g., `AllLora.sh`) call the engine with filters.
+   - Variant-level scripts (e.g., `Minimum.sh`) call the engine with tag filters.
 
 ### Reference Documents
 - `.claude/CLAUDE.md` - Script Conversion Guidelines
-- `docs/03_implementation_common_patterns.md` - Batch File Analysis Process
-- `/home/ytsubame/src/_research_reference/ANALYSIS_REPORT.md` - Windows library patterns
+- `docs/03_implementation/03_implementation_common_patterns.md` - Data-Driven Orchestration
+- `Download/metadata.csv` - Single Source of Truth
 
 ---
 
 ## Overview
 
-Phase 4 generates 165+ model download scripts automatically, converts 20 meta-scripts, and validates everything.
+Phase 4 generates 160+ individual model scripts for manual use, but primarily implements a centralized engine to handle bulk downloads for various suites and variants.
 
 ### Phase 4 Goals
-1. Automatically generate 165+ model scripts from metadata
-2. Convert 20 meta-scripts manually
-3. Convert 2 composition scripts manually
-4. Validate all scripts with shellcheck
-5. Test dry-run mode end-to-end
+1. **Individual Script Generation**: Generate 160+ .sh scripts for manual, granular model updates.
+2. **Download Engine Implementation**: Create a CSV-driven engine for bulk operations.
+3. **Metadata Enrichment**: Tag CSV entries with variant information (Minimum/Standard/Full).
+4. **Meta-Script Implementation**: Create simplified "All" and "Variant" entry points using the engine.
+5. **Validation**: Ensure 100% shellcheck compliance and dry-run accuracy.
 
 ---
 
 ## Implementation Checklist
 
 ### Before Starting Phase 4
-- [ ] Phase 3 complete (Download helpers created)
-- [ ] metadata.csv generated with 176+ entries
-- [ ] All Phase 3 helpers tested
-- [ ] Read `docs/03_implementation_common_patterns.md` - Phase 4 section
+- [x] Phase 3 complete (Download helpers created)
+- [x] `metadata.csv` generated with 150+ entries
+- [x] All Phase 3 helpers tested
+- [x] Read `docs/03_implementation/03_implementation_common_patterns.md` - Data-Driven section
 
 ### Phase 4 Tasks
 
-#### Task 1: Script Generation Automation
-- **File**: Python/Bash script to generate scripts from CSV
-- **Status**: [ ] Not started [ ] In progress [ ] Complete
-- **Time estimate**: 8-10 hours
-- **Input**: metadata.csv (from Phase 3)
-- **Output**: 165+ .sh scripts in Download/ directory
+#### Task 1: Individual Script Generation
+- **File**: `Download/lib/generate_scripts.py`
+- **Output**: 160+ .sh scripts in `Download/` subdirectories.
 - **Logic**:
-  - [ ] Read CSV metadata
-  - [ ] For each row, generate script from template
-  - [ ] Use correct helper library
-  - [ ] Set correct parameters
-  - [ ] Write to correct directory
-  - [ ] Set execute permissions
-- **Template Pattern**:
-  ```bash
-  #!/bin/bash
-  set -euo pipefail
+  - [x] Read CSV metadata.
+  - [x] Generate scripts from template.
+  - [x] Set execute permissions (755).
 
-  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  source "${SCRIPT_DIR}/../../lib/{helper_type}.sh"
-
-  {helper_function} "{model_dir}" "{filename}" {params}
-  ```
-- **Tests**:
-  - [ ] All 165+ scripts generated
-  - [ ] Scripts in correct directories
-  - [ ] Parameters correct
-  - [ ] Permissions set (755)
-- **Validation**: [ ] Generation succeeds without errors
-
-#### Task 2: shellcheck Validation (All Generated Scripts)
-- **File**: Validation script to check all generated scripts
-- **Status**: [ ] Not started [ ] In progress [ ] Complete
-- **Time estimate**: 2-3 hours
+#### Task 2: Metadata Enrichment (Variant Tagging)
+- **Goal**: Identify which models belong to "Minimum" and "Standard" variants.
 - **Logic**:
-  - [ ] Find all .sh files in Download/
-  - [ ] Run shellcheck on each
-  - [ ] Report errors
-  - [ ] Fix any syntax issues
-- **Tests**:
-  - [ ] All 165+ scripts pass shellcheck
-  - [ ] No errors or warnings
-- **Validation**: [ ] 100% pass rate
+  - [ ] Analyze original orchestrators (`NoobAiCommon_Minimum.bat`, etc.).
+  - [ ] Add `tags` column to `metadata.csv`.
+  - [ ] Populate tags (`minimum`, `standard`).
 
-#### Task 3: Dry-Run Mode Testing
-- **File**: Test script to verify DRY_RUN mode
-- **Status**: [ ] Not started [ ] In progress [ ] Complete
-- **Time estimate**: 3-4 hours
-- **Logic**:
-  - [ ] Set DRY_RUN=1
-  - [ ] Execute each script
-  - [ ] Verify output contains "[DRY-RUN]"
-  - [ ] Verify no actual downloads occur
-- **Tests**:
-  - [ ] All 165+ scripts run in dry-run
-  - [ ] No actual downloads (verify directory unchanged)
-  - [ ] Output shows what would be downloaded
-- **Validation**: [ ] All tests pass
+#### Task 3: Centralized Download Engine
+- **File**: `Download/lib/download_engine.py` (or `.sh`)
+- **Capabilities**:
+  - [ ] Read `metadata.csv`.
+  - [ ] Filter by category (`--type`).
+  - [ ] Filter by tag (`--tag`).
+  - [ ] Support `DRY_RUN=1` environment variable.
+  - [ ] Log progress and handle errors gracefully.
 
-#### Task 4: Meta-Scripts Conversion
-- **Files**: Convert 12 `All/All*.sh` scripts
-- **Status**: [ ] Not started [ ] In progress [ ] Complete
-- **Time estimate**: 6-8 hours
-- **Pattern**: Use recursive_call.sh to execute all category scripts
-- **Scripts to create**:
-  - [ ] Download/All/AllStable-diffusion_Minimum.sh
-  - [ ] Download/All/AllStable-diffusion_Standard.sh
-  - [ ] Download/All/AllStable-diffusion_Full.sh
-  - [ ] Download/All/AllLora_Minimum.sh
-  - [ ] Download/All/AllLora_Standard.sh
-  - [ ] Download/All/AllControlNet.sh
-  - [ ] Download/All/AllVAE.sh
-  - [ ] Download/All/AllESRGAN.sh
-  - [ ] Download/All/Alladetailer.sh
-  - [ ] Download/All/AllWildcards.sh
-  - [ ] Download/All/AllModels_Minimum.sh
-  - [ ] Download/All/AllModels_Full.sh
-- **Template**:
-  ```bash
-  #!/bin/bash
-  set -euo pipefail
+#### Task 4: Meta-Scripts (Category & Variant)
+- **Goal**: Provide easy entry points for users.
+- **Scripts to create** (in `Download/All/`):
+  - [ ] `AllControlNet.sh`, `AllVAE.sh`, `AllESRGAN.sh`, `Alladetailer.sh`, `AllWildcards.sh`.
+  - [ ] `AllStable-diffusion.sh`, `AllLora.sh`.
+  - [ ] `AllModels_Minimum.sh`, `AllModels_Full.sh`.
+- **Logic**: Call `download_engine` with appropriate arguments.
 
-  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  source "${SCRIPT_DIR}/../lib/recursive_call.sh"
-
-  recursive_call "${SCRIPT_DIR}/../Stable-diffusion" "$@"
-  ```
-- **Tests**:
-  - [ ] Each meta-script calls all category scripts
-  - [ ] Error handling works
-  - [ ] Dry-run mode shows all children
-- **Validation**: [ ] All meta-scripts pass shellcheck
-
-#### Task 5: Manual Composition Scripts
-- **Files**: Convert 2 composition/orchestrator scripts
-- **Status**: [ ] Not started [ ] In progress [ ] Complete
-- **Time estimate**: 2-3 hours
-- **Scripts**:
-  - [ ] Download/src/NoobAiCommon_Minimum.sh (30+ calls)
-  - [ ] Download/src/NoobAiCommon_Standard.sh (7+ calls)
-- **Logic**:
-  - [ ] Chain multiple download scripts
-  - [ ] Handle errors between calls
-  - [ ] Show progress
-  - [ ] Support dry-run mode
-- **Tests**:
-  - [ ] All chained calls execute
-  - [ ] Error propagation works
-  - [ ] Dry-run shows all downloads
-- **Validation**: [ ] Scripts pass shellcheck
-
-#### Task 6: Root-Level Variant Selectors
-- **Files**: Create variant selector scripts at root
-- **Status**: [ ] Not started [ ] In progress [ ] Complete
-- **Time estimate**: 2-3 hours
-- **Scripts**:
-  - [ ] NoobAiEpsilonPred_Minimum.sh
-  - [ ] NoobAiEpsilonPred_Standard.sh
-  - [ ] NoobAiVpred_Minimum.sh
-  - [ ] NoobAiVpred_Standard.sh
-  - [ ] Download_AllModels_Minimum.sh
-  - [ ] Download_AllModels_Full.sh
-- **Logic**:
-  - [ ] Call appropriate meta-scripts
-  - [ ] Support dry-run mode
-  - [ ] Show progress
-- **Validation**: [ ] Scripts pass shellcheck
-
-### Integration Testing
-
-#### Test 1: All Scripts Exist
-- [ ] 165+ generated scripts exist
-- [ ] 12 meta-scripts exist
-- [ ] 2 composition scripts exist
-- [ ] 6 variant selector scripts exist
-- [ ] Total: 185+ download scripts
-
-#### Test 2: All Scripts Valid
-- [ ] All 185+ pass shellcheck
-- [ ] No syntax errors
-- [ ] All have proper shebang
-- [ ] All have error handling
-
-#### Test 3: Dry-Run End-to-End
-- [ ] DRY_RUN=1 on root variant script
-- [ ] Shows all downloads that would occur
-- [ ] No actual downloads
-- [ ] Completes successfully
-
-#### Test 4: Metadata Accuracy
-- [ ] Generated scripts match CSV metadata
-- [ ] Correct helpers used
-- [ ] Correct parameters passed
-- [ ] Correct output directories
-
-### Final Verification
-- [ ] All 185+ scripts pass shellcheck
-- [ ] All scripts have consistent structure
-- [ ] Dry-run mode works for all
-- [ ] Meta-scripts call all children
-- [ ] Error handling in place
-- [ ] UTF-8 support verified
-- [ ] Ready for Phase 2b + Phase 5
+#### Task 5: Root-Level Variant Selectors
+- **Scripts**: `NoobAiEpsilonPred_Minimum.sh`, `NoobAiVPred_Minimum.sh`, etc.
+- **Logic**: Call category-level meta-scripts or engine directly with tag filters.
 
 ---
 
-## Script Generation Template
+## Implementation Patterns
 
-All generated scripts follow this pattern:
+### Download Engine Call Pattern
+Meta-scripts should use this pattern to invoke the engine:
 
 ```bash
 #!/bin/bash
@@ -237,89 +106,28 @@ set -euo pipefail
 trap 'echo "Error on line $LINENO"; exit 1' ERR
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/../../lib/{helper_type}.sh"
-
-# Source common library
-source "${SCRIPT_DIR}/../../lib/common.sh"
-
-# Call download function with parameters
-{helper_function} "{output_dir}" "{filename}" {additional_params}
+# Invoke engine with specific filter
+python3 "${SCRIPT_DIR}/../lib/download_engine.py" --type "ControlNet" "$@"
 ```
 
-## Meta-Script Template
-
-All meta-scripts use this pattern:
-
-```bash
-#!/bin/bash
-set -euo pipefail
-trap 'echo "Error on line $LINENO"; exit 1' ERR
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/../lib/recursive_call.sh"
-
-# Execute all scripts in category directory
-recursive_call "${SCRIPT_DIR}/../{category}" "$@"
-```
-
----
-
-## Testing Strategy
-
-### Generation Testing
-1. Run generation script on test CSV
-2. Verify correct number of files created
-3. Verify files in correct locations
-4. Spot-check generated content
-
-### Validation Testing
-1. shellcheck all 165+ scripts
-2. Fix any reported issues
-3. Verify 100% pass rate
-
-### Functional Testing
-1. DRY_RUN=1 on each script
-2. Verify output format correct
-3. Verify no actual files downloaded
-
-### Integration Testing
-1. Meta-scripts call all children
-2. Error handling tested
-3. Progress reporting works
-
----
-
-## Progress Tracking
-
-**Week 7**:
-- [ ] Generation script created (day 1-2)
-- [ ] 165+ scripts generated (day 3)
-- [ ] shellcheck validation (day 4)
-- [ ] Dry-run testing begins (day 5)
-
-**Week 8**:
-- [ ] Meta-scripts created (day 6-7)
-- [ ] Composition scripts created (day 8)
-- [ ] Variant selector scripts (day 9)
-- [ ] Full integration testing (day 10-12)
+### Variant Tagging Pattern in CSV
+The `metadata.csv` should be enhanced as follows:
+`script_name,model_type,output_directory,method,params...,tags`
+`ApoHotel_Yahiyo_v10,Lora,NoobE_Char,civitai_download,...,minimum;standard`
 
 ---
 
 ## Success Criteria
 
 Phase 4 is complete when:
-- [ ] 165+ model scripts generated automatically
-- [ ] 12 meta-scripts created
-- [ ] 2 composition scripts created
-- [ ] 6 variant selector scripts created
-- [ ] All 185+ scripts pass shellcheck
-- [ ] All scripts have correct parameters
-- [ ] Dry-run mode works for all scripts
-- [ ] Meta-scripts call all children correctly
-- [ ] Ready for Phase 2b + Phase 5
+- [x] 160+ model scripts generated (for manual update use).
+- [ ] `metadata.csv` contains accurate `tags` for Minimum/Standard variants.
+- [ ] `download_engine` successfully filters and executes downloads based on CSV.
+- [ ] `All/*.sh` meta-scripts are thin wrappers around the engine.
+- [ ] Dry-run mode correctly predicts all downloads for any given variant.
+- [ ] All new shell scripts pass `shellcheck`.
 
 ---
 
-**Last Updated**: 2025-12-04
-**Status**: Template ready for implementation
-**Next Phase**: Phase 2b (Model Linking) - Parallel, then Phase 5
+**Last Updated**: 2026-03-29
+**Status**: Transitioned to Data-Driven Design
