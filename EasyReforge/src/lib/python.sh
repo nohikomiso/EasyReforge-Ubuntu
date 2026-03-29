@@ -13,7 +13,12 @@ python_create_venv() {
     fi
 
     echo "Creating virtual environment at $venv_path..."
-    python3 -m venv "$venv_path"
+    # uv init --bare でプロジェクトを初期化し、直後に venv を作成
+    local venv_dir
+    venv_dir=$(dirname "$venv_path")
+    (cd "$venv_dir" && uv init --bare) 2>/dev/null || true
+    
+    uv venv "$venv_path" --python 3.10
 
     # 権限設定
     chmod -R u+w "$venv_path"
@@ -50,11 +55,9 @@ python_install_packages() {
         return 1
     fi
 
-    # venv の pip を使用
-    local pip_cmd="${venv_path}/bin/pip"
-
     echo "Installing packages from $requirements_file..."
-    "$pip_cmd" install -r "$requirements_file" --no-cache-dir
+    # uv pip を使用 (仮想環境パスを VIRTUAL_ENV で指定)
+    VIRTUAL_ENV="$venv_path" uv pip install -r "$requirements_file"
 
     return 0
 }
