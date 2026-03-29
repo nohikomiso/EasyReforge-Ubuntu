@@ -60,15 +60,15 @@
   - [x] uv.sh で uv venv を作成・有効化
   - [x] 連続実行テスト成功
 
-- [ ] **Integration Test 1.2**: easyreforge_installer.sh の完全実行
-  - [ ] スクリプト実行開始
-  - [ ] 環境チェック合格
-  - [ ] EasyTools クローン成功
-  - [ ] setup.sh 呼び出し成功
-  - [ ] エラーなく完了
+- [x] **Integration Test 1.2**: easyreforge_installer.sh の完全実行
+  - [x] スクリプト実行開始
+  - [x] 環境チェック合格
+  - [x] EasyTools クローン成功
+  - [x] setup.sh 呼び出し成功
+  - [x] エラーなく完了
 
 - [ ] **Documentation**: Phase 1 完了ドキュメント
-  - [ ] CLAUDE.md の「Phase 1」セクション更新
+  - [ ] Phase 1」セクション更新
   - [ ] リリースノート作成
 
 ---
