@@ -216,14 +216,14 @@
 
 ### ヘルパーライブラリ実装
 
-- [ ] **Task 3.1**: `Download/lib/common.sh` 実装
-  - [ ] `log_info()` 関数
-  - [ ] `log_error()` 関数
-  - [ ] `download_with_retry()` 関数
-  - [ ] `extract_filename_from_url()` 関数
-  - [ ] `validate_file_integrity()` 関数
-  - [ ] shellcheck 合格
-  - [ ] ユニットテスト実行
+- [x] **Task 3.1**: `Download/lib/common.sh` 実装
+  - [x] `log_info()` 関数
+  - [x] `log_error()` 関数
+  - [x] `download_with_retry()` 関数
+  - [x] `extract_filename_from_url()` 関数
+  - [x] `validate_file_integrity()` 関数
+  - [x] shellcheck 合格
+  - [x] ユニットテスト実行
 
 - [ ] **Task 3.2**: `Download/lib/civitai_download.sh` 実装
   - [ ] Civitai API認証
