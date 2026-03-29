@@ -180,11 +180,11 @@
 
 **⚠️ 【重要】実装時は必ず相関するリンクロジックパターン（[03_implementation_phase2.md](../03_implementation/03_implementation_phase2.md) 等）を熟読してから作業を開始すること！**
 
-- [ ] **Task 2b.1**: `EasyReforge/Reforge/src/link_helper.sh` 実装
-  - [ ] 全7つのリンク関数実装
-  - [ ] symlink作成
-  - [ ] 検証処理
-  - [ ] shellcheck 合格
+- [x] **Task 2b.1**: `EasyReforge/Reforge/src/link_helper.sh` 実装
+  - [x] 全7つのリンク関数実装
+  - [x] symlink作成
+  - [x] 検証処理
+  - [x] shellcheck 合格
 
 - [ ] **Task 2b.2**: `Model/Stable-diffusion/link_input.sh` 実装
   - [ ] テンプレート作成
