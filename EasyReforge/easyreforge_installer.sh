@@ -21,7 +21,7 @@ export LC_ALL=C.UTF-8
 ##
 # Configuration (from Phase 0 analysis)
 ##
-readonly PROJECT_NAME="EasyReforge"
+# readonly PROJECT_NAME="EasyReforge" # unused in bootstrap
 readonly PROJECT_URL="https://github.com/Zuntan03/EasyReforge"
 readonly PROJECT_BRANCH="main"
 readonly EASY_TOOLS_URL="https://github.com/Zuntan03/EasyTools"
@@ -30,11 +30,26 @@ readonly EASY_TOOLS_BRANCH="main"
 # Minimum version requirements
 readonly MIN_BASH_VERSION="4"
 readonly MIN_GIT_VERSION="2.25"
-readonly MIN_PYTHON_VERSION="3.10"
-readonly MIN_DISK_SPACE_MB="51200"  # 50GB minimum for PyTorch + models
+# Python will be managed by uv
+# readonly MIN_DISK_SPACE_MB="51200"  # Checked in reforge.sh
 
 # Get absolute script directory (handles pipe execution via mktemp)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source helpers
+if [[ -f "${SCRIPT_DIR}/src/lib/github.sh" ]]; then
+    source "${SCRIPT_DIR}/src/lib/github.sh"
+else
+    # First time clone behavior fallback (if script is piped)
+    github_clone_or_pull() {
+        local url="$1"
+        local tgt="$2"
+        git clone "$url" "$tgt" || return 1
+    }
+fi
+if [[ -f "${SCRIPT_DIR}/src/lib/uv.sh" ]]; then
+    source "${SCRIPT_DIR}/src/lib/uv.sh"
+fi
 
 # Derived paths (from Phase 0 variable mapping)
 PROJECT_DIR="${SCRIPT_DIR}"
@@ -132,9 +147,9 @@ check_requirement() {
                 return 1
             fi
             ;;
-        python3)
-            actual_version=$(python3 --version 2>&1 | awk '{print $2}')
-            if [[ "$actual_version" < "$min_version" ]]; then
+        uv)
+            # Just test if command exists
+            if ! command -v uv &> /dev/null; then
                 return 1
             fi
             ;;
@@ -192,13 +207,13 @@ step_2_validate_prerequisites() {
     fi
     log_success "curl が見つかりました" "curl found"
 
-    # Check python3 availability
-    if ! check_requirement python3 "$MIN_PYTHON_VERSION"; then
+    # Check uv availability
+    if ! check_requirement uv; then
         die \
-            "Python ${MIN_PYTHON_VERSION} 以上が必要です。\`sudo apt install python3 python3-venv\` を実行してください" \
-            "Python ${MIN_PYTHON_VERSION}+ required. Run \`sudo apt install python3 python3-venv\`" 1
+            "uv が見つかりません。\`curl -LsSf https://astral.sh/uv/install.sh | sh\` を実行してインストールし、シェルを再起動してください。" \
+            "uv not found. Run \`curl -LsSf https://astral.sh/uv/install.sh | sh\` to install, then restart shell." 1
     fi
-    log_success "python3 が見つかりました" "python3 found"
+    log_success "uv が見つかりました" "uv found"
 }
 
 ##
@@ -285,11 +300,12 @@ step_5_check_git() {
 step_6_init_easytools() {
     log_step "6" "EasyToolsリポジトリの初期化" "EasyTools Repository Initialization"
 
-    if ! init_repository "$EASY_TOOLS_DIR" "$EASY_TOOLS_URL" "$EASY_TOOLS_BRANCH"; then
+    if ! github_clone_or_pull "${EASY_TOOLS_URL}.git" "$EASY_TOOLS_DIR"; then
         die \
             "EasyToolsリポジトリの初期化に失敗しました。ネットワーク接続を確認してください。" \
             "Failed to initialize EasyTools repository. Check network connection." 1
     fi
+    git -C "$EASY_TOOLS_DIR" checkout "$EASY_TOOLS_BRANCH" 2>/dev/null || true
 
     log_success "EasyToolsが初期化されました: $EASY_TOOLS_DIR" "EasyTools initialized: $EASY_TOOLS_DIR"
 }
@@ -300,11 +316,12 @@ step_6_init_easytools() {
 step_7_init_easyreforge() {
     log_step "7" "EasyReforgeリポジトリの初期化" "EasyReforge Repository Initialization"
 
-    if ! init_repository "$PROJECT_DIR" "$PROJECT_URL" "$PROJECT_BRANCH"; then
+    if ! github_clone_or_pull "${PROJECT_URL}.git" "$PROJECT_DIR"; then
         die \
             "EasyReforgeリポジトリの初期化に失敗しました。ネットワーク接続を確認してください。" \
             "Failed to initialize EasyReforge repository. Check network connection." 1
     fi
+    git -C "$PROJECT_DIR" checkout "$PROJECT_BRANCH" 2>/dev/null || true
 
     log_success "EasyReforgeが初期化されました: $PROJECT_DIR" "EasyReforge initialized: $PROJECT_DIR"
 }
@@ -380,70 +397,7 @@ step_10_finalize() {
     echo ""
 }
 
-##
-# init_repository - Initialize or update a Git repository (idempotent)
-#
-# This implements the core Git logic from Phase 0 analysis.
-# Sequence:
-#   1. Create directory if needed
-#   2. git init (safe if exists)
-#   3. git remote add origin (checked before adding)
-#   4. git fetch origin (updates refs)
-#   5. git switch <branch> (or checkout fallback)
-##
-init_repository() {
-    local repo_dir="$1"
-    local repo_url="$2"
-    local repo_branch="$3"
-
-    # Ensure absolute path
-    if [[ ! "$repo_dir" = /* ]]; then
-        repo_dir="$(cd "$(dirname "$repo_dir")" && pwd)/$(basename "$repo_dir")"
-    fi
-
-    # Create directory if needed
-    if ! mkdir -p "$repo_dir"; then
-        echo "Failed to create directory: $repo_dir" >&2
-        return 1
-    fi
-
-    # Initialize git repository (idempotent)
-    if ! git -C "$repo_dir" init; then
-        echo "Failed to initialize git repository: $repo_dir" >&2
-        return 1
-    fi
-
-    # Add origin remote (check if not already present)
-    if ! git -C "$repo_dir" remote get-url origin &> /dev/null; then
-        if ! git -C "$repo_dir" remote add origin "$repo_url"; then
-            echo "Failed to add remote: $repo_url" >&2
-            return 1
-        fi
-    fi
-
-    # Fetch latest references
-    if ! git -C "$repo_dir" fetch origin; then
-        echo "Failed to fetch from remote: $repo_url" >&2
-        return 1
-    fi
-
-    # Switch to desired branch (try switch first, fallback to checkout)
-    if git -C "$repo_dir" rev-parse --verify "origin/$repo_branch" &> /dev/null; then
-        if ! git -C "$repo_dir" switch -c "$repo_branch" --track "origin/$repo_branch" 2> /dev/null; then
-            if ! git -C "$repo_dir" checkout "$repo_branch" 2> /dev/null; then
-                if ! git -C "$repo_dir" checkout --track "origin/$repo_branch" 2> /dev/null; then
-                    echo "Failed to checkout branch: $repo_branch" >&2
-                    return 1
-                fi
-            fi
-        fi
-    else
-        echo "WARNING: Branch not found on remote: $repo_branch" >&2
-        return 1
-    fi
-
-    return 0
-}
+# Removed init_repository in favor of github.sh helper functions.
 
 ##
 # prompt_for_model_download - Ask user if they want to download models
@@ -466,7 +420,7 @@ prompt_for_model_download() {
     echo ""
     echo "$prompt_jp"
     echo "$prompt_en"
-    read -p "Your choice: " DOWNLOAD_YES_OR_NO || DOWNLOAD_YES_OR_NO=""
+    read -r -p "Your choice: " DOWNLOAD_YES_OR_NO || DOWNLOAD_YES_OR_NO=""
 
     # Empty input defaults to yes
     DOWNLOAD_YES_OR_NO="${DOWNLOAD_YES_OR_NO:-y}"

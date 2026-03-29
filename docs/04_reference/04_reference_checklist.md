@@ -28,14 +28,14 @@
 
 ### メインスクリプト変換
 
-- [ ] **Task 1.3**: `EasyReforge/easyreforge_installer.sh` 変換
-  - [ ] 元の `.bat` ファイルを確認
-  - [ ] Windows固有コード（PowerShell, レジストリ）を除去
-  - [ ] Ubuntu固有コード（git, bash, UTF-8）を追加
-  - [ ] github.sh と python.sh をインポート
-  - [ ] shellcheck 合格
-  - [ ] dry-run でテスト
-  - [ ] Git を追加・コミット
+- [x] **Task 1.3**: `EasyReforge/easyreforge_installer.sh` 変換
+  - [x] 元の `.bat` ファイルを確認
+  - [x] Windows固有コード（PowerShell, レジストリ）を除去
+  - [x] Ubuntu固有コード（git, bash, UTF-8）を追加
+  - [x] github.sh と python.sh をインポート
+  - [x] shellcheck 合格
+  - [x] dry-run でテスト
+  - [x] Git を追加・コミット
 
 - [ ] **Task 1.4**: `EasyReforge/update.sh` 変換
   - [ ] 元の `Update.bat` を確認
