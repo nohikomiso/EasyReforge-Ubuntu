@@ -9,13 +9,13 @@
 
 ### ヘルパーライブラリ作成
 
-- [ ] **Task 1.1**: `EasyReforge/src/lib/github.sh` 作成
-  - [ ] `github_clone_or_pull()` 関数実装
-  - [ ] `github_fetch_commit()` 関数実装
-  - [ ] `github_verify_clone()` 関数実装
-  - [ ] shellcheck 合格
-  - [ ] 手動テスト合格
-  - [ ] Git を追加・コミット
+- [x] **Task 1.1**: `EasyReforge/src/lib/github.sh` 作成
+  - [x] `github_clone_or_pull()` 関数実装
+  - [x] `github_fetch_commit()` 関数実装
+  - [x] `github_verify_clone()` 関数実装
+  - [x] shellcheck 合格
+  - [x] 手動テスト合格
+  - [x] Git を追加・コミット
 
 - [ ] **Task 1.2**: `EasyReforge/src/lib/python.sh` 作成
   - [ ] `python_create_venv()` 関数実装
