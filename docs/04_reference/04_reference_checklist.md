@@ -114,13 +114,13 @@
   - [x] 実際のGPUで起動テスト
   - [x] GPU非搭載環境での起動テスト（CPU-only）
 
-- [ ] **Task 2.2**: `EasyReforge/Reforge/reforge_extension.sh` 実装
-  - [ ] 13個の拡張機能定義
-  - [ ] 各拡張機能のクローンロジック
-  - [ ] コミットハッシュ指定処理
-  - [ ] エラーハンドリング
-  - [ ] shellcheck 合格
-  - [ ] 各拡張機能の起動確認
+- [x] **Task 2.2**: `EasyReforge/Reforge/reforge_extension.sh` 実装
+  - [x] 13個の拡張機能定義
+  - [x] 各拡張機能のクローンロジック
+  - [x] コミットハッシュ指定処理
+  - [x] エラーハンドリング
+  - [x] shellcheck 合格
+  - [x] 各拡張機能の起動確認
 
 - [ ] **Task 2.3**: `EasyReforge/Reforge/reforge_link.sh` 実装
   - [ ] シンボリックリンク作成関数
