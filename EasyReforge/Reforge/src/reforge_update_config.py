@@ -1,4 +1,4 @@
-﻿import json
+import json
 import os
 import sys
 from datetime import datetime
@@ -34,20 +34,38 @@ class ReforgeConfig:
                 json.dump(
                     {  # InfiniteImageBrowsing が WebUI 上での初回保存前に参照するため
                         "outdir_samples": "",
-                        "outdir_txt2img_samples": "outputs\\txt2img-images",
-                        "outdir_img2img_samples": "outputs\\img2img-images",
-                        "outdir_extras_samples": "outputs\\extras-images",
+                        "outdir_txt2img_samples": "outputs/txt2img-images",
+                        "outdir_img2img_samples": "outputs/img2img-images",
+                        "outdir_extras_samples": "outputs/extras-images",
                         "outdir_grids": "",
-                        "outdir_txt2img_grids": "outputs\\txt2img-grids",
-                        "outdir_img2img_grids": "outputs\\img2img-grids",
-                        "outdir_save": "log\\images",
-                        "outdir_init_images": "outputs\\init-images",
+                        "outdir_txt2img_grids": "outputs/txt2img-grids",
+                        "outdir_img2img_grids": "outputs/img2img-grids",
+                        "outdir_save": "log/images",
+                        "outdir_init_images": "outputs/init-images",
                     },
                     f,
                 )
 
         with open(cfg_path, "r+", encoding="utf-8") as f:
             cfg = json.load(f)
+            
+            # [Logical Fix] 既存の設定値に含まれる Windows パス (\) をスラッシュ (/) に正規化
+            # これにより Windows 由来の config 持ち込み時も正常に動作する
+            def normalize_paths(data):
+                if isinstance(data, dict):
+                    for k, v in data.items():
+                        data[k] = normalize_paths(v)
+                    return data
+                elif isinstance(data, list):
+                    return [normalize_paths(i) for i in data]
+                elif isinstance(data, str):
+                    # パスと思われる部分のバックスラッシュを置換 (エスケープ文字などは json.load で処理済みなため安全)
+                    if "\\" in data:
+                        return data.replace("\\", "/")
+                return data
+
+            cfg = normalize_paths(cfg)
+
             if "easy_reforge_config_version" not in cfg:  # ファイル生成なし対策
                 cfg["easy_reforge_config_version"] = "0.0.0"
 
