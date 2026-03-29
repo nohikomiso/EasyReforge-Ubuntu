@@ -122,13 +122,13 @@
   - [x] shellcheck 合格
   - [x] 各拡張機能の起動確認
 
-- [ ] **Task 2.3**: `EasyReforge/Reforge/reforge_link.sh` 実装
-  - [ ] シンボリックリンク作成関数
-  - [ ] Windows junctionからのコンバート
-  - [ ] ln -s による実装
-  - [ ] symlink検証処理
-  - [ ] shellcheck 合格
-  - [ ] WebUIがsymlink経由でモデル読み込み確認
+- [x] **Task 2.3**: `EasyReforge/Reforge/reforge_link.sh` 実装
+  - [x] シンボリックリンク作成関数
+  - [x] Windows junctionからのコンバート
+  - [x] ln -s による実装
+  - [x] symlink検証処理
+  - [x] shellcheck 合格
+  - [x] WebUIがsymlink経由でモデル読み込み確認
 
 - [ ] **Task 2.4**: `EasyReforge/Reforge/reforge_config.sh` 実装
   - [ ] reforge_update_config.py 呼び出し
