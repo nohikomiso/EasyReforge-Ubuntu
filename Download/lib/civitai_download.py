@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+ふぉみ#!/usr/bin/env python3
 import os
 import sys
 import argparse
@@ -75,9 +75,9 @@ def download_civitai_model(model_version_id, output_dir, filename, api_token=Non
 
     # コマンドの構築
     # civitai-downloader-cli download <version_id> --local-dir <output_dir>
-    # uvx (uv tool run) を使用することで、仮想環境がなくてもオンデマンドで実行可能にする
+    # uvx (uv tool run) を使用し、--from でパッケージ名を明示してオンデマンド実行
     cmd = [
-        "uvx", "civitai-downloader-cli", "download",
+        "uvx", "--from", "civitai-model-downloader", "civitai-downloader-cli", "download",
         str(model_version_id),
         "--local-dir", str(output_path)
     ]
@@ -86,6 +86,10 @@ def download_civitai_model(model_version_id, output_dir, filename, api_token=Non
     if api_token:
         # 環境変数経由でトークンを渡す
         env["CIVITAI_API_TOKEN"] = api_token
+        print(f"INFO: Civitai API Token found (ends with ...{api_token[-4:] if len(api_token) > 4 else '****'})")
+    else:
+        print("ERROR: CIVITAI_API_TOKEN is NOT set. Downloads for restricted models will fail.")
+        return False
 
     print(f"INFO: Running: {' '.join(cmd)}")
     
@@ -93,9 +97,8 @@ def download_civitai_model(model_version_id, output_dir, filename, api_token=Non
     pre_files = set(output_path.glob("*"))
     
     try:
-        # 実際にコマンドを実行
-        result = subprocess.run(cmd, env=env, check=True, capture_output=True, text=True)
-        print(result.stdout)
+        # 実際にコマンドを実行 (capture_output=False に進捗を表示)
+        subprocess.run(cmd, env=env, check=True)
         
         # ダウンロード後に増えたファイルを特定
         post_files = set(output_path.glob("*"))
