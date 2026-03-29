@@ -79,40 +79,40 @@
 
 ### Critical: reforge.sh 実装
 
-- [ ] **Task 2.1**: `EasyReforge/Reforge/reforge.sh` 実装（CRITICAL）
-  - [ ] 環境検証セクション
-    - [ ] uv 要求検証 (Python 3.10環境はuvが自動構築)
-    - [ ] NVIDIA GPU 検出（オプション）
-    - [ ] CUDA Toolkit 確認（GPU使用時）
-    - [ ] 20GB+ 空きディスク確認
+- [x] **Task 2.1**: `EasyReforge/Reforge/reforge.sh` 実装（CRITICAL）
+  - [x] 環境検証セクション
+    - [x] uv 要求検証 (Python 3.10環境はuvが自動構築)
+    - [x] NVIDIA GPU 検出（オプション）
+    - [x] CUDA Toolkit 確認（GPU使用時）
+    - [x] 20GB+ 空きディスク確認
 
-  - [ ] uv venv セットアップ
-    - [ ] lib/python.sh で uv プロジェクト・仮想環境作成
-    - [ ] venv有効化検証
+  - [x] uv venv セットアップ
+    - [x] lib/python.sh で uv プロジェクト・仮想環境作成
+    - [x] venv有効化検証
 
-  - [ ] PyTorch インストール
-    - [ ] GPU検出ロジック実装
-    - [ ] 正しいホイール決定アルゴリズム
-    - [ ] ホイールダウンロード実装
-    - [ ] フォールバック処理（ソースビルド）
+  - [x] PyTorch インストール
+    - [x] GPU検出ロジック実装
+    - [x] 正しいホイール決定アルゴリズム
+    - [x] ホイールダウンロード実装
+    - [x] フォールバック処理（ソースビルド）
 
-  - [ ] 要件ファイルインストール
-    - [ ] requirements.txt パース
-    - [ ] uv pip install 実行
-    - [ ] エラーハンドリング
-    - [ ] キャッシング戦略実装
+  - [x] 要件ファイルインストール
+    - [x] requirements.txt パース
+    - [x] uv pip install 実行
+    - [x] エラーハンドリング
+    - [x] キャッシング戦略実装
 
-  - [ ] 環境変数セットアップ
-    - [ ] CUDA関連環境変数設定
-    - [ ] メモリ管理設定
+  - [x] 環境変数セットアップ
+    - [x] CUDA関連環境変数設定
+    - [x] メモリ管理設定
 
-  - [ ] WebUI初期化
-    - [ ] submodule初期化
-    - [ ] reForge準備完了確認
+  - [x] WebUI初期化
+    - [x] submodule初期化
+    - [x] reForge準備完了確認
 
-  - [ ] shellcheck 合格
-  - [ ] 実際のGPUで起動テスト
-  - [ ] GPU非搭載環境での起動テスト（CPU-only）
+  - [x] shellcheck 合格
+  - [x] 実際のGPUで起動テスト
+  - [x] GPU非搭載環境での起動テスト（CPU-only）
 
 - [ ] **Task 2.2**: `EasyReforge/Reforge/reforge_extension.sh` 実装
   - [ ] 13個の拡張機能定義
