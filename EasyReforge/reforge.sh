@@ -44,29 +44,42 @@ main() {
     # 4. Launch WebUI
     cd "$REFORGE_WEBUI"
     
-    # Set up virtual environment location for the webui.sh
+    # [Workaround] Survival fix for deleted Stability AI and other repositories
+    # Many legacy mirrors have been recently archived or deleted.
+    export STABLE_DIFFUSION_REPO="${STABLE_DIFFUSION_REPO:-https://github.com/w-e-w/stablediffusion.git}"
+    export K_DIFFUSION_REPO="${K_DIFFUSION_REPO:-https://github.com/crowsonkb/k-diffusion.git}"
+    export TAMING_TRANSFORMERS_REPO="${TAMING_TRANSFORMERS_REPO:-https://github.com/CompVis/taming-transformers.git}"
+    export CODEFORMER_REPO="${CODEFORMER_REPO:-https://github.com/sczhou/CodeFormer.git}"
+    export BLIP_REPO="${BLIP_REPO:-https://github.com/salesforce/BLIP.git}"
+    
+    # Set up virtual environment location for uv
     local venv_dir
     venv_dir="$(pwd)/.venv"
     export VIRTUAL_ENV="$venv_dir"
-    export PYTHON="python3" # WebUI uses python3 inside the venv
-    
-    # Pass through command-line arguments to COMMANDLINE_ARGS
-    if [ -z "${COMMANDLINE_ARGS:-}" ]; then
-        export COMMANDLINE_ARGS="$*"
-    else
-        export COMMANDLINE_ARGS="${COMMANDLINE_ARGS} $*"
+
+    # Try using TCMalloc (mimicking webui.sh behavior for performance)
+    if [[ -z "${LD_PRELOAD:-}" ]]; then
+        local tcmalloc_lib
+        tcmalloc_lib=$(ldconfig -p | grep -P "libtcmalloc_minimal\.so\.\d" | head -n 1 | awk '{print $NF}')
+        if [[ -n "$tcmalloc_lib" ]]; then
+            echo "➔ [TCMalloc] Detected: $tcmalloc_lib"
+            export LD_PRELOAD="$tcmalloc_lib"
+        fi
     fi
+
+    # Pass through command-line arguments
+    local final_args="${COMMANDLINE_ARGS:-} $*"
     
     echo ""
     echo "VIRTUAL_ENV: $VIRTUAL_ENV"
-    echo "COMMANDLINE_ARGS: $COMMANDLINE_ARGS"
-    echo "Executing: bash webui.sh $COMMANDLINE_ARGS"
+    echo "COMMANDLINE_ARGS: $final_args"
+    echo "Executing: uv run python launch.py $final_args"
     echo ""
     echo "http://localhost:7860/"
     echo ""
     
-    # Execute the actual reForge webui.sh
-    bash "webui.sh"
+    # Execute directly via uv to bypass webui.sh's slow pip checks
+    uv run python launch.py $final_args
 }
 
 main "$@"
