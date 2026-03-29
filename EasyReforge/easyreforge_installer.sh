@@ -84,7 +84,7 @@ if [ -t 0 ]; then
     echo "モデルフォルダを共有（シンボリックリンク）してディスク容量を節約できます。"
     read -r -p "既存の WebUI / ComfyUI モデルと連携しますか？ / Link existing models? (y/N): " link_external
     if [[ "$link_external" =~ ^[Yy]$ ]]; then
-        read -r -p "WebUI または ComfyUI 本体のルートパスを入力（例: /home/ytsubame/comfy/ComfyUI）: " user_path
+        read -r -p "WebUI または ComfyUI 本体のルートパスを入力（例: /home/user/comfy/ComfyUI）: " user_path
         if [ -d "$user_path" ]; then
             export COMFY_PATH="$user_path" # Internally use COMFY_PATH for link script
             echo "➔ 連携パスを確定しました: $COMFY_PATH"

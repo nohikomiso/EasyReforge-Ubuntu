@@ -122,8 +122,9 @@ def parse_bat_file(bat_path):
     return metadata_list
 
 def main():
-    base_dir = Path("/home/ytsubame/src/EasyReforge-Ubuntu/Download")
-    csv_file = Path("/home/ytsubame/src/EasyReforge-Ubuntu/Download/metadata.csv")
+    # [Portability Fix] Use relative paths from script location
+    base_dir = Path(__file__).parent.parent
+    csv_file = base_dir / "metadata.csv"
     
     all_metadata = []
     

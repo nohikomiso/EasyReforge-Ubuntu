@@ -103,5 +103,6 @@ def generate_scripts(csv_path):
     print(f"Successfully generated {generated_count} scripts.")
 
 if __name__ == "__main__":
-    csv_file = "/home/ytsubame/src/EasyReforge-Ubuntu/Download/metadata.csv"
+    # [Portability Fix] Use relative paths from script location
+    csv_file = os.path.join(os.path.dirname(__file__), '..', 'metadata.csv')
     generate_scripts(csv_file)
