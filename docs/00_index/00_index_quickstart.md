@@ -18,7 +18,7 @@ EasyReforge（Stable Diffusion WebUI reForge向けのターンキーインスト
 
 ### 成功定義
 - [ ] 全237スクリプト変換完了
-- [ ] Ubuntu 18.04+ で動作確認
+- [ ] Ubuntu 20.04+ (Recommended: 24.04) で動作確認
 - [ ] WebUI起動・画像生成動作
 - [ ] モデルダウンロード機能動作
 - [ ] シンボリックリンク機能動作
@@ -168,7 +168,7 @@ START
   │
   ├─→ Phase 5: Optional & QA (11-12 weeks)
   │     ├─→ Task 5.1-5.2: Convert launchers
-  │     ├─→ Integration Test 5.1-5.3: Multi-version Ubuntu
+  │     ├─→ Integration Test 5.1-5.3: Ubuntu 20.04, 22.04, 24.04
   │     ├─→ Task 5.3-5.4: Documentation & release
   │     └─→ All tests PASS
   │
@@ -293,7 +293,7 @@ Phase 4 では 165+ スクリプトをテンプレートから自動生成
 1. shellcheck で文法検証
 2. 手動テスト実行
 3. 統合テスト実施
-4. 複数 Ubuntu バージョンでテスト
+4. 複数 Ubuntu バージョンでテスト (20.04 - 24.04)
 ```
 
 ---
@@ -460,7 +460,7 @@ DRY_RUN=1 bash script.sh
 
 ### 全体完了
 - [ ] 237 全スクリプト変換完了
-- [ ] 複数 Ubuntu バージョンでテスト合格
+- [ ] 複数 Ubuntu バージョンでテスト合格 (20.04, 22.04, 24.04)
 - [ ] ドキュメント完成
 - [ ] リリース準備完了
 
