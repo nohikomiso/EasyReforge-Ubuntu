@@ -1,2 +1,2 @@
 packaging==23.2
-setuptools==69.5.1
+setuptools==83.0.0
